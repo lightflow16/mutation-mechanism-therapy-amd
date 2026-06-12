@@ -2,7 +2,7 @@
 Precision oncology requires connecting **mutation → structure → mechanism → therapy**.
 Manual KB/literature review is slow; structural context is often ignored.
 
-# Slide 2 — Solution (Track 2 Multimodal + MAS)
+# Slide 2 — Solution (Multimodal + MAS)
 - AlphaFold numeric features + structure render (py3Dmol)
 - CIViC/ClinVar/PubMed evidence (cached + live)
 - Blackboard MAS: Planner → Experts → Critic → ConflictResolver → Decider

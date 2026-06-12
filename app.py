@@ -74,7 +74,7 @@ def format_metrics():
 
 def main():
     with gr.Blocks(title="Mutation -> Mechanism -> Therapy") as demo:
-        gr.Markdown("# Mutation to Mechanism to Therapy (AMD MI300X / Track 2)")
+        gr.Markdown("# Mutation to Mechanism to Therapy (AMD MI300X)")
         with gr.Row():
             case = gr.Dropdown(list_cases(), label="Demo case", value="EGFR L858R")
             arch = gr.Radio(["single", "cot", "blackboard"], value="blackboard", label="Architecture")

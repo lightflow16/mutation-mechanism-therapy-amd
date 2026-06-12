@@ -1,4 +1,4 @@
-# Mutation → Mechanism → Therapy (TCS AMD Hackathon, Track 2)
+# Mutation → Mechanism → Therapy
 
 Structure-aware, multimodal, multi-agent reasoning copilot for precision oncology on **AMD Instinct MI300X / ROCm**.
 
