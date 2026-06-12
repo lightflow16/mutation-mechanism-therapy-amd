@@ -1,0 +1,30 @@
+{
+  "variant": {"gene": "TP53", "protein_change": "R175H", "hgvs_p": "p.Arg175His"},
+  "structure": {
+    "residue": "R175",
+    "pLDDT_at_residue": 65.0,
+    "mean_pLDDT_protein": 70.0,
+    "neighboring_residues_within_10A": 16,
+    "region": "DNA-binding surface (beta-sandwich core)"
+  },
+  "evidence": [
+    {
+      "source": "ClinVar",
+      "therapies": "",
+      "disease": "Li-Fraumeni / pan-cancer",
+      "direction": "Loss-of-function",
+      "level": "Pathogenic",
+      "citation": "ClinVar R175H",
+      "url": "https://www.ncbi.nlm.nih.gov/clinvar"
+    }
+  ],
+  "target_reasoning": {
+    "mechanism": "R175H destabilizes the p53 DNA-binding core, impairing transcription of cell-cycle arrest and apoptosis genes.",
+    "therapy": {
+      "sensitivity": [],
+      "resistance": [],
+      "context": "No direct pharmacologic inhibitor; structural rescue path"
+    },
+    "confidence": "0.75"
+  }
+}

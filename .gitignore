@@ -1,0 +1,43 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# --- Local-only (not part of submission repo) ---
+js_12jun26-2.ipynb
+plan.md
+
+# --- Large model weights / caches (re-downloadable; never push) ---
+hf_cache/
+boltz_cache/
+*.safetensors
+*.bin
+*.ckpt
+*.pt
+*.pth
+*.onnx
+
+# --- Cloned external repos (cloned on notebook via scripts/setup_external.sh) ---
+external/
+
+# --- Run artifacts ---
+shared/
+metrics/*.csv
+metrics/*.jsonl
+data/cache/*.pdb
+data/cache/*.cif
+*.npz
+boltz_probe/
+*_out/
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Secrets ---
+.env
+*.token
+rclone.conf

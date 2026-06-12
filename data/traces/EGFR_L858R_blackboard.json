@@ -1,0 +1,16 @@
+{
+  "target": {"gene": "EGFR", "mutation": "L858R", "class": "ONCOGENE_GOF", "pathway": "inhibitor_rag"},
+  "structure": {"residue": "L858", "pLDDT_at_residue": 51.2, "region": "kinase activation loop (A-loop)"},
+  "evidence": [{"therapies": "Gefitinib,Erlotinib,Afatinib,Osimertinib", "direction": "Sensitivity/Response"}],
+  "route": "inhibitor_rag",
+  "reasoning": {
+    "architecture": "blackboard",
+    "target_reasoning": {
+      "mechanism": "L858R stabilizes active EGFR kinase conformation in the A-loop.",
+      "therapy": {"sensitivity": ["Osimertinib", "Erlotinib", "Gefitinib"], "resistance": [], "context": "EGFR-mutant NSCLC"},
+      "confidence": "0.87"
+    },
+    "blackboard_trace": [{"agent": "Planner", "type": "plan", "content": "cached demo trace"}],
+    "total_tokens": 0
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "variant": {"gene": "EGFR", "protein_change": "L858R", "hgvs_p": "p.Leu858Arg"},
+  "structure": {
+    "residue": "L858",
+    "pLDDT_at_residue": 51.2,
+    "mean_pLDDT_protein": 75.9,
+    "neighboring_residues_within_10A": 14,
+    "region": "kinase activation loop (A-loop)"
+  },
+  "evidence": [
+    {
+      "source": "CIViC",
+      "therapies": "Gefitinib,Erlotinib,Afatinib,Osimertinib",
+      "disease": "Lung Non-small Cell Carcinoma",
+      "direction": "Sensitivity/Response",
+      "level": "B",
+      "citation": "Lim et al., 2014",
+      "url": "https://civicdb.org/links/evidence_items/229"
+    }
+  ],
+  "target_reasoning": {
+    "mechanism": "L858R stabilizes the active kinase conformation of EGFR, increasing ATP-pocket occupancy and downstream MAPK/PI3K signaling.",
+    "therapy": {
+      "sensitivity": ["Osimertinib", "Erlotinib", "Gefitinib", "Afatinib"],
+      "resistance": [],
+      "context": "EGFR-mutant NSCLC"
+    },
+    "confidence": "0.87"
+  }
+}

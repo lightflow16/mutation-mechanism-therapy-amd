@@ -1,0 +1,1 @@
+[{"source": "OncoKB", "gene": "EGFR", "mutation": "L858R", "level": "1", "therapies": ["Osimertinib", "Erlotinib", "Gefitinib"], "note": "VALIDATION ONLY - not used for training"}]

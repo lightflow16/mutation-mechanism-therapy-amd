@@ -1,0 +1,406 @@
+"""
+src/metrics.py - continuous, downloadable metrics for every program call.
+
+ALWAYS-MEASURE MANDATE (per the plan): every wrapped call/phase logs
+  - CPU time  (process user+system seconds; captures multi-core work)
+  - GPU time  (gpu_active_s = CUDA-event elapsed; gpu_attached_s = wall while attached)
+  - peak VRAM (GiB) and mean gfx utilization (best-effort via amd-smi)
+  - TOKEN TAXONOMY: ingress (input/prompt), egress (output/completion),
+    reasoning (<think>...</think>) - per agent, per model, per round.
+
+Two CSVs, both in METRICS_DIR, each row appended + fsync'd immediately so a
+session kill never loses a row:
+  - calls.csv   : one row per individual call  (level="call")
+  - phases.csv  : one row per high-level phase (level="phase")
+Nested calls roll their token counts up into the enclosing phase automatically.
+
+Usage:
+    import src.metrics as metrics
+    with metrics.phase("blackboard_query", model="qwen2.5-vl-7b"):
+        with metrics.track("structure_agent", agent_role="Structure",
+                           model="qwen2.5-7b", round=1) as m:
+            out_text = run_agent(...)
+            m.add_text(prompt_tokens=in_tok, completion_text=out_text)
+
+GPU fields are "NA" when no GPU is attached (degrade gracefully); they
+auto-populate the moment a ROCm/CUDA device is visible.
+"""
+from __future__ import annotations
+
+import contextlib
+import contextvars
+import csv
+import json
+import os
+import re
+import subprocess
+import threading
+import time
+
+try:
+    import torch
+    _HAS_TORCH = True
+except Exception:  # torch absent (pure-CPU dev box)
+    _HAS_TORCH = False
+
+try:
+    import psutil
+    _PROC = psutil.Process()
+except Exception:
+    _PROC = None
+
+METRICS_DIR = os.environ.get("METRICS_DIR", "/workspace/shared/metrics")
+CALLS_CSV = os.path.join(METRICS_DIR, "calls.csv")
+PHASES_CSV = os.path.join(METRICS_DIR, "phases.csv")
+
+FIELDS = [
+    "timestamp", "call_id", "level", "label", "agent_role", "model", "round",
+    "cpu_time_s", "gpu_active_s", "gpu_attached_s", "peak_vram_gib", "gfx_util_mean",
+    "ingress_tokens", "egress_tokens", "reasoning_tokens", "total_tokens",
+    "latency_s", "tok_per_s",
+]
+
+_LOCK = threading.Lock()
+# stack of currently-open handles, so a phase can aggregate its child calls
+_STACK: contextvars.ContextVar[tuple] = contextvars.ContextVar("metrics_stack", default=())
+
+_THINK_RE = re.compile(r"<think>(.*?)</think>", re.S)
+
+
+def _gpu_present() -> bool:
+    return _HAS_TORCH and torch.cuda.is_available()
+
+
+def set_metrics_dir(path: str) -> None:
+    """Override the output directory at runtime (e.g. to /workspace/shared/metrics)."""
+    global METRICS_DIR, CALLS_CSV, PHASES_CSV
+    METRICS_DIR = path
+    CALLS_CSV = os.path.join(METRICS_DIR, "calls.csv")
+    PHASES_CSV = os.path.join(METRICS_DIR, "phases.csv")
+
+
+class _Handle:
+    """Returned by track(); lets the caller attach token counts to the row."""
+
+    def __init__(self):
+        self.ingress = 0
+        self.egress = 0
+        self.reasoning = 0
+
+    def set_tokens(self, ingress: int = 0, egress: int = 0, reasoning: int = 0) -> "_Handle":
+        """Set token counts explicitly (when you already counted them)."""
+        self.ingress += int(ingress)
+        self.egress += int(egress)
+        self.reasoning += int(reasoning)
+        return self
+
+    def add_text(self, prompt_tokens: int, completion_text: str,
+                 completion_tokens: int | None = None) -> "_Handle":
+        """Derive egress + reasoning tokens from raw completion text.
+
+        reasoning = whitespace tokens inside <think>...</think>;
+        egress    = explicit completion_tokens if given, else whitespace token count.
+        """
+        think = "".join(_THINK_RE.findall(completion_text or ""))
+        reasoning = len(think.split())
+        if completion_tokens is None:
+            completion_tokens = len((completion_text or "").split())
+        self.ingress += int(prompt_tokens)
+        self.egress += int(completion_tokens)
+        self.reasoning += int(reasoning)
+        return self
+
+
+class _GfxSampler(threading.Thread):
+    """Best-effort background sampler of GPU gfx utilization via amd-smi.
+
+    Robust to any amd-smi schema/availability issue -> returns 'NA' on failure.
+    """
+
+    def __init__(self, interval: float = 0.5):
+        super().__init__(daemon=True)
+        self.interval = interval
+        self._stop = threading.Event()
+        self._samples: list[float] = []
+
+    def run(self):
+        while not self._stop.is_set():
+            try:
+                out = subprocess.run(
+                    ["amd-smi", "metric", "-u", "--json"],
+                    capture_output=True, text=True, timeout=2,
+                )
+                # parse any "gfx" utilization percentage we can find
+                for m in re.finditer(r'"gfx"\s*:\s*\{[^}]*?"value"\s*:\s*([\d.]+)', out.stdout):
+                    self._samples.append(float(m.group(1)))
+                    break
+                else:
+                    m = re.search(r'gfx[^0-9]{0,12}([\d.]+)', out.stdout)
+                    if m:
+                        self._samples.append(float(m.group(1)))
+            except Exception:
+                pass
+            self._stop.wait(self.interval)
+
+    def stop(self):
+        self._stop.set()
+        self.join(timeout=2)
+        if not self._samples:
+            return "NA"
+        return round(sum(self._samples) / len(self._samples), 1)
+
+
+def _cpu_seconds() -> float:
+    if _PROC is not None:
+        t = _PROC.cpu_times()
+        return float(t.user + t.system)
+    return time.process_time()
+
+
+def _append(path: str, row: dict) -> None:
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+    is_new = not os.path.exists(path)
+    with _LOCK, open(path, "a", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=FIELDS)
+        if is_new:
+            w.writeheader()
+        w.writerow(row)
+        f.flush()
+        try:
+            os.fsync(f.fileno())  # continuous save: row survives a session kill
+        except OSError:
+            pass
+
+
+@contextlib.contextmanager
+def track(label: str, agent_role: str = "", model: str = "", round_idx=" ",
+          level: str = "call"):
+    """Context manager wrapping any program call. Yields a handle for token counts."""
+    h = _Handle()
+    call_id = f"{int(time.time() * 1000)}_{label}"
+    wall0 = time.perf_counter()
+    cpu0 = _cpu_seconds()
+
+    gpu = _gpu_present()
+    sampler = None
+    ev0 = ev1 = None
+    if gpu:
+        torch.cuda.synchronize()
+        torch.cuda.reset_peak_memory_stats()
+        ev0 = torch.cuda.Event(enable_timing=True)
+        ev1 = torch.cuda.Event(enable_timing=True)
+        ev0.record()
+        sampler = _GfxSampler()
+        sampler.start()
+
+    token = _STACK.set(_STACK.get() + (h,))
+    try:
+        yield h
+    finally:
+        _STACK.reset(token)
+        wall = time.perf_counter() - wall0
+        cpu = _cpu_seconds() - cpu0
+
+        if gpu:
+            ev1.record()
+            torch.cuda.synchronize()
+            gpu_active = round(ev0.elapsed_time(ev1) / 1000.0, 4)
+            gpu_attached = round(wall, 4)
+            peak_vram = round(torch.cuda.max_memory_allocated() / 1e9, 3)
+            gfx = sampler.stop() if sampler else "NA"
+        else:
+            gpu_active = gpu_attached = peak_vram = gfx = "NA"
+
+        # bubble child tokens up into the enclosing phase (if any)
+        parents = _STACK.get()
+        if parents:
+            p = parents[-1]
+            p.ingress += h.ingress
+            p.egress += h.egress
+            p.reasoning += h.reasoning
+
+        total = h.ingress + h.egress + h.reasoning
+        row = {
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
+            "call_id": call_id, "level": level, "label": label,
+            "agent_role": agent_role, "model": model, "round": round_idx,
+            "cpu_time_s": round(cpu, 4),
+            "gpu_active_s": gpu_active, "gpu_attached_s": gpu_attached,
+            "peak_vram_gib": peak_vram, "gfx_util_mean": gfx,
+            "ingress_tokens": h.ingress, "egress_tokens": h.egress,
+            "reasoning_tokens": h.reasoning, "total_tokens": total,
+            "latency_s": round(wall, 4),
+            "tok_per_s": round(h.egress / wall, 1) if (wall > 0 and h.egress) else "NA",
+        }
+        _append(PHASES_CSV if level == "phase" else CALLS_CSV, row)
+
+
+@contextlib.contextmanager
+def phase(label: str, agent_role: str = "", model: str = "", round_idx=" "):
+    """Convenience wrapper for a high-level phase (writes to phases.csv)."""
+    with track(label, agent_role=agent_role, model=model, round_idx=round_idx, level="phase") as h:
+        yield h
+
+
+def summary() -> dict:
+    """Quick aggregate over calls.csv (for a live budget check)."""
+    import json  # local import; keep module import-light
+    out = {"n_calls": 0, "ingress": 0, "egress": 0, "reasoning": 0, "total": 0}
+    if not os.path.exists(CALLS_CSV):
+        return out
+    with open(CALLS_CSV) as f:
+        for r in csv.DictReader(f):
+            out["n_calls"] += 1
+            out["ingress"] += int(r.get("ingress_tokens", 0) or 0)
+            out["egress"] += int(r.get("egress_tokens", 0) or 0)
+            out["reasoning"] += int(r.get("reasoning_tokens", 0) or 0)
+    out["total"] = out["ingress"] + out["egress"] + out["reasoning"]
+    return out
+
+
+LLM_LOG = os.path.join(METRICS_DIR, "llm_calls.jsonl")
+SYS_CSV = os.path.join(METRICS_DIR, "system_samples.csv")
+
+
+def log_llm_call(
+    agent_role: str,
+    model_name: str,
+    round_idx,
+    prompt_tokens: int,
+    completion_text: str,
+    completion_tokens: int,
+    latency_s: float,
+    query_id: str = "",
+) -> None:
+    """Append one LLM call record to llm_calls.jsonl (Layer 2)."""
+    think = "".join(_THINK_RE.findall(completion_text or ""))
+    reasoning_tok = len(think.split())
+    row = {
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
+        "query_id": query_id,
+        "agent_role": agent_role,
+        "model": model_name,
+        "round": round_idx,
+        "ingress_tokens": prompt_tokens,
+        "egress_tokens": completion_tokens,
+        "reasoning_tokens": reasoning_tok,
+        "total_tokens": prompt_tokens + completion_tokens + reasoning_tok,
+        "latency_s": round(latency_s, 4),
+        "tok_per_s": round(completion_tokens / latency_s, 1) if latency_s > 0 else "NA",
+    }
+    os.makedirs(METRICS_DIR, exist_ok=True)
+    with _LOCK, open(LLM_LOG, "a") as f:
+        f.write(json.dumps(row) + "\n")
+        f.flush()
+        try:
+            os.fsync(f.fileno())
+        except OSError:
+            pass
+
+
+class SysSampler:
+    """Background amd-smi + psutil sampler (Layer 1)."""
+
+    SYS_FIELDS = [
+        "timestamp", "label", "cpu_pct", "ram_pct", "gfx_util", "vram_gib",
+        "socket_power_w", "torch_alloc_gib", "torch_peak_gib",
+    ]
+
+    def __init__(self, label: str, interval: float = 1.0):
+        self.label = label
+        self.interval = interval
+        self._stop = threading.Event()
+        self._thread: threading.Thread | None = None
+        self._t0 = 0.0
+
+    def _sample_once(self) -> dict:
+        row = {"timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"), "label": self.label}
+        if _PROC is not None:
+            row["cpu_pct"] = _PROC.cpu_percent()
+            row["ram_pct"] = psutil.virtual_memory().percent
+        else:
+            row["cpu_pct"] = row["ram_pct"] = "NA"
+        row["gfx_util"] = row["vram_gib"] = row["socket_power_w"] = "NA"
+        try:
+            out = subprocess.run(
+                ["amd-smi", "metric", "-u", "--json"],
+                capture_output=True, text=True, timeout=2,
+            )
+            m = re.search(r'"gfx"\s*:\s*\{[^}]*?"value"\s*:\s*([\d.]+)', out.stdout)
+            if m:
+                row["gfx_util"] = float(m.group(1))
+        except Exception:
+            pass
+        if _gpu_present():
+            row["torch_alloc_gib"] = round(torch.cuda.memory_allocated() / 1e9, 3)
+            row["torch_peak_gib"] = round(torch.cuda.max_memory_allocated() / 1e9, 3)
+        else:
+            row["torch_alloc_gib"] = row["torch_peak_gib"] = "NA"
+        return row
+
+    def _run(self):
+        os.makedirs(METRICS_DIR, exist_ok=True)
+        new = not os.path.exists(SYS_CSV)
+        with open(SYS_CSV, "a", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=self.SYS_FIELDS)
+            if new:
+                w.writeheader()
+            while not self._stop.is_set():
+                w.writerow(self._sample_once())
+                f.flush()
+                self._stop.wait(self.interval)
+
+    def __enter__(self):
+        self._t0 = time.perf_counter()
+        self._thread = threading.Thread(target=self._run, daemon=True)
+        self._thread.start()
+        return self
+
+    def __exit__(self, *args):
+        self._stop.set()
+        if self._thread:
+            self._thread.join(timeout=3)
+        return False
+
+
+def aggregate_ablation(out_path: str | None = None) -> str:
+    """Roll calls.csv + phases.csv + llm_calls.jsonl into ablation_summary.csv (Layer 3)."""
+    out_path = out_path or os.path.join(METRICS_DIR, "ablation_summary.csv")
+    rows = []
+    if os.path.exists(PHASES_CSV):
+        with open(PHASES_CSV) as f:
+            for r in csv.DictReader(f):
+                rows.append({
+                    "label": r.get("label", ""),
+                    "level": r.get("level", ""),
+                    "cpu_time_s": r.get("cpu_time_s", ""),
+                    "gpu_active_s": r.get("gpu_active_s", ""),
+                    "gpu_attached_s": r.get("gpu_attached_s", ""),
+                    "ingress_tokens": r.get("ingress_tokens", ""),
+                    "egress_tokens": r.get("egress_tokens", ""),
+                    "reasoning_tokens": r.get("reasoning_tokens", ""),
+                    "latency_s": r.get("latency_s", ""),
+                })
+    os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
+    with open(out_path, "w", newline="") as f:
+        fields = ["label", "level", "cpu_time_s", "gpu_active_s", "gpu_attached_s",
+                  "ingress_tokens", "egress_tokens", "reasoning_tokens", "latency_s"]
+        w = csv.DictWriter(f, fieldnames=fields)
+        w.writeheader()
+        w.writerows(rows)
+    return out_path
+
+
+if __name__ == "__main__":
+    # self-test: run with no GPU, confirm rows + token roll-up land in the CSVs
+    set_metrics_dir(os.environ.get("METRICS_DIR", "./metrics"))
+    with phase("selftest_phase", model="demo"):
+        with track("call_a", agent_role="Structure", model="demo", round_idx=1) as m:
+            time.sleep(0.05)
+            m.set_tokens(ingress=100, egress=20, reasoning=5)
+        with track("call_b", agent_role="Therapy", model="demo", round_idx=1) as m:
+            time.sleep(0.05)
+            m.add_text(prompt_tokens=200, completion_text="answer <think>because reasons here</think> done")
+    print("calls.csv  ->", CALLS_CSV)
+    print("phases.csv ->", PHASES_CSV)
+    print("summary:", summary())

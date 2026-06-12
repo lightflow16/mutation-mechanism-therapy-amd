@@ -1,0 +1,39 @@
+{
+  "variant": {"gene": "PIK3CA", "protein_change": "E545K", "hgvs_p": "p.Glu545Lys"},
+  "structure": {
+    "residue": "E545",
+    "pLDDT_at_residue": 72.0,
+    "mean_pLDDT_protein": 78.0,
+    "neighboring_residues_within_10A": 18,
+    "region": "activation loop"
+  },
+  "evidence": [
+    {
+      "source": "CIViC",
+      "therapies": "Alpelisib",
+      "disease": "Breast Carcinoma",
+      "direction": "Sensitivity/Response",
+      "level": "A",
+      "citation": "Andre et al., 2019",
+      "url": "https://civicdb.org/links/evidence_items/8733"
+    },
+    {
+      "source": "CIViC",
+      "therapies": "Alpelisib",
+      "disease": "Colorectal Cancer",
+      "direction": "Resistance",
+      "level": "B",
+      "citation": "context-dependent",
+      "url": "https://civicdb.org"
+    }
+  ],
+  "target_reasoning": {
+    "mechanism": "E545K mimics GTP-bound PI3K alpha, constitutively activating PI3K/AKT signaling.",
+    "therapy": {
+      "sensitivity": ["Alpelisib"],
+      "resistance": ["Alpelisib"],
+      "context": "Sensitive in HR+ breast; resistance in CRC without co-alterations"
+    },
+    "confidence": "0.82"
+  }
+}

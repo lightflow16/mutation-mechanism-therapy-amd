@@ -1,0 +1,16 @@
+{
+  "target": {"gene": "PIK3CA", "mutation": "E545K", "class": "ONCOGENE_GOF", "pathway": "inhibitor_rag"},
+  "structure": {"residue": "E545", "pLDDT_at_residue": 72.0, "region": "activation loop"},
+  "evidence": [{"therapies": "Alpelisib", "direction": "Sensitivity/Response"}],
+  "route": "inhibitor_rag",
+  "reasoning": {
+    "architecture": "blackboard",
+    "target_reasoning": {
+      "mechanism": "E545K mimics GTP-bound PI3K alpha, constitutively activating PI3K/AKT signaling.",
+      "therapy": {"sensitivity": ["Alpelisib"], "resistance": ["Alpelisib"], "context": "Sensitive in HR+ breast; resistance in CRC without co-alterations"},
+      "confidence": "0.82"
+    },
+    "blackboard_trace": [{"agent": "Planner", "type": "plan", "content": "cached demo trace"}],
+    "total_tokens": 0
+  }
+}

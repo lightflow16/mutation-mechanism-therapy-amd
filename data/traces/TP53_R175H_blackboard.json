@@ -1,0 +1,23 @@
+{
+  "target": {"gene": "TP53", "mutation": "R175H", "class": "TUMOR_SUPPRESSOR_LOF", "pathway": "structural_rescue"},
+  "structure": {"residue": "R175", "pLDDT_at_residue": 65.0, "region": "DNA-binding surface (beta-sandwich core)"},
+  "evidence": [{"therapies": "", "direction": "Loss-of-function"}],
+  "route": "structural_rescue",
+  "reasoning": {
+    "architecture": "blackboard",
+    "target_reasoning": {
+      "mechanism": "R175H destabilizes the p53 DNA-binding core, impairing transcription of cell-cycle arrest and apoptosis genes.",
+      "therapy": {"sensitivity": [], "resistance": [], "context": "No direct pharmacologic inhibitor; structural rescue path"},
+      "confidence": "0.75"
+    },
+    "blackboard_trace": [{"agent": "Planner", "type": "plan", "content": "cached demo trace"}],
+    "total_tokens": 0
+  },
+  "rescue": {
+    "mutant_ddg_kcal_mol": 2.4,
+    "destabilizing": true,
+    "ddg_engine": "ThermoMPNN",
+    "fold_method": "esmfold",
+    "designs": [{"sequence": "STUB", "note": "Run on MI300X with ThermoMPNN clone"}]
+  }
+}

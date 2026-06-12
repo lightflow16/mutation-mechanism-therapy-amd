@@ -1,0 +1,32 @@
+# Pinned to the VALIDATED AMD AI Notebooks image (ROCm 7.2.4 + torch 2.10.0+rocm7.2.4).
+# IMPORTANT: do NOT install torch from here - use the pre-installed ROCm build on the notebook.
+# These are the libs confirmed working on the MI300X probe night (12-Jun).
+
+transformers==5.11.0
+accelerate==1.14.0
+peft==0.19.1
+trl==1.5.1
+datasets==5.0.0
+gradio==6.17.3
+qwen-vl-utils==0.0.14
+
+# structure / IO
+py3Dmol
+biopython
+gemmi
+pandas
+numpy            # NOTE: Boltz pins numpy<2.0; run Boltz in its OWN venv (see external/boltz_venv)
+pyyaml
+requests
+psutil
+openai
+python-dotenv
+
+# served inference (install ONLY in the serving image for the benchmark pass)
+# vllm
+
+# --- folding / ddG stacks are installed per their own probes, NOT via this file ---
+# ESMFold  -> transformers EsmForProteinFolding (facebook/esmfold_v1), no extra install
+# Boltz    -> pip install boltz, in an ISOLATED numpy<2 venv, run with --no_kernels
+# ThermoMPNN -> git clone Kuhlman-Lab/ThermoMPNN (bundles weights), no extra install
+# ProteinMPNN -> validated via ThermoMPNN's bundled backbone (v_48_020.pt)

@@ -1,0 +1,65 @@
+# Demo target configuration. Swapping the demo to a new variant is a config edit here,
+# NOT a code change. Each entry carries everything the pipeline needs:
+#   - class:   ONCOGENE_GOF | TUMOR_SUPPRESSOR_LOF   (drives the Planner's route decision)
+#   - pathway: inhibitor_rag | structural_rescue
+#   - uniprot/residue: for the AlphaFold DB fetch + residue validation
+#   - civic_profile: filter string for CIViC molecular-profile evidence
+#
+# Per-target gotcha: verify residue numbering matches the UniProt sequence
+# (the "is residue R at position N?" check in src/structure.py); restrict to missense.
+
+targets:
+  - gene: EGFR
+    mutation: L858R
+    class: ONCOGENE_GOF
+    pathway: inhibitor_rag
+    uniprot: P00533
+    residue: 858
+    wt_aa: L
+    mut_aa: R
+    civic_profile: "EGFR L858R"
+    disease_context: "Lung Non-small Cell Carcinoma"
+
+  - gene: PIK3CA
+    mutation: E545K
+    class: ONCOGENE_GOF
+    pathway: inhibitor_rag
+    uniprot: P42336
+    residue: 545
+    wt_aa: E
+    mut_aa: K
+    civic_profile: "PIK3CA E545K"
+    disease_context: "Breast Carcinoma"
+
+  - gene: TP53
+    mutation: R175H
+    class: TUMOR_SUPPRESSOR_LOF
+    pathway: structural_rescue
+    uniprot: P04637
+    residue: 175
+    wt_aa: R
+    mut_aa: H
+    civic_profile: "TP53 R175H"
+    disease_context: "Li-Fraumeni / pan-cancer"
+
+# ---- runtime knobs ----
+serving:
+  # one vLLM process per model on distinct ports (heterogeneous archs can't share a server)
+  endpoints:
+    planner:    { base_url: "http://localhost:8002/v1", model: "qwen2.5-3b-instruct" }
+    reasoner:   { base_url: "http://localhost:8000/v1", model: "qwen2.5-vl-7b" }
+    mechanism:  { base_url: "http://localhost:8001/v1", model: "qwen2.5-7b-instruct" }
+  gpu_memory_utilization: 0.25   # per server, so 3 servers + KV cache fit in 192 GiB
+
+paths:
+  shared: "/workspace/shared"
+  metrics: "/workspace/shared/metrics"
+  hf_cache: "/workspace/shared/hf_cache"
+  lora_ckpts: "/workspace/shared/lora_ckpts"
+  lora_adapter_final: "/workspace/shared/lora_adapter_final"
+
+rescue:
+  ddg_destabilizing_threshold: 1.0   # kcal/mol; LOF gate (ThermoMPNN ddG above this = destabilizing)
+  proteinmpnn_temperature: 0.8
+  n_designs: 8
+  pack_shell_radius: 8.0             # Angstrom around the mutated residue to redesign
