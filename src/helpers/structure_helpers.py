@@ -43,6 +43,17 @@ def extract_local_shell_pdb(
     return out_path
 
 
+def mpnn_index_map(pdb_path: Path, chain: str = "A") -> dict[int, int]:
+    """Map PDB resseq -> ProteinMPNN 1-based index (not PDB numbering)."""
+    coords = sorted(parse_ca_coords(pdb_path, chain).keys())
+    return {rs: i + 1 for i, rs in enumerate(coords)}
+
+
+def mpnn_indices_for_resseqs(pdb_path: Path, chain: str, resseqs: list[int]) -> list[int]:
+    idx_map = mpnn_index_map(pdb_path, chain)
+    return [idx_map[rs] for rs in resseqs if rs in idx_map]
+
+
 def parse_ca_coords(pdb_path: Path, chain: str = "A") -> dict[int, tuple[float, float, float]]:
     coords: dict[int, tuple[float, float, float]] = {}
     with open(pdb_path) as f:

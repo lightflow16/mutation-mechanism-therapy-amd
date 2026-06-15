@@ -13,6 +13,7 @@ from src.config import load_config, shared_dir
 from src.helpers.structure_helpers import (
     count_chain_residues,
     extract_local_shell_pdb,
+    mpnn_index_map,
     resseq_to_mpnn_index,
 )
 
@@ -199,8 +200,10 @@ def run_proteinmpnn_redesign(
     run_py = MPNN_REPO / "protein_mpnn_run.py"
     if not run_py.exists():
         return [{"sequence": "STUB", "score": 0.0, "note": "Clone ProteinMPNN to external/ProteinMPNN"}]
-    fixed_json = out_dir / "fixed_positions.json"
-    fixed_json.write_text(json.dumps({chain: {str(p): p for p in fixed_positions}}))
+    pdb_name = pdb_path.stem
+    fixed_json = out_dir / "fixed_positions.jsonl"
+    # ProteinMPNN expects JSONL: {pdb_name: {chain: [1-based indices to keep fixed]}}
+    fixed_json.write_text(json.dumps({pdb_name: {chain: sorted(fixed_positions)}}) + "\n")
     cmd = [
         sys.executable, str(run_py),
         "--pdb_path", str(pdb_path),
@@ -209,9 +212,16 @@ def run_proteinmpnn_redesign(
         "--num_seq_per_target", str(num_seqs),
         "--sampling_temp", str(temperature),
         "--fixed_positions_jsonl", str(fixed_json),
+        "--suppress_print", "1",
     ]
     with metrics.track("proteinmpnn_redesign", agent_role="Rescue", model="ProteinMPNN"):
-        subprocess.run(cmd, check=True, cwd=str(MPNN_REPO))
+        proc = subprocess.run(cmd, check=False, cwd=str(MPNN_REPO), capture_output=True, text=True)
+    if proc.returncode != 0:
+        detail = (proc.stderr or proc.stdout or "").strip()
+        tail = detail[-4000:] if len(detail) > 4000 else detail
+        raise RuntimeError(
+            f"ProteinMPNN failed (exit {proc.returncode}) on {pdb_path}:\n{tail or '(no output)'}"
+        )
     fastas = list(out_dir.rglob("*.fa"))
     designs = []
     for fa in fastas:
@@ -256,12 +266,17 @@ def run_rescue(
         thermo_pos = (mpnn_idx - 1) if mpnn_idx is not None else pos
         mut_ddg = mutation_ddg(csv_path, wt, thermo_pos, mut)
 
-        residue, _, _ = __import__("src.structure", fromlist=["parse_mutation"]).parse_mutation(
-            target["mutation"]
-        )
-        shell = list(range(max(1, pos - 5), pos + 6))
+        mpnn_pdb = thermo_pdb
+        shell_resseqs = list(range(max(1, pos - 5), pos + 6))
+        design_resseqs = [r for r in shell_resseqs if r != pos]
+        idx_map = mpnn_index_map(mpnn_pdb, chain)
+        design_idx = {idx_map[r] for r in design_resseqs if r in idx_map}
+        n_res = count_chain_residues(mpnn_pdb, chain)
+        fixed_mpnn = [i for i in range(1, n_res + 1) if i not in design_idx]
         designs = run_proteinmpnn_redesign(
-            pdb_path, chain, [p for p in shell if p != pos],
+            mpnn_pdb,
+            chain,
+            fixed_mpnn,
             work / "mpnn",
             temperature=rescue_cfg.get("proteinmpnn_temperature", 0.8),
             num_seqs=rescue_cfg.get("n_designs", 8),
@@ -291,5 +306,6 @@ def run_rescue(
             "fold_method": fold_method,
             "thermompnn_csv": str(csv_path),
             "thermompnn_shell_pdb": str(shell_pdb) if shell_pdb.exists() else None,
+            "proteinmpnn_pdb": str(mpnn_pdb),
             "ddg_engine": "ThermoMPNN",
         }
