@@ -127,6 +127,7 @@ Attach GPU only for train / live inference / rescue. **Never** `pip install vllm
 | `KeyError: 'pytorch-lightning_version'` | `git pull` — uses `scripts/thermompnn_ssm.py` to load `.pt` weights correctly |
 | `torchao Failed to load ...cutlass/mxfp8` on Colab | Benign — bf16 LoRA does not use those kernels; training still works |
 | `FileNotFoundError: 'boltz'` | Run `bash scripts/setup_external.sh` (installs Boltz venv) |
+| `ensurepip` failed creating boltz_venv on Colab | `rm -rf external/boltz_venv && bash scripts/setup_boltz_venv.sh` (uses get-pip bootstrap) |
 | `eval.py` downloads 15 GB model | Run `run_all_modes()` live first; `eval.py` scores saved traces only (no LLM load) |
 
 ## Monitoring (built from scratch — no LangGraph/Phoenix)
