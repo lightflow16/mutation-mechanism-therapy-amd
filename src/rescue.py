@@ -150,7 +150,10 @@ def mutation_ddg(
     wt_col = df["wildtype"].astype(str).str.upper()
     mut_col = df["mutation"].astype(str).str.upper()
     if resseq is not None and "resseq" in df.columns:
-        row = df[(wt_col == wt_u) & (df["resseq"].astype(int) == int(resseq)) & (mut_col == mut_u)]
+        by_site = df[df["resseq"].astype(int) == int(resseq)]
+        row = by_site[(wt_col == wt_u) & (mut_col == mut_u)]
+        if row.empty and not by_site.empty:
+            row = by_site[mut_col == mut_u]
         if not row.empty:
             return float(row.iloc[0]["ddG_pred"])
     pos_col = df["position"].astype(int)
