@@ -147,16 +147,19 @@ def mutation_ddg(
     import pandas as pd
     df = pd.read_csv(csv_path)
     wt_u, mut_u = wt.upper(), mut.upper()
-    wt_col = df["wildtype"].astype(str).str.upper()
-    mut_col = df["mutation"].astype(str).str.upper()
     if resseq is not None and "resseq" in df.columns:
         by_site = df[df["resseq"].astype(int) == int(resseq)]
-        row = by_site[(wt_col == wt_u) & (mut_col == mut_u)]
-        if row.empty and not by_site.empty:
-            row = by_site[mut_col == mut_u]
-        if not row.empty:
-            return float(row.iloc[0]["ddG_pred"])
+        if not by_site.empty:
+            wt_s = by_site["wildtype"].astype(str).str.upper()
+            mut_s = by_site["mutation"].astype(str).str.upper()
+            row = by_site[(wt_s == wt_u) & (mut_s == mut_u)]
+            if row.empty:
+                row = by_site[mut_s == mut_u]
+            if not row.empty:
+                return float(row.iloc[0]["ddG_pred"])
     pos_col = df["position"].astype(int)
+    wt_col = df["wildtype"].astype(str).str.upper()
+    mut_col = df["mutation"].astype(str).str.upper()
     for p in (int(position), int(position) + 1):
         row = df[(wt_col == wt_u) & (pos_col == p) & (mut_col == mut_u)]
         if not row.empty:
@@ -329,6 +332,12 @@ def run_rescue(
         return {
             "mutant_ddg_kcal_mol": mut_ddg,
             "destabilizing": mut_ddg is not None and mut_ddg > rescue_cfg.get("ddg_destabilizing_threshold", 1.0),
+            "ddg_scope": "local_shell_15A",
+            "ddg_note": (
+                "Shell-local ThermoMPNN SSM; literature R175H is often >1 kcal/mol destabilizing on full domain."
+                if mut_ddg is not None and mut_ddg <= rescue_cfg.get("ddg_destabilizing_threshold", 1.0)
+                else None
+            ),
             "designs": designs[:5],
             "folded_candidate_pdb": str(fold_pdb) if fold_pdb else None,
             "fold_method": fold_method,
