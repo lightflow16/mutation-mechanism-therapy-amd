@@ -5,6 +5,8 @@
 transformers==5.11.0
 accelerate==1.14.0
 peft==0.19.1
+# Colab may ship torchao 0.10; peft 0.19 needs >=0.16 if torchao is installed
+torchao>=0.16.0
 trl==1.5.1
 datasets==5.0.0
 gradio==6.17.3
