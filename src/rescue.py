@@ -10,7 +10,11 @@ from typing import Any
 
 from src import metrics
 from src.config import load_config, shared_dir
-from src.helpers.structure_helpers import count_chain_residues, extract_local_shell_pdb
+from src.helpers.structure_helpers import (
+    count_chain_residues,
+    extract_local_shell_pdb,
+    resseq_to_mpnn_index,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 THERMOMPNN_DIR = ROOT / "external" / "ThermoMPNN"
@@ -83,13 +87,15 @@ def score_ddg_site_saturation(
     shell_radius: float | None = None,
     max_full_protein_residues: int = 80,
 ) -> Path:
-    """Run ThermoMPNN custom_inference on a PDB; return CSV path."""
+    """Run ThermoMPNN site-saturation on a PDB; return CSV path."""
     _ensure_thermompnn_deps()
     patch_thermompnn_local_yaml()
     out_dir.mkdir(parents=True, exist_ok=True)
-    script = THERMOMPNN_DIR / "analysis" / "custom_inference.py"
+    script = ROOT / "scripts" / "thermompnn_ssm.py"
     if not script.exists():
-        raise FileNotFoundError(f"ThermoMPNN not found at {THERMOMPNN_DIR}; git clone Kuhlman-Lab/ThermoMPNN")
+        raise FileNotFoundError(f"ThermoMPNN wrapper not found at {script}")
+    if not THERMOMPNN_DIR.exists():
+        raise FileNotFoundError(f"ThermoMPNN not found at {THERMOMPNN_DIR}; run setup_external.sh")
 
     run_pdb = pdb_path
     if center_residue is not None and count_chain_residues(pdb_path, chain) > max_full_protein_residues:
@@ -111,7 +117,7 @@ def score_ddg_site_saturation(
     ]
     with metrics.track("thermompnn_ssm", agent_role="Rescue", model="thermoMPNN"):
         proc = subprocess.run(
-            cmd, check=False, env=_thermompnn_env(), cwd=str(THERMOMPNN_DIR),
+            cmd, check=False, env=_thermompnn_env(), cwd=str(ROOT),
             capture_output=True, text=True,
         )
     if proc.returncode != 0:
@@ -243,7 +249,10 @@ def run_rescue(
             max_full_protein_residues=rescue_cfg.get("thermompnn_full_protein_max_residues", 80),
         )
         shell_pdb = thermo_dir / f"thermo_shell_r{pos}.pdb"
-        mut_ddg = mutation_ddg(csv_path, wt, pos, mut)
+        thermo_pdb = shell_pdb if shell_pdb.exists() else pdb_path
+        mpnn_idx = resseq_to_mpnn_index(thermo_pdb, chain, pos)
+        thermo_pos = (mpnn_idx - 1) if mpnn_idx is not None else pos
+        mut_ddg = mutation_ddg(csv_path, wt, thermo_pos, mut)
 
         residue, _, _ = __import__("src.structure", fromlist=["parse_mutation"]).parse_mutation(
             target["mutation"]

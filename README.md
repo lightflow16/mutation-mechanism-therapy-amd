@@ -111,3 +111,4 @@ Attach GPU only for train / live inference / rescue. **Never** `pip install vllm
 | `'Event' object is not callable` | `git pull` (metrics.py Thread._stop fix) |
 | vLLM endpoints all `False` | Expected on AMD; use transformers or cached traces |
 | `No module named 'pytorch_lightning'` | `pip install pytorch-lightning torchmetrics omegaconf wandb` or re-run `setup_external.sh` |
+| `KeyError: 'pytorch-lightning_version'` | `git pull` — uses `scripts/thermompnn_ssm.py` to load `.pt` weights correctly |
