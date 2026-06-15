@@ -43,6 +43,10 @@ targets:
     disease_context: "Li-Fraumeni / pan-cancer"
 
 # ---- runtime knobs ----
+# LLM_BACKEND: auto | transformers | vllm
+#   auto       -> transformers on AMD ROCm; vLLM on CUDA only if servers are up
+#   transformers -> Qwen2.5-7B via HuggingFace (works on AMD + Colab)
+#   vllm       -> OpenAI-compatible local servers (CUDA Colab only; see scripts/install_vllm_colab.sh)
 serving:
   # one vLLM process per model on distinct ports (heterogeneous archs can't share a server)
   endpoints:

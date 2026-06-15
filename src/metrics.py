@@ -67,8 +67,32 @@ _STACK: contextvars.ContextVar[tuple] = contextvars.ContextVar("metrics_stack", 
 _THINK_RE = re.compile(r"<think>(.*?)</think>", re.S)
 
 
+_GPU_OK: bool | None = None
+
+
 def _gpu_present() -> bool:
-    return _HAS_TORCH and torch.cuda.is_available()
+    """True only if torch CUDA/HIP runtime actually initializes (not just is_available())."""
+    global _GPU_OK
+    if not _HAS_TORCH:
+        return False
+    if _GPU_OK is not None:
+        return _GPU_OK
+    try:
+        if not torch.cuda.is_available():
+            _GPU_OK = False
+            return False
+        torch.cuda.synchronize()
+        _GPU_OK = True
+        return True
+    except Exception:
+        _GPU_OK = False
+        return False
+
+
+def reset_gpu_probe() -> None:
+    """Clear cached GPU probe (call after fixing a broken torch install)."""
+    global _GPU_OK
+    _GPU_OK = None
 
 
 def set_metrics_dir(path: str) -> None:
@@ -120,17 +144,16 @@ class _GfxSampler(threading.Thread):
     def __init__(self, interval: float = 0.5):
         super().__init__(daemon=True)
         self.interval = interval
-        self._stop = threading.Event()
+        self._halt = threading.Event()  # not _stop — shadows threading.Thread._stop()
         self._samples: list[float] = []
 
     def run(self):
-        while not self._stop.is_set():
+        while not self._halt.is_set():
             try:
                 out = subprocess.run(
                     ["amd-smi", "metric", "-u", "--json"],
                     capture_output=True, text=True, timeout=2,
                 )
-                # parse any "gfx" utilization percentage we can find
                 for m in re.finditer(r'"gfx"\s*:\s*\{[^}]*?"value"\s*:\s*([\d.]+)', out.stdout):
                     self._samples.append(float(m.group(1)))
                     break
@@ -139,11 +162,20 @@ class _GfxSampler(threading.Thread):
                     if m:
                         self._samples.append(float(m.group(1)))
             except Exception:
-                pass
-            self._stop.wait(self.interval)
+                try:
+                    out = subprocess.run(
+                        ["nvidia-smi", "--query-gpu=utilization.gpu", "--format=csv,noheader,nounits"],
+                        capture_output=True, text=True, timeout=2,
+                    )
+                    val = out.stdout.strip().split("\n")[0].strip()
+                    if val.isdigit():
+                        self._samples.append(float(val))
+                except Exception:
+                    pass
+            self._halt.wait(self.interval)
 
     def stop(self):
-        self._stop.set()
+        self._halt.set()
         self.join(timeout=2)
         if not self._samples:
             return "NA"
@@ -185,13 +217,17 @@ def track(label: str, agent_role: str = "", model: str = "", round_idx=" ",
     sampler = None
     ev0 = ev1 = None
     if gpu:
-        torch.cuda.synchronize()
-        torch.cuda.reset_peak_memory_stats()
-        ev0 = torch.cuda.Event(enable_timing=True)
-        ev1 = torch.cuda.Event(enable_timing=True)
-        ev0.record()
-        sampler = _GfxSampler()
-        sampler.start()
+        try:
+            torch.cuda.synchronize()
+            torch.cuda.reset_peak_memory_stats()
+            ev0 = torch.cuda.Event(enable_timing=True)
+            ev1 = torch.cuda.Event(enable_timing=True)
+            ev0.record()
+            sampler = _GfxSampler()
+            sampler.start()
+        except Exception:
+            gpu = False
+            ev0 = ev1 = sampler = None
 
     token = _STACK.set(_STACK.get() + (h,))
     try:
@@ -201,13 +237,16 @@ def track(label: str, agent_role: str = "", model: str = "", round_idx=" ",
         wall = time.perf_counter() - wall0
         cpu = _cpu_seconds() - cpu0
 
-        if gpu:
-            ev1.record()
-            torch.cuda.synchronize()
-            gpu_active = round(ev0.elapsed_time(ev1) / 1000.0, 4)
-            gpu_attached = round(wall, 4)
-            peak_vram = round(torch.cuda.max_memory_allocated() / 1e9, 3)
-            gfx = sampler.stop() if sampler else "NA"
+        if gpu and ev0 is not None and ev1 is not None:
+            try:
+                ev1.record()
+                torch.cuda.synchronize()
+                gpu_active = round(ev0.elapsed_time(ev1) / 1000.0, 4)
+                gpu_attached = round(wall, 4)
+                peak_vram = round(torch.cuda.max_memory_allocated() / 1e9, 3)
+                gfx = sampler.stop() if sampler else "NA"
+            except Exception:
+                gpu_active = gpu_attached = peak_vram = gfx = "NA"
         else:
             gpu_active = gpu_attached = peak_vram = gfx = "NA"
 
@@ -309,7 +348,7 @@ class SysSampler:
     def __init__(self, label: str, interval: float = 1.0):
         self.label = label
         self.interval = interval
-        self._stop = threading.Event()
+        self._halt = threading.Event()
         self._thread: threading.Thread | None = None
         self._t0 = 0.0
 
@@ -345,10 +384,10 @@ class SysSampler:
             w = csv.DictWriter(f, fieldnames=self.SYS_FIELDS)
             if new:
                 w.writeheader()
-            while not self._stop.is_set():
+            while not self._halt.is_set():
                 w.writerow(self._sample_once())
                 f.flush()
-                self._stop.wait(self.interval)
+                self._halt.wait(self.interval)
 
     def __enter__(self):
         self._t0 = time.perf_counter()
@@ -357,7 +396,7 @@ class SysSampler:
         return self
 
     def __exit__(self, *args):
-        self._stop.set()
+        self._halt.set()
         if self._thread:
             self._thread.join(timeout=3)
         return False

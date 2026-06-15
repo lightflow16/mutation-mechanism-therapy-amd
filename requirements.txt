@@ -22,8 +22,10 @@ psutil
 openai
 python-dotenv
 
-# served inference (install ONLY in the serving image for the benchmark pass)
-# vllm
+# served inference — NOT in this file (platform-specific):
+#   AMD ROCm:  use transformers (LLM_BACKEND=transformers, default on ROCm)
+#   Colab CUDA: optional vLLM via scripts/install_vllm_colab.sh
+#   NEVER:     pip install vllm on AMD (breaks ROCm torch)
 
 # --- folding / ddG stacks are installed per their own probes, NOT via this file ---
 # ESMFold  -> transformers EsmForProteinFolding (facebook/esmfold_v1), no extra install

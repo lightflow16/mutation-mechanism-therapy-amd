@@ -8,7 +8,7 @@ from typing import Any
 
 from src import metrics
 from src.config import load_config
-from src.llm_client import call_vllm
+from src.llm_client import call_llm
 
 BMAS_ROOT = Path(__file__).resolve().parents[1] / "external" / "sde_project_bMAS"
 if str(BMAS_ROOT) not in sys.path:
@@ -59,7 +59,7 @@ def run_blackboard(
 
     with metrics.phase(f"blackboard_{target['gene']}_{target['mutation']}", model="bMAS"):
         base_url, model = _endpoint(cfg, "Planner")
-        pr = call_vllm(
+        pr = call_llm(
             f"Plan the analysis steps for:\n{problem}",
             base_url=base_url, model=model,
             system_prompt="You are the Planner. Output a short numbered plan.",
@@ -74,7 +74,7 @@ def run_blackboard(
                 prompt = (
                     f"Role: {role}. {desc}\nProblem:\n{problem}\n\nBlackboard:\n{_bb_text(public)}"
                 )
-                er = call_vllm(
+                er = call_llm(
                     prompt, base_url=bu, model=mo,
                     system_prompt=f"You are the {role} expert.",
                     agent_role=role, round_idx=rnd, label=f"expert_{role.lower()}",
@@ -83,7 +83,7 @@ def run_blackboard(
                 total_tokens += er["metadata"]["total_tokens"]
 
             bu, mo = _endpoint(cfg, "Critic")
-            cr = call_vllm(
+            cr = call_llm(
                 f"Check claims vs evidence. Flag hallucinated pLDDT or therapy claims.\n{_bb_text(public)}",
                 base_url=bu, model=mo, system_prompt="You are the Critic.",
                 agent_role="Critic", round_idx=rnd, label="critic",
@@ -92,7 +92,7 @@ def run_blackboard(
             total_tokens += cr["metadata"]["total_tokens"]
 
             bu, mo = _endpoint(cfg, "ConflictResolver")
-            xr = call_vllm(
+            xr = call_llm(
                 f"Resolve sensitivity vs resistance conflicts by disease context.\n{_bb_text(public)}",
                 base_url=bu, model=mo, system_prompt="You are the ConflictResolver.",
                 agent_role="ConflictResolver", round_idx=rnd, label="conflict_resolver",
@@ -101,7 +101,7 @@ def run_blackboard(
             total_tokens += xr["metadata"]["total_tokens"]
 
         bu, mo = _endpoint(cfg, "Decider")
-        dr = call_vllm(
+        dr = call_llm(
             f"Produce final JSON reasoning (mechanism + therapy + confidence).\n{_bb_text(public)}",
             base_url=bu, model=mo,
             system_prompt="You are the Decider. Return valid JSON only.",

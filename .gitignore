@@ -25,6 +25,7 @@ external/
 
 # --- Run artifacts ---
 shared/
+logs/
 metrics/*.csv
 metrics/*.jsonl
 data/cache/*.pdb

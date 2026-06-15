@@ -7,7 +7,7 @@ from typing import Any
 
 from src import metrics
 from src.config import load_config
-from src.llm_client import call_vllm
+from src.llm_client import call_llm
 from src.reason import build_prompt
 
 
@@ -29,7 +29,7 @@ def run_cot(
 
     with metrics.phase(f"cot_{target['gene']}_{target['mutation']}", model=model):
         t0 = time.perf_counter()
-        resp = call_vllm(
+        resp = call_llm(
             cot_prompt,
             base_url=base_url,
             model=model,

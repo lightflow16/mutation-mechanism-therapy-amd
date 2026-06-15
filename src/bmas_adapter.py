@@ -10,7 +10,7 @@ from typing import Any
 
 from src import metrics
 from src.config import load_config
-from src.llm_client import call_vllm
+from src.llm_client import call_llm
 
 BMAS_ROOT = Path(__file__).resolve().parents[1] / "external" / "sde_project_bMAS"
 if str(BMAS_ROOT) not in sys.path:
@@ -51,7 +51,7 @@ def patch_bmas_llm() -> None:
         role = model_name or "agent"
         base_url, model = _endpoint_for(role if role in _endpoint_for.__code__.co_varnames else "reasoner")
         t0 = time.perf_counter()
-        resp = call_vllm(
+        resp = call_llm(
             prompt,
             base_url=base_url,
             model=model,
