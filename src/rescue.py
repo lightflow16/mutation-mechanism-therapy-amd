@@ -136,13 +136,29 @@ def score_ddg_site_saturation(
     return csvs[0]
 
 
-def mutation_ddg(csv_path: Path, wt: str, position: int, mut: str) -> float | None:
+def mutation_ddg(
+    csv_path: Path,
+    wt: str,
+    position: int,
+    mut: str,
+    *,
+    resseq: int | None = None,
+) -> float | None:
     import pandas as pd
     df = pd.read_csv(csv_path)
-    row = df[(df["wildtype"] == wt) & (df["position"] == position) & (df["mutation"] == mut)]
-    if row.empty:
-        return None
-    return float(row.iloc[0]["ddG_pred"])
+    wt_u, mut_u = wt.upper(), mut.upper()
+    wt_col = df["wildtype"].astype(str).str.upper()
+    mut_col = df["mutation"].astype(str).str.upper()
+    if resseq is not None and "resseq" in df.columns:
+        row = df[(wt_col == wt_u) & (df["resseq"].astype(int) == int(resseq)) & (mut_col == mut_u)]
+        if not row.empty:
+            return float(row.iloc[0]["ddG_pred"])
+    pos_col = df["position"].astype(int)
+    for p in (int(position), int(position) + 1):
+        row = df[(wt_col == wt_u) & (pos_col == p) & (mut_col == mut_u)]
+        if not row.empty:
+            return float(row.iloc[0]["ddG_pred"])
+    return None
 
 
 def fold_esmfold(sequence: str, out_pdb: Path) -> Path:
@@ -272,7 +288,7 @@ def run_rescue(
         thermo_pdb = shell_pdb if shell_pdb.exists() else pdb_path
         mpnn_idx = resseq_to_mpnn_index(thermo_pdb, chain, pos)
         thermo_pos = (mpnn_idx - 1) if mpnn_idx is not None else pos
-        mut_ddg = mutation_ddg(csv_path, wt, thermo_pos, mut)
+        mut_ddg = mutation_ddg(csv_path, wt, thermo_pos, mut, resseq=pos)
 
         mpnn_pdb = thermo_pdb
         shell_resseqs = list(range(max(1, pos - 5), pos + 6))

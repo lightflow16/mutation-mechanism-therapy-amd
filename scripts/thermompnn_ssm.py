@@ -103,6 +103,7 @@ def run_ssm(pdb_path: Path, chain: str, model_path: Path, out_dir: Path) -> Path
         chain = next(structure.get_chains()).id
 
     mut_pdb = alt_parse_PDB(pdb_str, chain)
+    resn_list = mut_pdb[0].get("resn_list") or []
     mutation_list = get_ssm_mutations(mut_pdb[0])
     final_mutation_list = []
     for m in mutation_list:
@@ -132,6 +133,7 @@ def run_ssm(pdb_path: Path, chain: str, model_path: Path, out_dir: Path) -> Path
             {
                 "ddG_pred": out["ddG"].cpu().item(),
                 "position": mut.position,
+                "resseq": resn_list[mut.position] if mut.position < len(resn_list) else mut.position,
                 "wildtype": mut.wildtype,
                 "mutation": mut.mutation,
                 "pdb": mut.pdb.strip(".pdb"),
