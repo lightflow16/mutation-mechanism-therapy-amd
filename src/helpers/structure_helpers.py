@@ -5,6 +5,44 @@ import math
 from pathlib import Path
 
 
+def count_chain_residues(pdb_path: Path, chain: str = "A") -> int:
+    return len(parse_ca_coords(pdb_path, chain))
+
+
+def extract_local_shell_pdb(
+    pdb_path: Path,
+    chain: str,
+    center_residue: int,
+    radius: float,
+    out_path: Path,
+) -> Path:
+    """Write a local shell PDB with original residue numbering (for ThermoMPNN SSM)."""
+    coords = parse_ca_coords(pdb_path, chain)
+    if center_residue not in coords:
+        raise ValueError(f"Residue {center_residue} not found on chain {chain} in {pdb_path}")
+    cx, cy, cz = coords[center_residue]
+    selected = {
+        rs
+        for rs, (x, y, z) in coords.items()
+        if math.sqrt((x - cx) ** 2 + (y - cy) ** 2 + (z - cz) ** 2) <= radius
+    }
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    kept: list[str] = []
+    with open(pdb_path) as f:
+        for line in f:
+            if not line.startswith(("ATOM", "HETATM")):
+                continue
+            if line[21] != chain:
+                continue
+            resseq = int(line[22:26])
+            if resseq in selected:
+                kept.append(line)
+    if not kept:
+        raise ValueError(f"No atoms within {radius}Å of residue {center_residue} in {pdb_path}")
+    out_path.write_text("".join(kept) + "END\n")
+    return out_path
+
+
 def parse_ca_coords(pdb_path: Path, chain: str = "A") -> dict[int, tuple[float, float, float]]:
     coords: dict[int, tuple[float, float, float]] = {}
     with open(pdb_path) as f:

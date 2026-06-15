@@ -67,3 +67,5 @@ rescue:
   proteinmpnn_temperature: 0.8
   n_designs: 8
   pack_shell_radius: 8.0             # Angstrom around the mutated residue to redesign
+  thermompnn_shell_radius: 15.0      # local shell for SSM on large proteins (e.g. full-length TP53)
+  thermompnn_full_protein_max_residues: 80
