@@ -23,7 +23,9 @@ MPNN_REPO = ROOT / "external" / "ProteinMPNN"
 
 def _thermompnn_env() -> dict[str, str]:
     env = os.environ.copy()
-    env["PYTHONPATH"] = f"{THERMOMPNN_DIR}{os.pathsep}{env.get('PYTHONPATH', '')}"
+    env["PYTHONPATH"] = os.pathsep.join(
+        [str(THERMOMPNN_DIR), str(THERMOMPNN_DIR / "analysis"), env.get("PYTHONPATH", "")]
+    )
     env["TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD"] = "1"
     return env
 

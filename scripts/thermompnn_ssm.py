@@ -14,8 +14,25 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 THERMOMPNN_DIR = ROOT / "external" / "ThermoMPNN"
+THERMOMPNN_ANALYSIS = THERMOMPNN_DIR / "analysis"
 sys.path.insert(0, str(THERMOMPNN_DIR))
+sys.path.insert(0, str(THERMOMPNN_ANALYSIS))
 os.environ.setdefault("TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD", "1")
+
+ALPHABET = "ACDEFGHIKLMNPQRSTVWYX"
+
+
+def get_ssm_mutations(pdb: dict) -> list:
+    """Site-saturation mutation codes (0-based index), from ThermoMPNN analysis/SSM.py."""
+    mutation_list: list = []
+    for seq_pos in range(len(pdb["seq"])):
+        wt_aa = pdb["seq"][seq_pos]
+        if wt_aa != "-":
+            for mut_aa in ALPHABET[:-1]:
+                mutation_list.append(wt_aa + str(seq_pos) + mut_aa)
+        else:
+            mutation_list.append(None)
+    return mutation_list
 
 INFERENCE_CONFIG = {
     "training": {
@@ -68,7 +85,6 @@ def run_ssm(pdb_path: Path, chain: str, model_path: Path, out_dir: Path) -> Path
 
     from datasets import Mutation
     from protein_mpnn_utils import alt_parse_PDB
-    from SSM import get_ssm_mutations
 
     local_yaml = THERMOMPNN_DIR / "local.yaml"
     base_cfg = OmegaConf.load(str(local_yaml)) if local_yaml.exists() else OmegaConf.create({})
