@@ -19,6 +19,9 @@ clone https://github.com/lightflow16/mini_protein_pipeline_6a95.git mini_protein
 clone https://github.com/Kuhlman-Lab/ThermoMPNN.git ThermoMPNN
 clone https://github.com/dauparas/ProteinMPNN.git ProteinMPNN
 
+echo "Installing ThermoMPNN inference dependencies..."
+pip install -q pytorch-lightning torchmetrics omegaconf wandb tqdm
+
 # Patch ThermoMPNN local path for notebook
 ROOT="$ROOT" python3 - <<'PY'
 import os, yaml

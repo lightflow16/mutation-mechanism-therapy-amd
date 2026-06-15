@@ -110,3 +110,4 @@ Attach GPU only for train / live inference / rescue. **Never** `pip install vllm
 | `libcudart.so.13` on Colab | Use `scripts/install_vllm_colab.sh` or skip vLLM |
 | `'Event' object is not callable` | `git pull` (metrics.py Thread._stop fix) |
 | vLLM endpoints all `False` | Expected on AMD; use transformers or cached traces |
+| `No module named 'pytorch_lightning'` | `pip install pytorch-lightning torchmetrics omegaconf wandb` or re-run `setup_external.sh` |

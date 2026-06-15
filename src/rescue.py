@@ -55,6 +55,25 @@ def _thermompnn_model_path() -> Path:
     )
 
 
+def _ensure_thermompnn_deps() -> None:
+    missing: list[str] = []
+    for mod, pkg in (
+        ("pytorch_lightning", "pytorch-lightning"),
+        ("torchmetrics", "torchmetrics"),
+        ("omegaconf", "omegaconf"),
+    ):
+        try:
+            __import__(mod)
+        except ImportError:
+            missing.append(pkg)
+    if missing:
+        raise ImportError(
+            "ThermoMPNN requires: pip install "
+            + " ".join(missing)
+            + "  (or pip install -r requirements.txt)"
+        )
+
+
 def score_ddg_site_saturation(
     pdb_path: Path,
     chain: str,
@@ -65,6 +84,7 @@ def score_ddg_site_saturation(
     max_full_protein_residues: int = 80,
 ) -> Path:
     """Run ThermoMPNN custom_inference on a PDB; return CSV path."""
+    _ensure_thermompnn_deps()
     patch_thermompnn_local_yaml()
     out_dir.mkdir(parents=True, exist_ok=True)
     script = THERMOMPNN_DIR / "analysis" / "custom_inference.py"
