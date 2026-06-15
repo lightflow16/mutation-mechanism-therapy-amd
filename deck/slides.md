@@ -13,10 +13,23 @@ Manual KB/literature review is slow; structural context is often ignored.
 2. **Rational Rescue** (TP53 R175H) — ProteinMPNN + ThermoMPNN ddG
 3. **Cross-Verification** — GPU DL ddG vs CPU PyRosetta (offline)
 
-# Slide 4 — AMD story
-Open vendor-neutral stack on Instinct MI300X: vLLM + ESMFold + Boltz (`--no_kernels`) + ThermoMPNN.
-No BioNeMo lock-in. Metrics: CPU/GPU time + ingress/egress/reasoning tokens per agent.
+# Slide 4 — AMD story + productive throughput (not raw GPU %)
+Open vendor-neutral stack on Instinct MI300X: transformers + ESMFold + Boltz + ThermoMPNN.
+Native metrics (`src/metrics.py`): latency-to-decision, workflow density, egress tokens/GPU-s, weight-cache hit rate.
+Live demo: open `metrics/workflow_trace_dashboard.html` — blackboard agent timeline + before/after vs single baseline.
 
-# Slide 5 — Results & future
+# Slide 4b — Metrics that matter (judge narrative)
+| Avoid | Prefer |
+| --- | --- |
+| Mean GPU % (hides idle) | **GPU productivity ratio** = gpu_active / gpu_attached |
+| Raw tok/s alone | **Productive egress tok / GPU-s** |
+| Single latency number | **Workflow density** = agent steps / decision time |
+| Cold-start inference | **Weight cache hit rate** (sticky Qwen weights across 14 MAS steps) |
+
+# Slide 5 — Return on Reasoning (RoR)
+`return_on_reasoning.csv` + `ror_benchmark.json`: semantic accuracy / token cost / cost multiplier vs single.
+Thesis + hackathon: open `workflow_trace_dashboard.html` (efficiency frontier scatter + ingress-by-role compaction baseline).
+
+# Slide 6 — Results & future
 Ablation: single / CoT / blackboard × base / LoRA (Therapy F1, direction accuracy).
 Future: RFdiffusion/BindCraft de novo binder design (out of live scope).

@@ -18,17 +18,27 @@ DATA = ROOT / "data" / "lora_train.jsonl"
 
 
 def _ensure_torchao_compat() -> None:
-    """Colab ships torchao 0.10; peft 0.19+ requires >=0.16 when torchao is present."""
+    """peft may import torchao; upgrade only when too old. Optional CUDA kernels are not used for bf16 LoRA."""
     import subprocess
+
     try:
         import importlib.metadata as im
+
         ver = im.version("torchao")
         major, minor = (int(x) for x in ver.split(".")[:2])
-        if (major, minor) < (0, 16):
-            print(f"Upgrading torchao {ver} -> >=0.16.0 (required by peft)...")
-            subprocess.check_call(
-                [sys.executable, "-m", "pip", "install", "-q", "torchao>=0.16.0"],
+        if (major, minor) >= (0, 16):
+            print(
+                "Note: torchao may print 'Failed to load ...cutlass/mxfp8' on Colab — "
+                "safe to ignore for bf16 LoRA (those kernels are not used)."
             )
+            return
+        print(f"Upgrading torchao {ver} -> >=0.16.0 (required by peft)...")
+        subprocess.check_call(
+            [sys.executable, "-m", "pip", "install", "-q", "torchao>=0.16.0"],
+        )
+        print(
+            "Note: ignore torchao 'Failed to load ...cutlass/mxfp8' lines — bf16 LoRA does not need them."
+        )
     except im.PackageNotFoundError:
         pass
 

@@ -186,10 +186,20 @@ def fold_esmfold(sequence: str, out_pdb: Path) -> Path:
     return out_pdb
 
 
-def fold_boltz(sequence: str, yaml_path: Path, out_dir: Path, cache_dir: Path) -> Path | None:
-    """Run Boltz in isolated env with --no_kernels (ROCm probe validated). Skips if not installed."""
-    boltz_bin = os.environ.get("BOLTZ_BIN", "boltz")
-    if not shutil.which(boltz_bin):
+def fold_boltz(
+    sequence: str,
+    yaml_path: Path,
+    out_dir: Path,
+    cache_dir: Path,
+    *,
+    required: bool = True,
+) -> Path | None:
+    """Run Boltz in isolated env with --no_kernels (ROCm probe validated)."""
+    boltz_bin = os.environ.get("BOLTZ_BIN", str(ROOT / "external" / "boltz_venv" / "bin" / "boltz"))
+    if not Path(boltz_bin).is_file() and not shutil.which(boltz_bin):
+        msg = f"Boltz not found ({boltz_bin}). Run: bash scripts/setup_boltz_venv.sh"
+        if required:
+            raise FileNotFoundError(msg)
         return None
     yaml_path.parent.mkdir(parents=True, exist_ok=True)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -208,12 +218,22 @@ def fold_boltz(sequence: str, yaml_path: Path, out_dir: Path, cache_dir: Path) -
     with metrics.track("boltz_fold", agent_role="Rescue", model="boltz-2.2.1"):
         try:
             r = subprocess.run(cmd, cwd=str(yaml_path.parent), capture_output=True, text=True)
-        except OSError:
+        except OSError as exc:
+            if required:
+                raise RuntimeError(f"Boltz failed to start: {exc}") from exc
             return None
         if r.returncode != 0:
+            detail = (r.stderr or r.stdout or "").strip()
+            tail = detail[-4000:] if len(detail) > 4000 else detail
+            if required:
+                raise RuntimeError(f"Boltz failed (exit {r.returncode}):\n{tail or '(no output)'}")
             return None
     pdbs = list(out_dir.rglob("*.pdb"))
-    return pdbs[0] if pdbs else None
+    if not pdbs:
+        if required:
+            raise RuntimeError(f"Boltz produced no PDB under {out_dir}")
+        return None
+    return pdbs[0]
 
 
 def run_proteinmpnn_redesign(
@@ -225,11 +245,11 @@ def run_proteinmpnn_redesign(
     temperature: float = 0.8,
     num_seqs: int = 8,
 ) -> list[dict]:
-    """Shell out to dauparas/ProteinMPNN if cloned; else return stub for CPU dev."""
+    """Shell out to dauparas/ProteinMPNN (required for rescue)."""
     out_dir.mkdir(parents=True, exist_ok=True)
     run_py = MPNN_REPO / "protein_mpnn_run.py"
     if not run_py.exists():
-        return [{"sequence": "STUB", "score": 0.0, "note": "Clone ProteinMPNN to external/ProteinMPNN"}]
+        raise FileNotFoundError(f"ProteinMPNN not found at {MPNN_REPO}; run scripts/setup_external.sh")
     pdb_name = pdb_path.stem
     fixed_json = out_dir / "fixed_positions.jsonl"
     # ProteinMPNN expects JSONL: {pdb_name: {chain: [1-based indices to keep fixed]}}
@@ -314,20 +334,24 @@ def run_rescue(
         )
 
         best = designs[0] if designs else {}
-        fold_pdb = None
-        fold_method = None
-        if best.get("sequence") and best["sequence"] != "STUB":
-            fold_pdb = fold_esmfold(best["sequence"], work / "esmfold_candidate.pdb")
-            fold_method = "esmfold"
-            boltz_out = fold_boltz(
-                best["sequence"],
-                work / "boltz" / "input.yaml",
-                work / "boltz" / "out",
-                shared_dir(cfg) / "boltz_cache",
-            )
-            if boltz_out:
-                fold_pdb = boltz_out
-                fold_method = "boltz"
+        if not best.get("sequence"):
+            raise RuntimeError("ProteinMPNN produced no designs")
+
+        require_boltz = rescue_cfg.get("require_boltz", True)
+        require_esmfold = rescue_cfg.get("require_esmfold", True)
+        esmfold_pdb = None
+        boltz_pdb = None
+        if require_esmfold:
+            esmfold_pdb = fold_esmfold(best["sequence"], work / "esmfold_candidate.pdb")
+        boltz_pdb = fold_boltz(
+            best["sequence"],
+            work / "boltz" / "input.yaml",
+            work / "boltz" / "out",
+            shared_dir(cfg) / "boltz_cache",
+            required=require_boltz,
+        )
+        primary_pdb = boltz_pdb or esmfold_pdb
+        fold_method = "boltz+esmfold" if boltz_pdb and esmfold_pdb else ("boltz" if boltz_pdb else "esmfold")
 
         return {
             "mutant_ddg_kcal_mol": mut_ddg,
@@ -339,8 +363,10 @@ def run_rescue(
                 else None
             ),
             "designs": designs[:5],
-            "folded_candidate_pdb": str(fold_pdb) if fold_pdb else None,
+            "folded_candidate_pdb": str(primary_pdb) if primary_pdb else None,
             "fold_method": fold_method,
+            "esmfold_pdb": str(esmfold_pdb) if esmfold_pdb else None,
+            "boltz_pdb": str(boltz_pdb) if boltz_pdb else None,
             "thermompnn_csv": str(csv_path),
             "thermompnn_shell_pdb": str(shell_pdb) if shell_pdb.exists() else None,
             "proteinmpnn_pdb": str(mpnn_pdb),

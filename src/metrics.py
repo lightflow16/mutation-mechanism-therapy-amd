@@ -310,13 +310,24 @@ def log_llm_call(
     completion_tokens: int,
     latency_s: float,
     query_id: str = "",
+    *,
+    architecture: str = "",
+    label: str = "",
+    gene: str = "",
+    mutation: str = "",
+    weight_cache_hit: bool = False,
 ) -> None:
-    """Append one LLM call record to llm_calls.jsonl (Layer 2)."""
     think = "".join(_THINK_RE.findall(completion_text or ""))
     reasoning_tok = len(think.split())
+    if not query_id and gene and mutation:
+        query_id = f"{gene}_{mutation}"
     row = {
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
         "query_id": query_id,
+        "gene": gene,
+        "mutation": mutation,
+        "architecture": architecture,
+        "label": label,
         "agent_role": agent_role,
         "model": model_name,
         "round": round_idx,
@@ -326,7 +337,14 @@ def log_llm_call(
         "total_tokens": prompt_tokens + completion_tokens + reasoning_tok,
         "latency_s": round(latency_s, 4),
         "tok_per_s": round(completion_tokens / latency_s, 1) if latency_s > 0 else "NA",
+        "weight_cache_hit": bool(weight_cache_hit),
     }
+    try:
+        from src.platform import detect_platform
+
+        row["platform_id"] = detect_platform().get("platform_id", "")
+    except Exception:
+        row["platform_id"] = ""
     os.makedirs(METRICS_DIR, exist_ok=True)
     with _LOCK, open(LLM_LOG, "a") as f:
         f.write(json.dumps(row) + "\n")
@@ -369,7 +387,26 @@ class SysSampler:
             if m:
                 row["gfx_util"] = float(m.group(1))
         except Exception:
-            pass
+            try:
+                out = subprocess.run(
+                    [
+                        "nvidia-smi",
+                        "--query-gpu=utilization.gpu,memory.used,power.draw",
+                        "--format=csv,noheader,nounits",
+                    ],
+                    capture_output=True,
+                    text=True,
+                    timeout=2,
+                )
+                parts = [p.strip() for p in out.stdout.strip().split(",")]
+                if parts:
+                    row["gfx_util"] = float(parts[0]) if parts[0].replace(".", "").isdigit() else "NA"
+                if len(parts) > 1 and parts[1].replace(".", "").isdigit():
+                    row["vram_gib"] = round(float(parts[1]) / 1024.0, 3)
+                if len(parts) > 2 and parts[2].replace(".", "").isdigit():
+                    row["socket_power_w"] = float(parts[2])
+            except Exception:
+                pass
         if _gpu_present():
             row["torch_alloc_gib"] = round(torch.cuda.memory_allocated() / 1e9, 3)
             row["torch_peak_gib"] = round(torch.cuda.max_memory_allocated() / 1e9, 3)

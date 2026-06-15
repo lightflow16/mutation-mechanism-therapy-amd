@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import json
-import time
 from typing import Any
 
 from src import metrics
@@ -28,7 +27,6 @@ def run_cot(
     )
 
     with metrics.phase(f"cot_{target['gene']}_{target['mutation']}", model=model):
-        t0 = time.perf_counter()
         resp = call_llm(
             cot_prompt,
             base_url=base_url,
@@ -37,14 +35,10 @@ def run_cot(
             agent_role="CoT",
             round_idx=1,
             label="cot_reason",
-        )
-        metrics.log_llm_call(
-            "CoT", model, 1,
-            resp["metadata"]["prompt_tokens"],
-            resp["content"],
-            resp["metadata"]["completion_tokens"],
-            time.perf_counter() - t0,
             query_id=f"{target['gene']}_{target['mutation']}",
+            architecture="cot",
+            gene=target["gene"],
+            mutation=target["mutation"],
         )
         text = resp["content"]
         try:

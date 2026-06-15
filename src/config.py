@@ -100,3 +100,6 @@ def setup_env(cfg: dict | None = None) -> None:
             local_hf.mkdir(parents=True, exist_ok=True)
             os.environ.setdefault("HF_HOME", str(local_hf))
     os.environ.setdefault("METRICS_DIR", str(metrics_dir(cfg)))
+    boltz = ROOT / "external" / "boltz_venv" / "bin" / "boltz"
+    if boltz.is_file():
+        os.environ.setdefault("BOLTZ_BIN", str(boltz))

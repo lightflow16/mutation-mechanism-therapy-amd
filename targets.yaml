@@ -69,3 +69,20 @@ rescue:
   pack_shell_radius: 8.0             # Angstrom around the mutated residue to redesign
   thermompnn_shell_radius: 15.0      # local shell for SSM on large proteins (e.g. full-length TP53)
   thermompnn_full_protein_max_residues: 80
+  require_boltz: true                # fail rescue if Boltz not installed (setup_boltz_venv.sh)
+  require_esmfold: true
+  require_proteinmpnn: true
+
+pipeline:
+  # Full submission: always run all architectures live on all demo cases; compare per mutation.
+  always_run_all: true
+  architectures: [single, cot, blackboard]
+  demo_cases:
+    - [EGFR, L858R]
+    - [PIK3CA, E545K]
+    - [TP53, R175H]
+  live_evidence: true
+  use_cached_baseline: true          # cached replay + live matrix (both compared)
+  run_eval_after_live: true
+  export_metrics_bundle: true
+  run_lora_train: false                # set true or use --train-lora to SFT before matrix

@@ -2,8 +2,8 @@
 from __future__ import annotations
 
 import json
-import os
 import re
+import time
 from pathlib import Path
 from typing import Any
 
@@ -100,8 +100,25 @@ def reason_single(
                 padding=True, return_tensors="pt",
             ).to("cuda")
             in_len = inputs["input_ids"].shape[1]
+            t0 = time.perf_counter()
             out = model.generate(**inputs, max_new_tokens=max_new_tokens)
+            latency = time.perf_counter() - t0
             gen = proc.decode(out[0][in_len:], skip_special_tokens=True)
-            m.set_tokens(ingress=in_len, egress=out[0].shape[0] - in_len)
+            out_tok = int(out[0].shape[0] - in_len)
+            m.set_tokens(ingress=in_len, egress=out_tok)
+            metrics.log_llm_call(
+                "SingleAgent",
+                model_id,
+                1,
+                in_len,
+                gen,
+                out_tok,
+                latency,
+                query_id=f"{target['gene']}_{target['mutation']}",
+                architecture="single",
+                label="qwen_vl_generate",
+                gene=target["gene"],
+                mutation=target["mutation"],
+            )
             parsed = parse_reasoning_json(gen)
             return parsed

@@ -1,4 +1,4 @@
-"""Ablation: base vs LoRA x single/CoT/blackboard; Therapy F1 + direction acc + metrics."""
+"""Ablation: compare single / CoT / blackboard per mutation; Therapy F1 + direction acc."""
 from __future__ import annotations
 
 import sys
@@ -13,22 +13,31 @@ import json
 
 from src import metrics
 from src.config import load_config, metrics_dir
-from src.pipeline import run_case
+from src.pipeline import (
+    compare_architecture_results,
+    extract_target_reasoning,
+    extract_therapies_from_reasoning,
+    run_mutation_comparison,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
-CASES = [("EGFR", "L858R"), ("PIK3CA", "E545K"), ("TP53", "R175H")]
-ARCHITECTURES = ("single", "cot", "blackboard")
 
 
 def therapy_f1(pred: list[str], gold: list[str]) -> float:
     def norm(xs):
-        aliases = {"gefitinib": "gefitinib", "erlotinib": "erlotinib", "afatinib": "afatinib",
-                   "osimertinib": "osimertinib", "alpelisib": "alpelisib"}
+        aliases = {
+            "gefitinib": "gefitinib",
+            "erlotinib": "erlotinib",
+            "afatinib": "afatinib",
+            "osimertinib": "osimertinib",
+            "alpelisib": "alpelisib",
+        }
         out = set()
         for x in xs:
             k = x.lower().strip().split()[0]
             out.add(aliases.get(k, k))
         return out
+
     p, g = norm(pred), norm(gold)
     if not g:
         return 1.0 if not p else 0.0
@@ -46,20 +55,6 @@ def direction_accuracy(pred: dict, gold: dict) -> float:
     return 1.0 if ok else 0.0
 
 
-def extract_reasoning(result: dict) -> dict:
-    r = result.get("reasoning", {})
-    if "target_reasoning" in r:
-        return r["target_reasoning"]
-    return r
-
-
-def extract_therapies(reasoning: dict) -> list[str]:
-    tr = reasoning.get("therapy") or reasoning
-    if isinstance(tr, dict):
-        return list(tr.get("sensitivity") or []) + list(tr.get("resistance") or [])
-    return []
-
-
 def gold_case(gene: str, mutation: str) -> dict:
     p = ROOT / "data" / "cases" / f"{gene}_{mutation}.json"
     return json.loads(p.read_text())
@@ -68,31 +63,75 @@ def gold_case(gene: str, mutation: str) -> dict:
 def main():
     cfg = load_config()
     metrics.set_metrics_dir(str(metrics_dir()))
+    pcfg = cfg.get("pipeline", {})
+    cases = [tuple(x) for x in pcfg.get("demo_cases", [])]
+    architectures = tuple(pcfg.get("architectures", ["single", "cot", "blackboard"]))
+
     rows = []
-    for gene, mut in CASES:
+    comparisons = {}
+    for gene, mut in cases:
         gold = gold_case(gene, mut)
-        for arch in ARCHITECTURES:
-            if gene == "TP53" and mut == "R175H" and arch != "blackboard":
-                continue  # rescue-focused; still run blackboard for demo trace
-            with metrics.phase(f"eval_{gene}_{mut}_{arch}"):
-                try:
-                    result = run_case(
-                        gene, mut, architecture=arch,
-                        live_evidence=False, use_cached_trace=True,
-                    )
-                    reasoning = extract_reasoning(result)
-                    pred = extract_therapies(reasoning)
-                    f1 = therapy_f1(pred, extract_therapies(gold["target_reasoning"]))
-                    dacc = direction_accuracy(reasoning, gold["target_reasoning"])
-                    summ = metrics.summary()
-                except Exception as e:
-                    f1 = dacc = 0.0
-                    summ = {"error": str(e)}
-                rows.append({
-                    "gene": gene, "mutation": mut, "architecture": arch,
-                    "therapy_f1": round(f1, 3), "direction_acc": round(dacc, 3),
-                    "total_tokens": summ.get("total", 0),
-                })
+        gold_reasoning = gold["target_reasoning"]
+        gold_sens, gold_res = extract_therapies_from_reasoning(gold_reasoning)
+
+        run: dict = {"architectures": {}}
+        with metrics.phase(f"eval_{gene}_{mut}_compare"):
+            try:
+                run = run_mutation_comparison(
+                    gene,
+                    mut,
+                    architectures=list(architectures),
+                    live_evidence=False,
+                    use_cached_trace=True,
+                )
+                comparison = run["comparison"]
+            except Exception as exc:
+                comparison = compare_architecture_results(gene, mut, {})
+                comparison["error"] = str(exc)
+
+        comparisons[f"{gene}_{mut}"] = comparison
+
+        for arch in architectures:
+            result = run.get("architectures", {}).get(arch)
+            if not result:
+                rows.append(
+                    {
+                        "gene": gene,
+                        "mutation": mut,
+                        "architecture": arch,
+                        "route": None,
+                        "therapy_f1": None,
+                        "direction_acc": None,
+                        "route_agreement": comparison.get("route_agreement"),
+                        "therapy_sensitivity_agreement": comparison.get("therapy_sensitivity_agreement"),
+                        "therapy_sensitivity_overlap": ",".join(
+                            comparison.get("therapy_sensitivity_overlap") or []
+                        ),
+                        "status": "missing_trace",
+                    }
+                )
+                continue
+            reasoning = extract_target_reasoning(result)
+            pred_sens, pred_res = extract_therapies_from_reasoning(reasoning)
+            f1 = therapy_f1(pred_sens + pred_res, gold_sens + gold_res)
+            dacc = direction_accuracy(reasoning, gold_reasoning)
+            rows.append(
+                {
+                    "gene": gene,
+                    "mutation": mut,
+                    "architecture": arch,
+                    "route": result.get("route"),
+                    "therapy_f1": round(f1, 3),
+                    "direction_acc": round(dacc, 3),
+                    "route_agreement": comparison.get("route_agreement"),
+                    "therapy_sensitivity_agreement": comparison.get("therapy_sensitivity_agreement"),
+                    "therapy_sensitivity_overlap": ",".join(
+                        comparison.get("therapy_sensitivity_overlap") or []
+                    ),
+                    "status": "ok",
+                }
+            )
+
     out_json = metrics_dir() / "ablation_results.json"
     out_json.write_text(json.dumps(rows, indent=2))
     csv_path = metrics_dir() / "ablation_results.csv"
@@ -101,8 +140,17 @@ def main():
         if rows:
             w.writeheader()
             w.writerows(rows)
+
+    cmp_path = metrics_dir() / "architecture_comparison_eval.json"
+    cmp_path.write_text(json.dumps(comparisons, indent=2, default=str))
     metrics.aggregate_ablation()
-    print(f"Wrote {out_json} and {csv_path}")
+    try:
+        from src.metrics_bundle import write_platform_summary
+
+        write_platform_summary()
+    except Exception:
+        pass
+    print(f"Wrote {out_json}, {csv_path}, and {cmp_path}")
 
 
 if __name__ == "__main__":

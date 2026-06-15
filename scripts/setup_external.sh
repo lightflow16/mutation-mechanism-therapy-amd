@@ -35,4 +35,7 @@ if p.exists():
     print("patched", p)
 PY
 
+echo "Installing Boltz (required for rescue fold stack)..."
+bash "$ROOT/scripts/setup_boltz_venv.sh"
+
 echo "Done."

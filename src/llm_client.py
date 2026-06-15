@@ -41,9 +41,10 @@ def use_vllm() -> bool:
     return _vllm_endpoints_up()
 
 
-def _get_text_model(model_id: str = _TEXT_MODEL_DEFAULT):
+def _get_text_model(model_id: str = _TEXT_MODEL_DEFAULT) -> tuple[Any, Any, bool]:
     if model_id in _MODEL_CACHE:
-        return _MODEL_CACHE[model_id]
+        tok, model = _MODEL_CACHE[model_id]
+        return tok, model, True
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
@@ -52,7 +53,7 @@ def _get_text_model(model_id: str = _TEXT_MODEL_DEFAULT):
         model_id, dtype=torch.bfloat16, device_map="cuda",
     )
     _MODEL_CACHE[model_id] = (tok, model)
-    return tok, model
+    return tok, model, False
 
 
 def call_transformers(
@@ -65,9 +66,13 @@ def call_transformers(
     agent_role: str = "",
     round_idx: int | str = "",
     label: str = "llm_call",
+    query_id: str = "",
+    architecture: str = "",
+    gene: str = "",
+    mutation: str = "",
 ) -> dict[str, Any]:
     with metrics.track(label, agent_role=agent_role, model=model_id, round_idx=round_idx) as m:
-        tok, model = _get_text_model(model_id)
+        tok, model, weight_cache_hit = _get_text_model(model_id)
         messages = []
         if system_prompt:
             messages.append({"role": "system", "content": system_prompt})
@@ -87,7 +92,21 @@ def call_transformers(
         gen = tok.decode(out[0][in_len:], skip_special_tokens=True)
         out_tok = out[0].shape[0] - in_len
         m.set_tokens(ingress=in_len, egress=int(out_tok))
-        metrics.log_llm_call(agent_role, model_id, round_idx, in_len, gen, int(out_tok), latency)
+        metrics.log_llm_call(
+            agent_role,
+            model_id,
+            round_idx,
+            in_len,
+            gen,
+            int(out_tok),
+            latency,
+            query_id=query_id,
+            architecture=architecture,
+            label=label,
+            gene=gene,
+            mutation=mutation,
+            weight_cache_hit=weight_cache_hit,
+        )
         return {
             "content": gen,
             "metadata": {
@@ -111,6 +130,10 @@ def call_vllm(
     agent_role: str = "",
     round_idx: int | str = "",
     label: str = "llm_call",
+    query_id: str = "",
+    architecture: str = "",
+    gene: str = "",
+    mutation: str = "",
 ) -> dict[str, Any]:
     from openai import OpenAI
 
@@ -133,7 +156,20 @@ def call_vllm(
         in_tok = usage.prompt_tokens if usage else len(prompt.split())
         out_tok = usage.completion_tokens if usage else len(text.split())
         m.set_tokens(ingress=in_tok, egress=out_tok)
-        metrics.log_llm_call(agent_role, model, round_idx, in_tok, text, out_tok, latency)
+        metrics.log_llm_call(
+            agent_role,
+            model,
+            round_idx,
+            in_tok,
+            text,
+            out_tok,
+            latency,
+            query_id=query_id,
+            architecture=architecture,
+            label=label,
+            gene=gene,
+            mutation=mutation,
+        )
         return {
             "content": text,
             "metadata": {
@@ -157,8 +193,18 @@ def call_llm(
     agent_role: str = "",
     round_idx: int | str = "",
     label: str = "llm_call",
+    query_id: str = "",
+    architecture: str = "",
+    gene: str = "",
+    mutation: str = "",
 ) -> dict[str, Any]:
     """Route to vLLM when up; otherwise transformers (Qwen2.5-7B text model)."""
+    ctx = dict(
+        query_id=query_id,
+        architecture=architecture,
+        gene=gene,
+        mutation=mutation,
+    )
     if use_vllm() and base_url:
         return call_vllm(
             prompt,
@@ -170,6 +216,7 @@ def call_llm(
             agent_role=agent_role,
             round_idx=round_idx,
             label=label,
+            **ctx,
         )
     model_id = _TEXT_MODEL_DEFAULT
     if model and "3b" in model.lower():
@@ -185,4 +232,5 @@ def call_llm(
         agent_role=agent_role,
         round_idx=round_idx,
         label=label,
+        **ctx,
     )

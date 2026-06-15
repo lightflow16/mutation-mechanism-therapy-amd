@@ -37,32 +37,41 @@ from src.pipeline import run_case
 run_case("EGFR", "L858R", architecture="blackboard", use_cached_trace=True)
 ```
 
-## Live GPU inference
+## Full run (all flows — Colab + AMD)
 
-### AMD MI300X (primary) — transformers, NOT vLLM
+`run_full_submission()` always runs on **every session**:
 
-`pip install vllm` **breaks ROCm torch**. The repo defaults to `LLM_BACKEND=transformers` on ROCm.
-
-```python
-from src.pipeline import run_case
-run_case("EGFR", "L858R", architecture="single", use_cached_trace=False)   # Qwen2.5-VL
-run_case("EGFR", "L858R", architecture="blackboard", use_cached_trace=False)  # live MAS via transformers
-python train/lora_sft.py
-```
-
-Blackboard demo for judges: use **cached traces** (`use_cached_trace=True`) — identical outcomes, instant playback.
-
-### Google Colab A100 — transformers (default) or optional vLLM
-
-**Recommended:** same transformers path as AMD (no vLLM install).
-
-**Optional vLLM** (CUDA 12.8 wheel — plain `pip install vllm` fails with `libcudart.so.13`):
+| Step | What runs |
+|------|-----------|
+| Live matrix | single + cot + blackboard × EGFR / PIK3CA / TP53 |
+| Cached baseline | same 9 combos from `data/traces/` (latency compare) |
+| Per-mutation compare | route + therapy overlap across architectures |
+| TP53 rescue | ThermoMPNN → MPNN → ESMFold + Boltz (once per mutation) |
+| Eval | therapy F1 / direction acc from saved traces |
+| Metrics export | `.tgz` with all CSVs, JSONL, traces, comparisons |
 
 ```bash
-bash scripts/install_vllm_colab.sh
-bash scripts/start_vllm.sh
-export LLM_BACKEND=vllm
+bash scripts/setup_external.sh
+python train/lora_sft.py   # optional; or --train-lora
+PYTHONPATH=. python scripts/run_full_submission.py --lora-path /workspace/shared/lora_adapter_final
 ```
+
+**Metrics bundle includes:** `calls.csv`, `phases.csv`, `llm_calls.jsonl`, `system_samples.csv`, `ablation_summary.csv`, `ablation_results.csv`, `architecture_comparison.json`, `architecture_metrics.csv`, `platform_summary.json`, `trace_*.json`, `comparison_*.json`, `run_manifest.json`.
+
+**Colab:** section 4 downloads `metrics_bundle_colab_cuda_*.tgz`.  
+**AMD:** copy `/workspace/shared/metrics_bundle_amd_rocm_*.tgz`.
+
+### NVIDIA (Colab) vs AMD comparison
+
+After running on both platforms:
+
+```bash
+PYTHONPATH=. python scripts/compare_platforms.py colab_bundle.tgz amd_bundle.tgz
+```
+
+Writes `platform_comparison.json` + `.csv` with per-phase CPU/GPU/token deltas and architecture rollups.
+
+**AMD:** transformers only. **Colab:** same stack.
 
 ## Notebooks
 
@@ -81,6 +90,10 @@ export LLM_BACKEND=vllm
 | `src/reason.py` | Qwen2.5-VL single-agent (transformers) |
 | `src/rescue.py` | ProteinMPNN + ThermoMPNN + ESMFold/Boltz |
 | `src/metrics.py` | CPU/GPU/token metrics → CSV |
+| `src/metrics_bundle.py` | Export `.tgz` + cross-platform compare |
+| `src/submission.py` | Full submission orchestrator |
+| `scripts/run_full_submission.py` | CLI: all flows + metrics export |
+| `scripts/compare_platforms.py` | Colab vs AMD metrics diff |
 | `scripts/verify_gpu.py` | GPU sanity check |
 | `scripts/install_vllm_colab.sh` | Colab-only cu128 vLLM wheel |
 | `scripts/start_vllm.sh` | CUDA-only vLLM servers (refuses ROCm) |
@@ -88,8 +101,8 @@ export LLM_BACKEND=vllm
 
 ## GPU structural stack (MI300X probe-validated)
 
-- **ESMFold** — default folder, main env
-- **Boltz 2.2.1** — `--no_kernels`, isolated numpy&lt;2 venv
+- **ESMFold** — required folder (main env)
+- **Boltz 2.2.1** — required folder; `--no_kernels`, isolated numpy&lt;2 venv via `scripts/setup_boltz_venv.sh`
 - **ThermoMPNN** — ddG gate + scorer
 - **ProteinMPNN** — fixed-backbone redesign
 
@@ -112,4 +125,40 @@ Attach GPU only for train / live inference / rescue. **Never** `pip install vllm
 | vLLM endpoints all `False` | Expected on AMD; use transformers or cached traces |
 | `No module named 'pytorch_lightning'` | `pip install pytorch-lightning torchmetrics omegaconf wandb` or re-run `setup_external.sh` |
 | `KeyError: 'pytorch-lightning_version'` | `git pull` — uses `scripts/thermompnn_ssm.py` to load `.pt` weights correctly |
-| `FileNotFoundError: 'boltz'` | Expected on Colab; rescue uses ESMFold only. `git pull` skips Boltz when not installed |
+| `torchao Failed to load ...cutlass/mxfp8` on Colab | Benign — bf16 LoRA does not use those kernels; training still works |
+| `FileNotFoundError: 'boltz'` | Run `bash scripts/setup_external.sh` (installs Boltz venv) |
+| `eval.py` downloads 15 GB model | Run `run_all_modes()` live first; `eval.py` scores saved traces only (no LLM load) |
+
+## Monitoring (built from scratch — no LangGraph/Phoenix)
+
+Native hooks in `src/metrics.py` write continuously to `METRICS_DIR`:
+
+| File | Use in demo |
+|------|-------------|
+| `llm_calls.jsonl` | Per-agent live trace (role, round, latency, tokens) |
+| `phases.csv` | GPU active vs attached time per pipeline phase |
+| `system_samples.csv` | CPU/RAM/gfx/VRAM samples during run |
+| `productive_throughput.csv` | **Latency-to-decision**, workflow density, egress/GPU-s |
+| `before_after_comparison.csv` | single (baseline) vs blackboard (MAS depth) |
+| `workflow_trace_dashboard.html` | Open in browser for live trace timeline |
+
+Regenerate after a run:
+
+```bash
+PYTHONPATH=. python scripts/generate_workflow_report.py
+```
+
+**Narrative:** avoid mean GPU %; show **GPU productivity ratio**, **workflow density**, and **Return on Reasoning** (therapy F1 + direction acc per 1k tokens).
+
+### Return on Reasoning (RoR)
+
+After full submission + eval:
+
+| File | Purpose |
+|------|---------|
+| `return_on_reasoning.csv` | Semantic accuracy vs token cost × architecture |
+| `ror_benchmark.json` | Efficiency frontier data + architecture summary |
+| `blackboard_ingress_by_role.csv` | Compaction ROI baseline (ingress waste by agent) |
+| `workflow_trace_dashboard.html` | **Formal demo dashboard** (judges) + thesis figures |
+
+Same metrics bundle works for **Colab vs AMD** (`compare_platforms.py`) and **M.Tech documentation** (CSV/JSON export).

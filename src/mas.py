@@ -56,6 +56,13 @@ def run_blackboard(
     public: list[dict] = []
     total_tokens = 0
     dr = {"content": "{}"}
+    qid = f"{target['gene']}_{target['mutation']}"
+    llm_ctx = dict(
+        query_id=qid,
+        architecture="blackboard",
+        gene=target["gene"],
+        mutation=target["mutation"],
+    )
 
     with metrics.phase(f"blackboard_{target['gene']}_{target['mutation']}", model="bMAS"):
         base_url, model = _endpoint(cfg, "Planner")
@@ -64,6 +71,7 @@ def run_blackboard(
             base_url=base_url, model=model,
             system_prompt="You are the Planner. Output a short numbered plan.",
             agent_role="Planner", round_idx=0, label="planner",
+            **llm_ctx,
         )
         public.append({"agent": "Planner", "type": "plan", "content": pr["content"]})
         total_tokens += pr["metadata"]["total_tokens"]
@@ -78,6 +86,7 @@ def run_blackboard(
                     prompt, base_url=bu, model=mo,
                     system_prompt=f"You are the {role} expert.",
                     agent_role=role, round_idx=rnd, label=f"expert_{role.lower()}",
+                    **llm_ctx,
                 )
                 public.append({"agent": role, "type": "expert", "content": er["content"]})
                 total_tokens += er["metadata"]["total_tokens"]
@@ -87,6 +96,7 @@ def run_blackboard(
                 f"Check claims vs evidence. Flag hallucinated pLDDT or therapy claims.\n{_bb_text(public)}",
                 base_url=bu, model=mo, system_prompt="You are the Critic.",
                 agent_role="Critic", round_idx=rnd, label="critic",
+                **llm_ctx,
             )
             public.append({"agent": "Critic", "type": "critique", "content": cr["content"]})
             total_tokens += cr["metadata"]["total_tokens"]
@@ -96,6 +106,7 @@ def run_blackboard(
                 f"Resolve sensitivity vs resistance conflicts by disease context.\n{_bb_text(public)}",
                 base_url=bu, model=mo, system_prompt="You are the ConflictResolver.",
                 agent_role="ConflictResolver", round_idx=rnd, label="conflict_resolver",
+                **llm_ctx,
             )
             public.append({"agent": "ConflictResolver", "type": "resolution", "content": xr["content"]})
             total_tokens += xr["metadata"]["total_tokens"]
@@ -106,6 +117,7 @@ def run_blackboard(
             base_url=bu, model=mo,
             system_prompt="You are the Decider. Return valid JSON only.",
             agent_role="Decider", round_idx=max_rounds + 1, label="decider",
+            **llm_ctx,
         )
         public.append({"agent": "Decider", "type": "decision", "content": dr["content"]})
         total_tokens += dr["metadata"]["total_tokens"]
