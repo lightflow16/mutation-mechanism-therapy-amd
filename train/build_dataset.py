@@ -1,8 +1,14 @@
 """Build LoRA SFT dataset from CIViC/ClinVar case JSONs (training data ONLY - no OncoKB)."""
 from __future__ import annotations
 
-import json
+import sys
 from pathlib import Path
+
+_ROOT = Path(__file__).resolve().parents[1]
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+
+import json
 
 ROOT = Path(__file__).resolve().parents[1]
 CASES = ROOT / "data" / "cases"

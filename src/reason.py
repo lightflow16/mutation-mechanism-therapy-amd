@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from pathlib import Path
 from typing import Any
 
@@ -24,6 +25,23 @@ Return ONLY valid JSON with keys:
 }
 Use ONLY the provided numeric structure features; do not invent pLDDT values.
 """
+
+
+def parse_reasoning_json(text: str) -> dict[str, Any]:
+    """Parse model output; strip ```json fences and tolerate truncated JSON."""
+    raw = (text or "").strip()
+    if raw.startswith("```"):
+        raw = re.sub(r"^```(?:json)?\s*", "", raw, flags=re.I)
+        raw = re.sub(r"\s*```\s*$", "", raw)
+    start = raw.find("{")
+    end = raw.rfind("}") + 1
+    if start < 0 or end <= start:
+        return {"raw": text}
+    chunk = raw[start:end]
+    try:
+        return json.loads(chunk)
+    except json.JSONDecodeError:
+        return {"raw": text, "parse_error": True}
 
 
 def build_prompt(target: dict, structure: dict, evidence: list[dict]) -> str:
@@ -60,7 +78,7 @@ def reason_single(
     model_id: str = "Qwen/Qwen2.5-VL-7B-Instruct",
     lora_path: str | None = None,
     image_path: str | None = None,
-    max_new_tokens: int = 512,
+    max_new_tokens: int = 1024,
 ) -> dict[str, Any]:
     setup_env()
     prompt = build_prompt(target, structure, evidence)
@@ -85,10 +103,5 @@ def reason_single(
             out = model.generate(**inputs, max_new_tokens=max_new_tokens)
             gen = proc.decode(out[0][in_len:], skip_special_tokens=True)
             m.set_tokens(ingress=in_len, egress=out[0].shape[0] - in_len)
-            try:
-                start = gen.find("{")
-                end = gen.rfind("}") + 1
-                parsed = json.loads(gen[start:end]) if start >= 0 else {"raw": gen}
-            except json.JSONDecodeError:
-                parsed = {"raw": gen}
+            parsed = parse_reasoning_json(gen)
             return parsed

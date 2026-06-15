@@ -1,10 +1,16 @@
 """LoRA SFT on Qwen2.5-VL language backbone (vision frozen)."""
 from __future__ import annotations
 
-import os
+import sys
 from pathlib import Path
 
-from src.config import load_config, setup_env
+_ROOT = Path(__file__).resolve().parents[1]
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+
+import os
+
+from src.config import load_config, setup_env, shared_dir
 from src import metrics
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -14,10 +20,11 @@ DATA = ROOT / "data" / "lora_train.jsonl"
 def main():
     setup_env()
     cfg = load_config()
-    paths = cfg.get("paths", {})
-    out_dir = paths.get("lora_ckpts", "/workspace/shared/lora_ckpts")
-    final = paths.get("lora_adapter_final", "/workspace/shared/lora_adapter_final")
-    os.makedirs(out_dir, exist_ok=True)
+    shared = shared_dir(cfg)
+    out_dir = shared / "lora_ckpts"
+    final = shared / "lora_adapter_final"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    final.mkdir(parents=True, exist_ok=True)
 
     import torch
     from datasets import load_dataset
@@ -50,7 +57,7 @@ def main():
         ds = ds.map(fmt)
 
         sft_cfg = SFTConfig(
-            output_dir=out_dir,
+            output_dir=str(out_dir),
             num_train_epochs=3,
             per_device_train_batch_size=2,
             gradient_accumulation_steps=8,
@@ -64,7 +71,7 @@ def main():
         )
         trainer = SFTTrainer(model=model, train_dataset=ds, args=sft_cfg)
         trainer.train()
-        trainer.save_model(final)
+        trainer.save_model(str(final))
         print(f"Saved adapter -> {final}")
 
 

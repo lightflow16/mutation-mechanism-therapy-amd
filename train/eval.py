@@ -1,9 +1,15 @@
 """Ablation: base vs LoRA x single/CoT/blackboard; Therapy F1 + direction acc + metrics."""
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+_ROOT = Path(__file__).resolve().parents[1]
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+
 import csv
 import json
-from pathlib import Path
 
 from src import metrics
 from src.config import load_config, metrics_dir
