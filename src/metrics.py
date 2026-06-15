@@ -396,7 +396,9 @@ class SysSampler:
         return self
 
     def __exit__(self, *args):
-        self._halt.set()
+        halt = getattr(self, "_halt", None)
+        if halt is not None:
+            halt.set()
         if self._thread:
             self._thread.join(timeout=3)
         return False
