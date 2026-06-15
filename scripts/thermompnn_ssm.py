@@ -83,14 +83,11 @@ def run_ssm(pdb_path: Path, chain: str, model_path: Path, out_dir: Path) -> Path
     from Bio.PDB import PDBParser
     from omegaconf import OmegaConf
 
+    sys.path.insert(0, str(ROOT))
     from datasets import Mutation
     from protein_mpnn_utils import alt_parse_PDB
 
-    # ThermoMPNN resn_list is often empty; map 0-based index -> PDB resseq from ATOM records
-    sys.path.insert(0, str(ROOT))
-    from src.helpers.structure_helpers import parse_ca_coords
-
-    sorted_resseq = sorted(parse_ca_coords(pdb_path, chain).keys())
+    from src.helpers.structure_helpers import thermompnn_resseq_for_index
 
     local_yaml = THERMOMPNN_DIR / "local.yaml"
     base_cfg = OmegaConf.load(str(local_yaml)) if local_yaml.exists() else OmegaConf.create({})
@@ -138,7 +135,7 @@ def run_ssm(pdb_path: Path, chain: str, model_path: Path, out_dir: Path) -> Path
             {
                 "ddG_pred": out["ddG"].cpu().item(),
                 "position": mut.position,
-                "resseq": sorted_resseq[mut.position] if mut.position < len(sorted_resseq) else mut.position,
+                "resseq": thermompnn_resseq_for_index(pdb_path, chain, mut.position),
                 "wildtype": mut.wildtype,
                 "mutation": mut.mutation,
                 "pdb": mut.pdb.strip(".pdb"),

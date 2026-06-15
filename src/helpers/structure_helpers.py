@@ -43,17 +43,6 @@ def extract_local_shell_pdb(
     return out_path
 
 
-def mpnn_index_map(pdb_path: Path, chain: str = "A") -> dict[int, int]:
-    """Map PDB resseq -> ProteinMPNN 1-based index (not PDB numbering)."""
-    coords = sorted(parse_ca_coords(pdb_path, chain).keys())
-    return {rs: i + 1 for i, rs in enumerate(coords)}
-
-
-def mpnn_indices_for_resseqs(pdb_path: Path, chain: str, resseqs: list[int]) -> list[int]:
-    idx_map = mpnn_index_map(pdb_path, chain)
-    return [idx_map[rs] for rs in resseqs if rs in idx_map]
-
-
 def parse_ca_coords(pdb_path: Path, chain: str = "A") -> dict[int, tuple[float, float, float]]:
     coords: dict[int, tuple[float, float, float]] = {}
     with open(pdb_path) as f:
@@ -67,6 +56,40 @@ def parse_ca_coords(pdb_path: Path, chain: str = "A") -> dict[int, tuple[float, 
                 continue
             coords[resseq] = (float(line[30:38]), float(line[38:46]), float(line[46:54]))
     return coords
+
+
+def pdb_resseq_range(pdb_path: Path, chain: str = "A") -> tuple[int, int]:
+    """Min/max PDB resseq on chain (matches ThermoMPNN alt_parse gap-aware indexing)."""
+    resnums: list[int] = []
+    with open(pdb_path) as f:
+        for line in f:
+            if not line.startswith(("ATOM", "HETATM")):
+                continue
+            if line[21] != chain:
+                continue
+            resnums.append(int(line[22:26]))
+    if not resnums:
+        raise ValueError(f"No residues on chain {chain} in {pdb_path}")
+    return min(resnums), max(resnums)
+
+
+def thermompnn_index_for_resseq(pdb_path: Path, chain: str, resseq: int) -> int | None:
+    """0-based ThermoMPNN sequence index for a PDB resseq (gap-aware)."""
+    lo, hi = pdb_resseq_range(pdb_path, chain)
+    if not (lo <= resseq <= hi):
+        return None
+    return resseq - lo
+
+
+def thermompnn_resseq_for_index(pdb_path: Path, chain: str, index_0based: int) -> int:
+    lo, _ = pdb_resseq_range(pdb_path, chain)
+    return lo + index_0based
+
+
+def mpnn_index_map(pdb_path: Path, chain: str = "A") -> dict[int, int]:
+    """Map PDB resseq -> ProteinMPNN 1-based index (compact, no gaps)."""
+    coords = sorted(parse_ca_coords(pdb_path, chain).keys())
+    return {rs: i + 1 for i, rs in enumerate(coords)}
 
 
 def resseq_to_mpnn_index(pdb_path: Path, chain: str, resseq: int) -> int | None:

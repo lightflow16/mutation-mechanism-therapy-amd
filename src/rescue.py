@@ -15,7 +15,7 @@ from src.helpers.structure_helpers import (
     count_chain_residues,
     extract_local_shell_pdb,
     mpnn_index_map,
-    resseq_to_mpnn_index,
+    thermompnn_index_for_resseq,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -289,8 +289,9 @@ def run_rescue(
         )
         shell_pdb = thermo_dir / f"thermo_shell_r{pos}.pdb"
         thermo_pdb = shell_pdb if shell_pdb.exists() else pdb_path
-        mpnn_idx = resseq_to_mpnn_index(thermo_pdb, chain, pos)
-        thermo_pos = (mpnn_idx - 1) if mpnn_idx is not None else pos
+        thermo_pos = thermompnn_index_for_resseq(thermo_pdb, chain, pos)
+        if thermo_pos is None:
+            thermo_pos = pos
         mut_ddg = mutation_ddg(csv_path, wt, thermo_pos, mut, resseq=pos)
 
         mpnn_pdb = thermo_pdb
