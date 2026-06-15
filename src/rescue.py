@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -164,12 +165,16 @@ def fold_esmfold(sequence: str, out_pdb: Path) -> Path:
 
 
 def fold_boltz(sequence: str, yaml_path: Path, out_dir: Path, cache_dir: Path) -> Path | None:
-    """Run Boltz in isolated env with --no_kernels (ROCm probe validated)."""
+    """Run Boltz in isolated env with --no_kernels (ROCm probe validated). Skips if not installed."""
+    boltz_bin = os.environ.get("BOLTZ_BIN", "boltz")
+    if not shutil.which(boltz_bin):
+        return None
     yaml_path.parent.mkdir(parents=True, exist_ok=True)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    cache_dir.mkdir(parents=True, exist_ok=True)
     yaml_path.write_text(
         f"version: 1\nsequences:\n  - protein:\n      id: A\n      sequence: {sequence}\n      msa: empty\n"
     )
-    boltz_bin = os.environ.get("BOLTZ_BIN", "boltz")
     cmd = [
         boltz_bin, "predict", str(yaml_path.name),
         "--out_dir", str(out_dir),
@@ -179,7 +184,10 @@ def fold_boltz(sequence: str, yaml_path: Path, out_dir: Path, cache_dir: Path) -
         "--no_kernels", "--output_format", "pdb",
     ]
     with metrics.track("boltz_fold", agent_role="Rescue", model="boltz-2.2.1"):
-        r = subprocess.run(cmd, cwd=str(yaml_path.parent), capture_output=True, text=True)
+        try:
+            r = subprocess.run(cmd, cwd=str(yaml_path.parent), capture_output=True, text=True)
+        except OSError:
+            return None
         if r.returncode != 0:
             return None
     pdbs = list(out_dir.rglob("*.pdb"))
