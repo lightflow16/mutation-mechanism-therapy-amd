@@ -103,3 +103,12 @@ def setup_env(cfg: dict | None = None) -> None:
     boltz = ROOT / "external" / "boltz_venv" / "bin" / "boltz"
     if boltz.is_file():
         os.environ.setdefault("BOLTZ_BIN", str(boltz))
+
+
+def reload_src_modules() -> None:
+    """Drop cached src imports so git pull changes apply (required on Colab notebooks)."""
+    import sys
+
+    for name in list(sys.modules):
+        if name == "src" or name.startswith("src."):
+            del sys.modules[name]

@@ -8,12 +8,6 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from src import metrics
-from src.config import load_config, metrics_dir, setup_env, shared_dir
-from src.metrics_bundle import export_metrics_bundle, write_platform_summary
-from src.pipeline import format_comparison_report, run_all_modes
-from src.platform import detect_platform, write_run_manifest
-
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -23,13 +17,13 @@ def _run_py(script: str) -> None:
     subprocess.check_call([sys.executable, str(ROOT / script)], env=env)
 
 
-def _lora_path(cfg: dict) -> str | None:
+def _lora_path(cfg: dict, shared_dir_fn) -> str | None:
     paths = cfg.get("paths", {})
     for key in ("lora_adapter_final", "lora_ckpts"):
         p = paths.get(key)
         if p and Path(p).is_dir() and any(Path(p).iterdir()):
             return str(p)
-    local = shared_dir(cfg) / "lora_adapter_final"
+    local = shared_dir_fn(cfg) / "lora_adapter_final"
     return str(local) if local.is_dir() and any(local.iterdir()) else None
 
 
@@ -38,8 +32,20 @@ def run_full_submission(
     lora_path: str | None = None,
     run_lora_train: bool | None = None,
     skip_live: bool = False,
+    reload_modules: bool = True,
 ) -> dict[str, Any]:
     """Always run all architectures × all demo cases (live), eval, and export metrics."""
+    if reload_modules:
+        from src.config import reload_src_modules
+
+        reload_src_modules()
+
+    from src import metrics
+    from src.config import load_config, metrics_dir, setup_env, shared_dir
+    from src.metrics_bundle import export_metrics_bundle, write_platform_summary
+    from src.pipeline import format_comparison_report, run_all_modes
+    from src.platform import detect_platform, write_run_manifest
+
     setup_env()
     cfg = load_config()
     pcfg = cfg.get("pipeline", {})
@@ -51,14 +57,14 @@ def run_full_submission(
     print(f"Manifest: {manifest_path}")
 
     if lora_path is None:
-        lora_path = _lora_path(cfg)
+        lora_path = _lora_path(cfg, shared_dir)
     if run_lora_train is None:
         run_lora_train = bool(pcfg.get("run_lora_train", False))
 
     if run_lora_train:
         print("Running LoRA SFT...")
         _run_py("train/lora_sft.py")
-        lora_path = lora_path or _lora_path(cfg)
+        lora_path = lora_path or _lora_path(cfg, shared_dir)
 
     report: dict[str, Any] = {
         "platform": platform,
@@ -91,9 +97,8 @@ def run_full_submission(
     write_platform_summary()
     try:
         from src.productive_metrics import write_productive_metrics_report
-        from src.trace_viz import generate_trace_html
-
         from src.ror_analysis import write_ror_benchmark
+        from src.trace_viz import generate_trace_html
 
         write_productive_metrics_report()
         write_ror_benchmark()
