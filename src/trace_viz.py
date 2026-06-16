@@ -130,6 +130,42 @@ def generate_trace_html(out_dir: Path | None = None) -> Path:
 
     scatter = _scatter_svg(frontier)
 
+    hall_path = md / "hallucination_summary.json"
+    fold_path = md / "fold_confidence_summary.json"
+    hall = json.loads(hall_path.read_text()) if hall_path.is_file() else {}
+    fold = json.loads(fold_path.read_text()) if fold_path.is_file() else {}
+
+    hall_metrics = ""
+    for key in (
+        "mean_HR_design", "mean_HR_property", "mean_HR_evidence",
+        "mean_HR_tool", "mean_HR_policy", "mean_BVR", "mean_structural_hallucination_rate",
+    ):
+        if key in hall:
+            hall_metrics += f"<li><b>{key}:</b> {hall[key]}</li>"
+    delta = hall.get("blackboard_vs_single_delta_HR_evidence")
+    if delta is not None:
+        hall_metrics += f"<li><b>blackboard vs single ΔHR_evidence:</b> {delta}</li>"
+
+    fold_card = ""
+    if fold:
+        fold_card = f"""
+        <div class="card">
+          <h3>Fold confidence calibration</h3>
+          <ul>
+            <li><b>Rows:</b> {fold.get('n_rows')}</li>
+            <li><b>ECE (LLM):</b> {(fold.get('llm_calibration') or {}).get('ece')}</li>
+            <li><b>Brier (LLM):</b> {(fold.get('llm_calibration') or {}).get('brier')}</li>
+            <li><b>AUC-PR (LLM):</b> {fold.get('auc_pr_llm_confidence')}</li>
+            <li><b>r(LLM, pLDDT@site):</b> {fold.get('r_pearson_llm_vs_target_plddt')}</li>
+          </ul>
+        </div>"""
+
+    hall_card = f"""
+    <div class="card">
+      <h3>Hallucination metrics (§12)</h3>
+      <ul>{hall_metrics or '<li>Run hallucination_eval after traces</li>'}</ul>
+    </div>"""
+
     html = f"""<!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>RoR · Workflow Density Dashboard</title>
 <style>
@@ -152,6 +188,8 @@ Blackboard ~14× token cost vs single; RoR quantifies semantic fidelity per 1k t
 <span style="background:#38bdf8"></span>cot
 <span style="background:#a855f7"></span>blackboard</p>
 {scatter}
+<h2>Trust layer</h2>
+<div class="grid">{hall_card}{fold_card}</div>
 <h2>Return on Reasoning (RoR)</h2>
 <table><tr><th>Case</th><th>Arch</th><th>Semantic acc</th><th>Tokens</th><th>Cost vs single</th><th>RoR / 1k tok</th><th>RoR / cost×</th></tr>{ror_rows_html}</table>
 <h2>Blackboard ingress by role (compaction ROI baseline)</h2>

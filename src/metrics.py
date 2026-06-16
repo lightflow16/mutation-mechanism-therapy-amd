@@ -369,6 +369,7 @@ def log_llm_call(
         "ingress_tokens": prompt_tokens,
         "egress_tokens": completion_tokens,
         "reasoning_tokens": reasoning_tok,
+        "thinking_tokens": reasoning_tok,
         "total_tokens": prompt_tokens + completion_tokens + reasoning_tok,
         "latency_s": round(latency_s, 4),
         "tok_per_s": round(completion_tokens / latency_s, 1) if latency_s > 0 else "NA",

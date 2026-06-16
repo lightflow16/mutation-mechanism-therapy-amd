@@ -158,6 +158,11 @@ def test_eval_and_trust(md: Path) -> None:
 
     write_hallucination()
     write_fold_confidence()
+    from src.extended_thinking_ablation import write_reports as write_extended
+
+    write_extended()
+    if not (md / "extended_thinking_ablation.csv").exists() and not (md / "extended_thinking_summary.json").exists():
+        _fail("extended_thinking reports not written")
     autonomy = run_autonomy(md, live_probes=False)
     for key in ("task_suite", "able_metrics", "dbtl_level3_tp53", "task_pass_rate"):
         if key not in autonomy:

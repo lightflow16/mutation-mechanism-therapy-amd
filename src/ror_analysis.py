@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from src.config import ROOT, metrics_dir
+from src.config import ROOT, load_config, metrics_dir
 from src.pipeline import extract_target_reasoning, extract_therapies_from_reasoning
 
 
@@ -126,64 +126,76 @@ def compute_ror_rows(md: Path | None = None) -> list[dict[str, Any]]:
             single_tokens[qid] = _f(cost.get("total_tokens"))
 
     rows: list[dict[str, Any]] = []
-    cases = [
-        ("EGFR", "L858R"),
-        ("PIK3CA", "E545K"),
-        ("TP53", "R175H"),
-    ]
-    architectures = ("single", "cot", "blackboard")
+    pipe = load_config().get("pipeline", {})
+    cases = [tuple(x) for x in pipe.get("demo_cases", [
+        ["EGFR", "L858R"],
+        ["PIK3CA", "E545K"],
+        ["TP53", "R175H"],
+    ])]
+    debate_cases = [tuple(x) for x in pipe.get("debate_cases", [])]
+    architectures = list(pipe.get("architectures", ["single", "cot", "blackboard"]))
 
-    for gene, mutation in cases:
+    def _append_row(gene: str, mutation: str, arch: str) -> None:
         qid = f"{gene}_{mutation}"
         comp = comparisons.get(qid, comparisons.get(f"{gene}_{mutation}", {}))
-        for arch in architectures:
-            cost = costs.get((qid, arch), {})
-            ev = eval_scores.get((gene, mutation, arch), {})
-            trace_path = md / f"trace_{gene}_{mutation}_{arch}.json"
+        cost = costs.get((qid, arch), {})
+        ev = eval_scores.get((gene, mutation, arch), {})
+        trace_path = md / f"trace_{gene}_{mutation}_{arch}.json"
+        if not trace_path.exists() and arch == "debate":
+            cached = ROOT / "data" / "traces" / f"{gene}_{mutation}_debate.json"
+            trace = _read_json(cached) if cached.exists() else {}
+        else:
             trace = _read_json(trace_path) if trace_path.exists() else {}
-            sens, res = _therapies_from_trace(trace)
+        sens, res = _therapies_from_trace(trace)
 
-            therapy_f1 = _f(ev.get("therapy_f1")) if ev.get("therapy_f1") not in (None, "") else None
-            direction_acc = _f(ev.get("direction_acc")) if ev.get("direction_acc") not in (None, "") else None
-            if therapy_f1 is None and trace:
-                therapy_f1 = _gold_therapy_f1(gene, mutation, sens, res)
+        therapy_f1 = _f(ev.get("therapy_f1")) if ev.get("therapy_f1") not in (None, "") else None
+        direction_acc = _f(ev.get("direction_acc")) if ev.get("direction_acc") not in (None, "") else None
+        if therapy_f1 is None and trace:
+            therapy_f1 = _gold_therapy_f1(gene, mutation, sens, res)
 
-            semantic = None
-            if therapy_f1 is not None and direction_acc is not None:
-                semantic = round((therapy_f1 + direction_acc) / 2, 3)
-            elif therapy_f1 is not None:
-                semantic = round(therapy_f1, 3)
+        semantic = None
+        if therapy_f1 is not None and direction_acc is not None:
+            semantic = round((therapy_f1 + direction_acc) / 2, 3)
+        elif therapy_f1 is not None:
+            semantic = round(therapy_f1, 3)
 
-            total_tokens = int(_f(cost.get("total_tokens")))
-            latency = round(_f(cost.get("latency_s")), 2)
-            base_tok = single_tokens.get(qid) or total_tokens or 1
-            cost_multiplier = round(total_tokens / base_tok, 2) if base_tok else "NA"
+        total_tokens = int(_f(cost.get("total_tokens")))
+        latency = round(_f(cost.get("latency_s")), 2)
+        base_tok = single_tokens.get(qid) or total_tokens or 1
+        cost_multiplier = round(total_tokens / base_tok, 2) if base_tok else "NA"
 
-            ror_tokens = round(semantic / (total_tokens / 1000), 4) if semantic and total_tokens else "NA"
-            ror_latency = round(semantic / latency, 4) if semantic and latency > 0 else "NA"
-            ror_vs_single = round(semantic / cost_multiplier, 4) if semantic and cost_multiplier not in ("NA", 0) else "NA"
+        ror_tokens = round(semantic / (total_tokens / 1000), 4) if semantic and total_tokens else "NA"
+        ror_latency = round(semantic / latency, 4) if semantic and latency > 0 else "NA"
+        ror_vs_single = round(semantic / cost_multiplier, 4) if semantic and cost_multiplier not in ("NA", 0) else "NA"
 
-            rows.append(
-                {
-                    "query_id": qid,
-                    "gene": gene,
-                    "mutation": mutation,
-                    "architecture": arch,
-                    "therapy_f1": therapy_f1,
-                    "direction_acc": direction_acc,
-                    "semantic_accuracy_composite": semantic,
-                    "total_tokens": total_tokens,
-                    "latency_s": latency,
-                    "cost_multiplier_vs_single": cost_multiplier,
-                    "n_agent_steps": cost.get("n_calls") or cost.get("n_agent_steps"),
-                    "route": trace.get("route"),
-                    "therapy_sensitivity_overlap": ",".join(comp.get("therapy_sensitivity_overlap") or []),
-                    "route_agreement_across_arch": comp.get("route_agreement"),
-                    "return_on_reasoning_per_1k_tokens": ror_tokens,
-                    "return_on_reasoning_per_second": ror_latency,
-                    "return_on_reasoning_vs_cost_multiplier": ror_vs_single,
-                }
-            )
+        rows.append(
+            {
+                "query_id": qid,
+                "gene": gene,
+                "mutation": mutation,
+                "architecture": arch,
+                "therapy_f1": therapy_f1,
+                "direction_acc": direction_acc,
+                "semantic_accuracy_composite": semantic,
+                "total_tokens": total_tokens,
+                "latency_s": latency,
+                "cost_multiplier_vs_single": cost_multiplier,
+                "n_agent_steps": cost.get("n_calls") or cost.get("n_agent_steps"),
+                "route": trace.get("route"),
+                "therapy_sensitivity_overlap": ",".join(comp.get("therapy_sensitivity_overlap") or []),
+                "route_agreement_across_arch": comp.get("route_agreement"),
+                "return_on_reasoning_per_1k_tokens": ror_tokens,
+                "return_on_reasoning_per_second": ror_latency,
+                "return_on_reasoning_vs_cost_multiplier": ror_vs_single,
+            }
+        )
+
+    for gene, mutation in cases:
+        for arch in architectures:
+            _append_row(gene, mutation, arch)
+
+    for gene, mutation in debate_cases:
+        _append_row(gene, mutation, "debate")
     return rows
 
 
@@ -256,6 +268,21 @@ def write_ror_benchmark(md: Path | None = None) -> Path:
         "efficiency_frontier": frontier,
         "blackboard_ingress_by_role": ingress,
     }
+    manifest = _read_json(md / "run_manifest.json")
+    if manifest.get("lora_loaded"):
+        report["lora_ablation"] = {
+            "lora_path": manifest.get("lora_path"),
+            "lora_loaded": True,
+            "note": "Single-agent runs use PeftModel when lora_loaded=true in run_manifest",
+        }
+    debate_rows = [r for r in rows if r.get("architecture") == "debate"]
+    if debate_rows:
+        report["debate_vs_blackboard"] = {
+            "debate_mean_semantic": round(
+                sum(_f(r["semantic_accuracy_composite"]) for r in debate_rows) / len(debate_rows), 3
+            ),
+            "blackboard_mean_semantic": summary.get("blackboard", {}).get("mean_semantic_accuracy"),
+        }
     path = md / "ror_benchmark.json"
     path.write_text(json.dumps(report, indent=2, default=str))
     return path

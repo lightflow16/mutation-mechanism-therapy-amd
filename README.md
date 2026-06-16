@@ -172,15 +172,34 @@ After full submission + eval:
 | Blackboard early-exit | `src/mas.py` | `early_exit` in trace + `productive_throughput.csv` |
 | Debate architecture (PIK3CA) | `src/debate.py` | `architecture=debate` in llm_calls |
 | Teacher–student LoRA | `train/build_dataset.py --from-traces` | LoRA ablation in `ablation_results.csv` |
-| Hallucination metrics (6 HR) | `src/hallucination_eval.py` | `hallucination_report.csv` |
-| Fold confidence benchmark | `src/fold_confidence_eval.py` | `benchmark_confidence.csv` |
+| Hallucination metrics (6 HR) | `src/hallucination_eval.py` | `hallucination_report.csv`, `hallucination_summary.json` |
+| Fold confidence benchmark | `src/fold_confidence_eval.py` | `benchmark_confidence.csv` (35-col), `benchmark_confidence_minimal.csv`, `fold_confidence_summary.json`, F1–F4 figures |
 | Agent autonomy / DBTL L3 | `src/agent_autonomy_eval.py` | `autonomy_report.json`, `task_suite.csv`, `able_metrics.csv`, `dbtl_metrics.json`, `tevv_lite.csv` |
 | MTB panel | `src/mtb_panel.py` | embedded in `comparison_*.json` |
 | Live console echo | `src/progress.py` | mirrors `llm_calls.jsonl` during run |
 
-**Literature positioning:** MOAlmanac-style RAG + MTBBench-style multi-agent conflict + PFUA-style tool grounding + AMix-style rescue verification — on open AMD ROCm.
+**Literature positioning:** MOAlmanac-style RAG + MTBBench-style multi-agent conflict + PFUA-style tool grounding + AMix-style rescue verification — on open AMD ROCm. See `deck/slides.md` Slide 7 for judge citations.
 
-**Cached traces:** 9 live traces under `data/traces/` (3 cases × 3 architectures). Fourth case EGFR T790M runs in full submission matrix.
+### Hallucination metrics (§12 formulas)
+
+Rule-based rates in `src/hallucination_eval.py` (one row per gene × mutation × architecture):
+
+| Metric | Formula |
+|---|---|
+| `HR_design` | (# outputs with unsupported mechanism/therapy claims) / (# outputs) |
+| `HR_property` | (# outputs with claimed pLDDT or stabilizing language misaligned vs structure/rescue) / (# outputs) |
+| `HR_evidence` | (# therapy/evidence direction mismatches vs gold + CIViC block) / (# items referenced) |
+| `HR_tool` | (# tool numeric summaries misaligned vs rescue block) / (# tool-backed outputs) |
+| `BVR` | (# rescue designs passing fold + ddG gates) / (# evaluated); structural rate = `1 − BVR` |
+| `HR_policy` | (# VUS/policy violations: confident therapy on `evidence_tier=none`) / (# checked) |
+
+Dashboard card: `metrics/workflow_trace_dashboard.html` → **Trust layer**.
+
+### Fold confidence (§14)
+
+`benchmark_confidence.csv` uses the canonical 35-column schema; proxy `good_structure_label` when no experimental PDB ref (`mean_plddt ≥ 70` and `target_residue_plddt ≥ 50`). Thresholds in `targets.yaml` → `confidence_benchmark:`.
+
+**Cached traces:** 12+ traces under `data/traces/` (4 demo cases × 3 architectures + debate + VUS G719S).
 
 **Platform compare:** `PYTHONPATH=. python scripts/compare_platforms.py colab_bundle.tgz amd_bundle.tgz`
 

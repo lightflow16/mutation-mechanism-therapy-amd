@@ -143,6 +143,9 @@ def run_full_submission(
         from src.evidence_ablation import write_ablation_report
 
         write_ablation_report()
+        from src.extended_thinking_ablation import write_reports as write_extended_thinking
+
+        write_extended_thinking()
         report["steps"].append("trust_eval")
     except Exception as exc:
         report["trust_eval_error"] = str(exc)

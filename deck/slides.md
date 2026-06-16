@@ -31,5 +31,12 @@ Live demo: open `metrics/workflow_trace_dashboard.html` — blackboard agent tim
 Thesis + hackathon: open `workflow_trace_dashboard.html` (efficiency frontier scatter + ingress-by-role compaction baseline).
 
 # Slide 6 — Results & future
-Ablation: single / CoT / blackboard × base / LoRA (Therapy F1, direction accuracy).
+Ablation: single / CoT / blackboard / debate × base / LoRA (Therapy F1, direction accuracy).
 Future: RFdiffusion/BindCraft de novo binder design (out of live scope).
+
+# Slide 7 — Literature + trust measurement
+- **MOAlmanac** — multi-source oncology RAG grounding (CIViC/PubMed/ClinVar fusion)
+- **MTBBench** — tumor-board multi-agent conflict resolution (blackboard Critic → Decider)
+- **PFUA / tool grounding** — ThermoMPNN + ESMFold/Boltz numeric checks vs agent text (`HR_tool`, `HR_property`)
+- **Measured hallucination** — six HR metrics + BVR on every trace (`hallucination_summary.json`); not Critic-only
+- **Fold confidence separation** — LLM decision confidence vs pLDDT/pTM (`benchmark_confidence.csv`, ECE/Brier/AUC-PR)

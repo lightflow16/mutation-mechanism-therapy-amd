@@ -280,10 +280,15 @@ def write_productive_metrics_report(out_dir: Path | None = None) -> Path:
         bb = reasoning.get("blackboard_trace") or []
         cr_hits = sum(1 for m in bb if m.get("agent") == "ConflictResolver")
         trace_meta[(qid, arch)] = {
-            "early_exit_actual": reasoning.get("early_exit", False),
+            "early_exit_actual": bool(reasoning.get("early_exit")),
+            "mechanism_rubric_before": reasoning.get("mechanism_rubric_before"),
             "mechanism_rubric_after": reasoning.get("mechanism_rubric_after"),
             "conflict_resolution_rate": 1.0 if cr_hits else 0.0,
-            "reasoning_depth_tokens": reasoning.get("total_tokens", 0),
+            "thinking_tokens": sum(
+                int(row.get("reasoning_tokens") or row.get("thinking_tokens") or 0)
+                for row in llm
+                if row.get("query_id") == qid and row.get("architecture") == arch
+            ),
         }
     for r in rows:
         meta = trace_meta.get((r["query_id"], r["architecture"]), {})

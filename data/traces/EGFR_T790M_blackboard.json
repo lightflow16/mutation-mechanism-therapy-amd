@@ -1,0 +1,45 @@
+{
+  "target": {
+    "gene": "EGFR",
+    "mutation": "T790M",
+    "class": "ONCOGENE_GOF",
+    "pathway": "inhibitor_rag",
+    "uniprot": "P00533",
+    "residue": 790,
+    "disease_context": "Lung Non-small Cell Carcinoma"
+  },
+  "structure": {
+    "residue": "T790",
+    "pLDDT_at_residue": 78.0,
+    "mean_pLDDT_protein": 75.9,
+    "region": "ATP-binding gatekeeper",
+    "gene": "EGFR"
+  },
+  "evidence": [
+    {
+      "source": "CIViC",
+      "therapies": "Osimertinib",
+      "direction": "Sensitivity/Response",
+      "level": "B"
+    },
+    {
+      "source": "CIViC",
+      "therapies": "Gefitinib,Erlotinib,Afatinib",
+      "direction": "Resistance",
+      "level": "B"
+    }
+  ],
+  "route": "inhibitor_rag",
+  "architecture": "blackboard",
+  "reasoning": {
+    "target_reasoning": {
+      "mechanism": "Blackboard consensus: T790M gatekeeper blocks 1st/2nd gen TKIs; osimertinib recommended for T790M-positive NSCLC.",
+      "therapy": {
+        "sensitivity": ["Osimertinib"],
+        "resistance": ["Gefitinib", "Erlotinib", "Afatinib"],
+        "context": "EGFR-mutant NSCLC"
+      },
+      "confidence": "0.87"
+    }
+  }
+}

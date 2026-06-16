@@ -1,0 +1,58 @@
+{
+  "target": {
+    "gene": "EGFR",
+    "mutation": "T790M",
+    "class": "ONCOGENE_GOF",
+    "pathway": "inhibitor_rag",
+    "uniprot": "P00533",
+    "residue": 790,
+    "wt_aa": "T",
+    "mut_aa": "M",
+    "civic_profile": "EGFR T790M",
+    "disease_context": "Lung Non-small Cell Carcinoma"
+  },
+  "structure": {
+    "residue": "T790",
+    "residue_index": 790,
+    "mutation": "T790M",
+    "pLDDT_at_residue": 78.0,
+    "mean_pLDDT_protein": 75.9,
+    "neighboring_residues_within_10A": 12,
+    "region": "ATP-binding gatekeeper",
+    "chain": "A",
+    "gene": "EGFR"
+  },
+  "evidence": [
+    {
+      "source": "CIViC",
+      "therapies": "Osimertinib",
+      "disease": "Lung Non-small Cell Carcinoma",
+      "direction": "Sensitivity/Response",
+      "level": "B",
+      "citation": "EGFR T790M gatekeeper resistance",
+      "url": "https://civicdb.org"
+    },
+    {
+      "source": "CIViC",
+      "therapies": "Gefitinib,Erlotinib,Afatinib",
+      "disease": "Lung Non-small Cell Carcinoma",
+      "direction": "Resistance",
+      "level": "B",
+      "citation": "1st/2nd gen TKI resistance via gatekeeper",
+      "url": "https://civicdb.org"
+    }
+  ],
+  "route": "inhibitor_rag",
+  "architecture": "single",
+  "reasoning": {
+    "target_reasoning": {
+      "mechanism": "T790M gatekeeper mutation sterically blocks first- and second-generation EGFR TKIs while retaining sensitivity to third-generation osimertinib.",
+      "therapy": {
+        "sensitivity": ["Osimertinib"],
+        "resistance": ["Gefitinib", "Erlotinib", "Afatinib"],
+        "context": "EGFR-mutant NSCLC post-TKI"
+      },
+      "confidence": "0.88"
+    }
+  }
+}

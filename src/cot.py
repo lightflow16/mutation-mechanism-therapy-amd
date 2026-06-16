@@ -74,6 +74,27 @@ def run_cot(
             elif "therapy" in inner or "mechanism" in inner:
                 parsed = inner
 
+        if cfg.get("pipeline", {}).get("multi_stage_cot", False):
+            verify_prompt = (
+                f"Verify the prior JSON against evidence. Return corrected JSON only.\n{text[:4000]}"
+            )
+            vr = call_llm(
+                verify_prompt,
+                base_url=base_url,
+                model=model,
+                system_prompt="Verify oncology JSON; fix therapy direction errors.",
+                agent_role="CoT",
+                round_idx=2,
+                label="cot_verify",
+                query_id=qid,
+                architecture="cot",
+                gene=target["gene"],
+                mutation=target["mutation"],
+            )
+            text = vr["content"]
+            parsed = parse_reasoning_json(text)
+            total_tokens += vr["metadata"]["total_tokens"]
+
     return {
         "architecture": "cot",
         "target_reasoning": parsed,

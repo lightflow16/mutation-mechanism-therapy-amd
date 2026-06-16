@@ -117,3 +117,10 @@ pipeline:
   multi_stage_cot: false
   verbose_progress: true
   demo_echo_thinking: true
+
+confidence_benchmark:
+  good_tm_threshold: 0.7
+  good_lddt_threshold: 0.8
+  local_plddt_threshold: 70
+  operational_accept_threshold: 0.78
+  proxy_good_mean_plddt: 70

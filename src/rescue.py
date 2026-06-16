@@ -353,7 +353,9 @@ def run_rescue(
         primary_pdb = boltz_pdb or esmfold_pdb
         fold_method = "boltz+esmfold" if boltz_pdb and esmfold_pdb else ("boltz" if boltz_pdb else "esmfold")
 
-        return {
+        from src.fold_scores import attach_fold_scores
+
+        rescue_out = {
             "mutant_ddg_kcal_mol": mut_ddg,
             "destabilizing": mut_ddg is not None and mut_ddg > rescue_cfg.get("ddg_destabilizing_threshold", 1.0),
             "ddg_scope": "local_shell_15A",
@@ -372,6 +374,7 @@ def run_rescue(
             "proteinmpnn_pdb": str(mpnn_pdb),
             "ddg_engine": "ThermoMPNN",
         }
+        return attach_fold_scores(rescue_out, boltz_out_dir=work / "boltz" / "out" if boltz_pdb else None)
 
 
 def interpret_rescue(target: dict, rescue: dict) -> str:
