@@ -18,17 +18,43 @@ if str(BMAS_ROOT) not in sys.path:
 
 
 EXPERTS = [
-    ("Structure", "Interpret ONLY the provided numeric AlphaFold features; cite pLDDT and region verbatim."),
-    ("Mechanism", "Propose a biological mechanism linking the variant to pathway effects using structure + evidence."),
-    ("Evidence", "Summarize ClinVar/CIViC evidence; list therapies with sensitivity/resistance direction."),
-    ("Therapy", "Recommend FDA-approved or investigational therapies with citations; respect disease context."),
+    (
+        "Structure",
+        "Interpret ONLY numeric AlphaFold features (pLDDT, region, residue). "
+        "Do NOT list therapies or CIViC evidence.",
+    ),
+    (
+        "Mechanism",
+        "Propose ONE pathway mechanism (GOF/LOF, binding, signaling). "
+        "Do NOT repeat the Structure expert's pLDDT recap verbatim.",
+    ),
+    (
+        "Evidence",
+        "List ONLY curated evidence items (source, therapy, direction, level). "
+        "Do NOT repeat mechanism prose or structural feature dumps.",
+    ),
+    (
+        "Therapy",
+        "Recommend therapies with sensitivity/resistance and disease context. "
+        "Do NOT paste the Evidence expert's bullet list verbatim.",
+    ),
 ]
+
+_JSON_ONLY = (
+    "Respond with ONLY a JSON object (no markdown fences):\n"
+    '{"stance_summary": "<=2 sentences, YOUR unique role view>", '
+    '"key_claim": "<=1 sentence, role-specific biochemical claim>", '
+    '"detail": "<=120 words, optional bullets>"}\n'
+    "Do NOT copy prior agents. Do NOT use headers like '### Summary of Evidence'."
+)
 
 _VUS_SUFFIX = (
     "\nIMPORTANT: evidence is weak or absent. "
-    "Output therapy.recommendation_status=insufficient_evidence and "
-    "next_best_action=tumor_board. Do not invent drug names."
+    'Set key_claim to abstention; in detail include recommendation_status=insufficient_evidence '
+    "and next_best_action=tumor_board. Do not invent drug names."
 )
+
+_ECHO_HEADER = re.compile(r"^#+\s*summary of evidence", re.I)
 
 
 def _endpoint(cfg: dict, role: str) -> tuple[str, str]:
@@ -42,8 +68,79 @@ def _endpoint(cfg: dict, role: str) -> tuple[str, str]:
     return e.get("base_url", "http://localhost:8000/v1"), e.get("model", "qwen2.5-vl-7b")
 
 
-def _bb_text(public: list[dict]) -> str:
-    return "\n".join(f"[{m['agent']}|{m['type']}] {m['content'][:800]}" for m in public[-12:])
+def _first_sentence(text: str, limit: int = 200) -> str:
+    t = (text or "").strip().replace("\n", " ")
+    for sep in (". ", "; ", " — "):
+        if sep in t:
+            t = t.split(sep, 1)[0] + sep.strip()
+            break
+    return t[:limit] if len(t) > limit else t
+
+
+def _parse_role_json(text: str) -> dict[str, str]:
+    """Extract stance_summary / key_claim from structured agent output."""
+    out: dict[str, str] = {}
+    if not text:
+        return out
+    try:
+        obj = parse_reasoning_json(text)
+        if isinstance(obj, dict):
+            for k in ("stance_summary", "key_claim", "detail"):
+                if obj.get(k):
+                    out[k] = str(obj[k]).strip()
+            if out:
+                return out
+    except Exception:
+        pass
+    try:
+        obj = json.loads(text.strip())
+        if isinstance(obj, dict):
+            for k in ("stance_summary", "key_claim", "detail"):
+                if obj.get(k):
+                    out[k] = str(obj[k]).strip()
+            if out:
+                return out
+    except json.JSONDecodeError:
+        pass
+    clean = text.strip()
+    if _ECHO_HEADER.match(clean):
+        clean = re.sub(r"^#+\s*.+\n+", "", clean, count=1, flags=re.I).strip()
+    out["stance_summary"] = _first_sentence(clean, 220)
+    out["key_claim"] = _first_sentence(clean, 120)
+    out["detail"] = clean[:1200]
+    return out
+
+
+def _bb_compact(public: list[dict], *, max_entries: int = 8) -> str:
+    """Compact blackboard: one line per prior agent (structured fields preferred)."""
+    lines: list[str] = []
+    for m in public[-max_entries:]:
+        agent = m.get("agent", "?")
+        stance = m.get("stance_summary") or _first_sentence(m.get("content", ""), 160)
+        claim = m.get("key_claim", "")
+        line = f"[{agent}] {stance}"
+        if claim and claim != stance:
+            line += f" | claim: {claim[:100]}"
+        lines.append(line)
+    return "\n".join(lines)
+
+
+def _append_step(
+    agent: str,
+    step_type: str,
+    llm_resp: dict[str, Any],
+) -> dict[str, Any]:
+    parsed = _parse_role_json(llm_resp.get("content", ""))
+    step = trace_step_from_response(agent, step_type, llm_resp)
+    if parsed.get("stance_summary"):
+        step["stance_summary"] = parsed["stance_summary"]
+    if parsed.get("key_claim"):
+        step["key_claim"] = parsed["key_claim"]
+    if parsed.get("detail"):
+        step["content"] = parsed["detail"]
+    elif parsed.get("stance_summary"):
+        step["content"] = parsed["stance_summary"]
+    return step
 
 
 def _round1_consensus(critic_text: str, conflict_text: str) -> bool:
@@ -53,7 +150,6 @@ def _round1_consensus(critic_text: str, conflict_text: str) -> bool:
 
 
 def _parse_rubric_score(text: str) -> tuple[int, str]:
-    """Parse mechanism rubric 0-2 from Critic response."""
     m = re.search(r"(?:score|rubric)[:\s]*([0-2])", text, re.I)
     score = int(m.group(1)) if m else 1
     gaps = ""
@@ -74,7 +170,7 @@ def _invoke_critic_rubric(
     prompt = (
         "Score the Mechanism expert claim 0-2 (0=unsupported, 1=partial, 2=well-grounded). "
         "Reply with: score: N\\ngaps: ...\\n\n"
-        f"{_bb_text(public)}"
+        f"{_bb_compact(public)}"
     )
     cr = call_llm(
         prompt,
@@ -90,6 +186,28 @@ def _invoke_critic_rubric(
     return score, gaps, cr["metadata"]["total_tokens"]
 
 
+def _expert_system(role: str) -> str:
+    return (
+        f"You are the {role} expert on a tumor board blackboard. "
+        f"{_JSON_ONLY} "
+        f"Never echo prior agents' headers or bullet lists."
+    )
+
+
+def _critic_system() -> str:
+    return (
+        "You are the Critic. " + _JSON_ONLY +
+        " stance_summary = issues found; key_claim = pass/fail on evidence grounding."
+    )
+
+
+def _resolver_system() -> str:
+    return (
+        "You are the ConflictResolver. " + _JSON_ONLY +
+        " stance_summary = conflicts identified; key_claim = resolution rule applied."
+    )
+
+
 def run_blackboard(
     target: dict,
     structure: dict,
@@ -103,12 +221,17 @@ def run_blackboard(
     allow_therapy = target.get("allow_confident_therapy", True)
     vus_note = "" if allow_therapy else _VUS_SUFFIX
 
+    structure_json = {
+        k: v
+        for k, v in structure.items()
+        if k not in ("render_html", "pdb_path", "structure_image_path")
+    }
     problem = (
         f"Analyze {target['gene']} {target['mutation']} ({target['class']}) "
         f"for mechanism and therapy in {target.get('disease_context', 'cancer')}.\n"
         f"Classification: {target.get('classification', 'unknown')} | "
         f"evidence_tier: {target.get('evidence_tier', 'unknown')}\n"
-        f"Structure features: {json.dumps({k: v for k, v in structure.items() if k not in ('render_html', 'pdb_path', 'structure_image_path')})}\n"
+        f"Structure features: {json.dumps(structure_json)}\n"
         f"Evidence: {json.dumps(evidence)}\n"
         f"Route: {target.get('pathway')}."
     )
@@ -130,16 +253,23 @@ def run_blackboard(
     with metrics.phase(f"blackboard_{target['gene']}_{target['mutation']}", model="bMAS"):
         base_url, model = _endpoint(cfg, "Planner")
         pr = call_llm(
-            f"Plan the analysis steps for:\n{problem}",
-            base_url=base_url, model=model,
-            system_prompt="You are the Planner. Output a short numbered plan.",
-            agent_role="Planner", round_idx=0, label="planner",
+            f"Plan the analysis steps for:\n{problem}\n\n"
+            "Output a short numbered plan (plain text, max 10 steps).",
+            base_url=base_url,
+            model=model,
+            system_prompt="You are the Planner. Output a short numbered plan only.",
+            agent_role="Planner",
+            round_idx=0,
+            label="planner",
             **llm_ctx,
         )
-        public.append(trace_step_from_response("Planner", "plan", pr))
+        step = trace_step_from_response("Planner", "plan", pr)
+        step["stance_summary"] = _first_sentence(pr["content"], 200)
+        step["key_claim"] = "Analysis plan staged for specialist experts."
+        public.append(step)
         total_tokens += pr["metadata"]["total_tokens"]
         progress.echo_blackboard_step(
-            target["gene"], target["mutation"], 0, max_rounds, "Planner", pr["content"]
+            target["gene"], target["mutation"], 0, max_rounds, "Planner", step["content"]
         )
 
         rounds_done = 0
@@ -148,9 +278,13 @@ def run_blackboard(
                 break
             rounds_done = rnd
             for role, desc in EXPERTS:
+                prior = _bb_compact(public)
                 prompt = (
-                    f"Role: {role}. {desc}\nProblem:\n{problem}\n\nBlackboard:\n{_bb_text(public)}"
-                    + (vus_note if role in ("Therapy",) else "")
+                    f"Role: {role}. Task: {desc}\n\n"
+                    f"Case data:\n{problem}\n\n"
+                    f"Prior blackboard (one-line summaries only — do not copy):\n{prior}\n\n"
+                    f"{_JSON_ONLY}"
+                    + (vus_note if role == "Therapy" else "")
                 )
                 if role == "Structure" and img and Path(img).exists():
                     llm_resp = vl_generate(
@@ -166,16 +300,25 @@ def run_blackboard(
                 else:
                     bu, mo = _endpoint(cfg, role)
                     llm_resp = call_llm(
-                        prompt, base_url=bu, model=mo,
-                        system_prompt=f"You are the {role} expert.",
-                        agent_role=role, round_idx=rnd, label=f"expert_{role.lower()}",
+                        prompt,
+                        base_url=bu,
+                        model=mo,
+                        system_prompt=_expert_system(role),
+                        agent_role=role,
+                        round_idx=rnd,
+                        label=f"expert_{role.lower()}",
                         **llm_ctx,
                     )
-                content = llm_resp["content"]
+                step = _append_step(role, "expert", llm_resp)
+                public.append(step)
                 total_tokens += llm_resp["metadata"]["total_tokens"]
-                public.append(trace_step_from_response(role, "expert", llm_resp))
                 progress.echo_blackboard_step(
-                    target["gene"], target["mutation"], rnd, max_rounds, role, content
+                    target["gene"],
+                    target["mutation"],
+                    rnd,
+                    max_rounds,
+                    role,
+                    step.get("stance_summary") or step["content"],
                 )
 
                 if role == "Mechanism" and rnd == 1:
@@ -186,14 +329,17 @@ def run_blackboard(
                     if rubric_before < 2:
                         bu, mo = _endpoint(cfg, "Mechanism")
                         reflex = call_llm(
-                            f"Revise mechanism using Critic feedback (gaps: {gaps}).\n"
-                            f"Problem:\n{problem}\n\nBlackboard:\n{_bb_text(public)}",
-                            base_url=bu, model=mo,
-                            system_prompt="You are the Mechanism expert (reflexion pass).",
-                            agent_role="Mechanism", round_idx=rnd, label="mechanism_reflexion",
+                            f"Revise mechanism JSON using Critic feedback (gaps: {gaps}).\n"
+                            f"Case:\n{problem}\n\nPrior:\n{_bb_compact(public)}\n\n{_JSON_ONLY}",
+                            base_url=bu,
+                            model=mo,
+                            system_prompt=_expert_system("Mechanism") + " (reflexion pass)",
+                            agent_role="Mechanism",
+                            round_idx=rnd,
+                            label="mechanism_reflexion",
                             **llm_ctx,
                         )
-                        public.append(trace_step_from_response("Mechanism", "reflexion", reflex))
+                        public.append(_append_step("Mechanism", "reflexion", reflex))
                         total_tokens += reflex["metadata"]["total_tokens"]
                         rubric_after, _, tok2 = _invoke_critic_rubric(
                             cfg, public, llm_ctx=llm_ctx, rnd=rnd
@@ -210,53 +356,95 @@ def run_blackboard(
 
             bu, mo = _endpoint(cfg, "Critic")
             cr = call_llm(
-                f"Check claims vs evidence. Flag hallucinated pLDDT or therapy claims.\n{_bb_text(public)}",
-                base_url=bu, model=mo, system_prompt="You are the Critic.",
-                agent_role="Critic", round_idx=rnd, label="critic",
+                f"Check claims vs evidence. Flag hallucinated pLDDT or unsupported therapies.\n"
+                f"Blackboard:\n{_bb_compact(public)}\n\n{_JSON_ONLY}",
+                base_url=bu,
+                model=mo,
+                system_prompt=_critic_system(),
+                agent_role="Critic",
+                round_idx=rnd,
+                label="critic",
                 **llm_ctx,
             )
-            public.append(trace_step_from_response("Critic", "critique", cr))
+            step = _append_step("Critic", "critique", cr)
+            public.append(step)
             total_tokens += cr["metadata"]["total_tokens"]
             progress.echo_blackboard_step(
-                target["gene"], target["mutation"], rnd, max_rounds, "Critic", cr["content"]
+                target["gene"],
+                target["mutation"],
+                rnd,
+                max_rounds,
+                "Critic",
+                step.get("stance_summary") or step["content"],
             )
 
             bu, mo = _endpoint(cfg, "ConflictResolver")
             xr = call_llm(
-                f"Resolve sensitivity vs resistance conflicts by disease context.\n{_bb_text(public)}",
-                base_url=bu, model=mo, system_prompt="You are the ConflictResolver.",
-                agent_role="ConflictResolver", round_idx=rnd, label="conflict_resolver",
+                f"Resolve sensitivity vs resistance conflicts by disease context.\n"
+                f"Blackboard:\n{_bb_compact(public)}\n\n{_JSON_ONLY}",
+                base_url=bu,
+                model=mo,
+                system_prompt=_resolver_system(),
+                agent_role="ConflictResolver",
+                round_idx=rnd,
+                label="conflict_resolver",
                 **llm_ctx,
             )
-            public.append(trace_step_from_response("ConflictResolver", "resolution", xr))
+            step = _append_step("ConflictResolver", "resolution", xr)
+            public.append(step)
             total_tokens += xr["metadata"]["total_tokens"]
             progress.echo_blackboard_step(
-                target["gene"], target["mutation"], rnd, max_rounds, "ConflictResolver", xr["content"]
+                target["gene"],
+                target["mutation"],
+                rnd,
+                max_rounds,
+                "ConflictResolver",
+                step.get("stance_summary") or step["content"],
             )
 
-            if rnd == 1 and _round1_consensus(cr["content"], xr["content"]):
+            if rnd == 1 and _round1_consensus(
+                step.get("stance_summary") or cr["content"],
+                public[-1].get("stance_summary") or xr["content"],
+            ):
                 early_exit = True
                 progress.echo_blackboard_step(
-                    target["gene"], target["mutation"], rnd, max_rounds, "system",
-                    "consensus reached", early_exit=True,
+                    target["gene"],
+                    target["mutation"],
+                    rnd,
+                    max_rounds,
+                    "system",
+                    "consensus reached",
+                    early_exit=True,
                 )
 
         bu, mo = _endpoint(cfg, "Decider")
         decider_prompt = (
-            f"Produce final JSON reasoning (mechanism + therapy + confidence).\n{_bb_text(public)}"
+            f"Produce final JSON reasoning (mechanism + therapy + confidence).\n"
+            f"Blackboard summaries:\n{_bb_compact(public)}"
             + vus_note
         )
         dr = call_llm(
             decider_prompt,
-            base_url=bu, model=mo,
+            base_url=bu,
+            model=mo,
             system_prompt="You are the Decider. Return valid JSON only.",
-            agent_role="Decider", round_idx=rounds_done + 1, label="decider",
+            agent_role="Decider",
+            round_idx=rounds_done + 1,
+            label="decider",
             **llm_ctx,
         )
-        public.append(trace_step_from_response("Decider", "decision", dr))
+        step = trace_step_from_response("Decider", "decision", dr)
+        step["stance_summary"] = "Final therapy decision synthesized."
+        step["key_claim"] = _first_sentence(dr.get("content", ""), 120)
+        public.append(step)
         total_tokens += dr["metadata"]["total_tokens"]
         progress.echo_blackboard_step(
-            target["gene"], target["mutation"], rounds_done, max_rounds, "Decider", dr["content"]
+            target["gene"],
+            target["mutation"],
+            rounds_done,
+            max_rounds,
+            "Decider",
+            step.get("key_claim") or step["content"],
         )
 
     try:

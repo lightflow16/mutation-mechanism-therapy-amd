@@ -2,8 +2,11 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
+
+_ECHO_HEADER = re.compile(r"^#+\s*summary of evidence", re.I)
 
 
 def _stance_summary(content: str, limit: int = 120) -> str:
@@ -11,27 +14,85 @@ def _stance_summary(content: str, limit: int = 120) -> str:
     return text if len(text) <= limit else text[: limit - 3] + "..."
 
 
-def _biochemical_claim(agent: str, content: str) -> str:
-    low = content.lower()
-    if agent == "Structure":
-        for key in ("plddt", "region", "loop", "domain", "residue"):
-            if key in low:
-                return _stance_summary(content, 80)
-    if agent == "Mechanism":
-        for key in ("activat", "signal", "pathway", "kinase", "binding", "loss"):
-            if key in low:
-                return _stance_summary(content, 80)
-    if agent == "Evidence":
-        for key in ("civic", "clinvar", "sensitivity", "resistance", "fda"):
-            if key in low:
-                return _stance_summary(content, 80)
+def _normalize_echo_key(text: str, n: int = 100) -> str:
+    t = re.sub(r"\s+", " ", (text or "").strip().lower())
+    t = re.sub(r"^#+\s*", "", t)
+    return t[:n]
+
+
+def _is_echo(content: str, seen_keys: set[str]) -> bool:
+    key = _normalize_echo_key(content)
+    if not key or len(key) < 40:
+        return False
+    if key in seen_keys:
+        return True
+    if _ECHO_HEADER.match(content.strip()):
+        return key in seen_keys
+    return False
+
+
+def _extract_role_snippet(agent: str, content: str) -> str:
+    """Best-effort unique snippet from legacy (pre-structured) traces."""
+    if not content:
+        return ""
+    text = content.strip()
+    if _ECHO_HEADER.match(text):
+        text = re.sub(r"^#+\s*Summary of Evidence[^\n]*\n+", "", text, flags=re.I)
+        text = re.sub(r"^#+\s*Mutation Details[^\n]*\n+", "", text, flags=re.I)
+
+    low = text.lower()
+    if agent == "Critic":
+        for pat in (
+            r"(no (signs of )?hallucin[^.]{0,80}\.)",
+            r"(hallucin[^.]{0,80}\.)",
+            r"(unsupported[^.]{0,80}\.)",
+            r"(pass[^.]{0,60}\.)",
+        ):
+            m = re.search(pat, low, re.I)
+            if m:
+                return _stance_summary(text[m.start() : m.end()], 100)
+    if agent == "ConflictResolver":
+        for pat in (
+            r"(resolv[^.]{0,80}\.)",
+            r"(sensitiv[^.]{0,80}resist[^.]{0,40}\.)",
+            r"(context-dependent[^.]{0,80}\.)",
+        ):
+            m = re.search(pat, low, re.I)
+            if m:
+                return _stance_summary(text[m.start() : m.end()], 100)
     if agent == "Therapy":
-        for key in ("osimertinib", "alpelisib", "gefitinib", "erlotinib", "inhibitor"):
-            if key in low:
-                return _stance_summary(content, 80)
-    if agent in ("Critic", "ConflictResolver", "Decider"):
-        return _stance_summary(content, 80)
-    return _stance_summary(content, 60)
+        for drug in ("alpelisib", "osimertinib", "gefitinib", "erlotinib", "afatinib"):
+            if drug in low:
+                idx = low.find(drug)
+                return _stance_summary(text[max(0, idx - 20) : idx + 80], 100)
+    if agent == "Mechanism":
+        for kw in ("activation loop", "e545k", "constitutive", "pathway", "p85"):
+            if kw in low:
+                idx = low.find(kw)
+                return _stance_summary(text[max(0, idx - 10) : idx + 90], 100)
+    if agent == "Evidence":
+        for kw in ("civic", "clinvar", "level a", "sensitivity", "resistance"):
+            if kw in low:
+                idx = low.find(kw)
+                return _stance_summary(text[max(0, idx - 5) : idx + 85], 100)
+    if agent == "Structure":
+        for kw in ("plddt", "94.1", "activation loop", "residue 545"):
+            if kw in low:
+                idx = low.find(kw)
+                return _stance_summary(text[max(0, idx - 5) : idx + 85], 100)
+    return _stance_summary(text, 80)
+
+
+def _biochemical_claim(agent: str, content: str, entry: dict) -> str:
+    if entry.get("key_claim"):
+        return _stance_summary(str(entry["key_claim"]), 80)
+    return _extract_role_snippet(agent, content) or _stance_summary(content, 80)
+
+
+def _display_stance(entry: dict) -> str:
+    if entry.get("stance_summary"):
+        return _stance_summary(str(entry["stance_summary"]), 42)
+    return _extract_role_snippet(entry.get("agent", ""), entry.get("content", ""))[:42]
 
 
 def format_vus_summary(tr: dict, routing: dict) -> str:
@@ -68,19 +129,36 @@ def format_mtb_panel(trace: dict | Path | str) -> str:
         f"{'Agent':<18} | {'Stance Summary':<42} | Key Biochemical Claim",
         "-" * 90,
     ]
-    seen: set[str] = set()
+    seen_echo: set[str] = set()
+    seen_panel: set[tuple[str, str]] = set()
+
     for entry in bb:
         agent = entry.get("agent", "?")
         typ = entry.get("type", "")
-        key = f"{agent}:{typ}"
-        if key in seen and typ == "expert":
-            continue
-        seen.add(key)
         content = entry.get("content", "")
+
+        panel_key = (agent, typ)
+        if typ in ("expert", "critique", "resolution", "plan"):
+            if panel_key in seen_panel:
+                continue
+            seen_panel.add(panel_key)
+        elif typ == "decision" and panel_key in seen_panel:
+            continue
+        else:
+            seen_panel.add(panel_key)
+
+        echo_key = _normalize_echo_key(entry.get("stance_summary") or content)
+        if _is_echo(content, seen_echo) and not entry.get("stance_summary"):
+            stance = f"[echo trimmed] {_extract_role_snippet(agent, content)[:36]}"
+            claim = _biochemical_claim(agent, content, entry)
+        else:
+            stance = _display_stance(entry)
+            claim = _biochemical_claim(agent, content, entry)
+        if echo_key:
+            seen_echo.add(echo_key)
+
         role = f"{agent} ({typ})" if typ else agent
-        lines.append(
-            f"{role:<18} | {_stance_summary(content, 42):<42} | {_biochemical_claim(agent, content)}"
-        )
+        lines.append(f"{role:<18} | {stance:<42} | {claim}")
     return "\n".join(lines)
 
 
@@ -96,8 +174,8 @@ def mtb_panel_dict(trace: dict | Path | str) -> dict[str, Any]:
             {
                 "agent": agent,
                 "type": entry.get("type", ""),
-                "stance_summary": _stance_summary(content, 120),
-                "biochemical_claim": _biochemical_claim(agent, content),
+                "stance_summary": entry.get("stance_summary") or _display_stance(entry),
+                "biochemical_claim": entry.get("key_claim") or _biochemical_claim(agent, content, entry),
             }
         )
     target = trace.get("target", {})
