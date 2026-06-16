@@ -20,6 +20,28 @@ targets:
     civic_profile: "EGFR L858R"
     disease_context: "Lung Non-small Cell Carcinoma"
 
+  - gene: EGFR
+    mutation: T790M
+    class: ONCOGENE_GOF
+    pathway: inhibitor_rag
+    uniprot: P00533
+    residue: 790
+    wt_aa: T
+    mut_aa: M
+    civic_profile: "EGFR T790M"
+    disease_context: "EGFR-mutant NSCLC post-TKI"
+
+  - gene: EGFR
+    mutation: G719S
+    class: UNKNOWN
+    pathway: inhibitor_rag
+    uniprot: P00533
+    residue: 719
+    wt_aa: G
+    mut_aa: S
+    civic_profile: ""
+    disease_context: "Lung Non-small Cell Carcinoma"
+
   - gene: PIK3CA
     mutation: E545K
     class: ONCOGENE_GOF
@@ -42,18 +64,12 @@ targets:
     civic_profile: "TP53 R175H"
     disease_context: "Li-Fraumeni / pan-cancer"
 
-# ---- runtime knobs ----
-# LLM_BACKEND: auto | transformers | vllm
-#   auto       -> transformers on AMD ROCm; vLLM on CUDA only if servers are up
-#   transformers -> Qwen2.5-7B via HuggingFace (works on AMD + Colab)
-#   vllm       -> OpenAI-compatible local servers (CUDA Colab only; see scripts/install_vllm_colab.sh)
 serving:
-  # one vLLM process per model on distinct ports (heterogeneous archs can't share a server)
   endpoints:
     planner:    { base_url: "http://localhost:8002/v1", model: "qwen2.5-3b-instruct" }
     reasoner:   { base_url: "http://localhost:8000/v1", model: "qwen2.5-vl-7b" }
     mechanism:  { base_url: "http://localhost:8001/v1", model: "qwen2.5-7b-instruct" }
-  gpu_memory_utilization: 0.25   # per server, so 3 servers + KV cache fit in 192 GiB
+  gpu_memory_utilization: 0.25
 
 paths:
   shared: "/workspace/shared"
@@ -63,26 +79,41 @@ paths:
   lora_adapter_final: "/workspace/shared/lora_adapter_final"
 
 rescue:
-  ddg_destabilizing_threshold: 1.0   # kcal/mol; LOF gate (ThermoMPNN ddG above this = destabilizing)
+  ddg_destabilizing_threshold: 1.0
   proteinmpnn_temperature: 0.8
   n_designs: 8
-  pack_shell_radius: 8.0             # Angstrom around the mutated residue to redesign
-  thermompnn_shell_radius: 15.0      # local shell for SSM on large proteins (e.g. full-length TP53)
+  pack_shell_radius: 8.0
+  thermompnn_shell_radius: 15.0
   thermompnn_full_protein_max_residues: 80
-  require_boltz: true                # fail rescue if Boltz not installed (setup_boltz_venv.sh)
+  require_boltz: true
   require_esmfold: true
   require_proteinmpnn: true
+  fold_confidence_ptm_threshold: 0.15
 
 pipeline:
-  # Full submission: always run all architectures live on all demo cases; compare per mutation.
   always_run_all: true
   architectures: [single, cot, blackboard]
   demo_cases:
     - [EGFR, L858R]
+    - [EGFR, T790M]
     - [PIK3CA, E545K]
     - [TP53, R175H]
+  debate_cases:
+    - [PIK3CA, E545K]
+  vus_demo_cases:
+    - [EGFR, G719S]
+  vus_demo_architecture: single
+  vus_require_empty_kb: true
   live_evidence: true
-  use_cached_baseline: true          # cached replay + live matrix (both compared)
+  use_cached_baseline: true
   run_eval_after_live: true
   export_metrics_bundle: true
-  run_lora_train: false                # set true or use --train-lora to SFT before matrix
+  export_artifacts_bundle: true
+  run_lora_train: false
+  lora_distill_from_traces: true
+  live_safety_probes: false
+  store_llm_text: true
+  use_llm_router: false
+  multi_stage_cot: false
+  verbose_progress: true
+  demo_echo_thinking: true

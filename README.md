@@ -162,4 +162,26 @@ After full submission + eval:
 | `blackboard_ingress_by_role.csv` | Compaction ROI baseline (ingress waste by agent) |
 | `workflow_trace_dashboard.html` | **Formal demo dashboard** (judges) + thesis figures |
 
+## Advanced LLM capabilities (v7 upgrade)
+
+| Capability | Module | Metrics artifact |
+|---|---|---|
+| Multimodal VL (structure PNG) | `src/structure.py`, `src/reason.py` | `multimodal_image` in `llm_calls.jsonl` |
+| VUS routing + abstention | `src/variant_router.py` | `variant_routing` in trace JSON |
+| Mechanism rubric + reflexion | `src/mas.py` | `mechanism_rubric_before/after`, `self_correction` events |
+| Blackboard early-exit | `src/mas.py` | `early_exit` in trace + `productive_throughput.csv` |
+| Debate architecture (PIK3CA) | `src/debate.py` | `architecture=debate` in llm_calls |
+| Teacher–student LoRA | `train/build_dataset.py --from-traces` | LoRA ablation in `ablation_results.csv` |
+| Hallucination metrics (6 HR) | `src/hallucination_eval.py` | `hallucination_report.csv` |
+| Fold confidence benchmark | `src/fold_confidence_eval.py` | `benchmark_confidence.csv` |
+| Agent autonomy / DBTL L3 | `src/agent_autonomy_eval.py` | `autonomy_report.json`, `task_suite.csv`, `able_metrics.csv`, `dbtl_metrics.json`, `tevv_lite.csv` |
+| MTB panel | `src/mtb_panel.py` | embedded in `comparison_*.json` |
+| Live console echo | `src/progress.py` | mirrors `llm_calls.jsonl` during run |
+
+**Literature positioning:** MOAlmanac-style RAG + MTBBench-style multi-agent conflict + PFUA-style tool grounding + AMix-style rescue verification — on open AMD ROCm.
+
+**Cached traces:** 9 live traces under `data/traces/` (3 cases × 3 architectures). Fourth case EGFR T790M runs in full submission matrix.
+
+**Platform compare:** `PYTHONPATH=. python scripts/compare_platforms.py colab_bundle.tgz amd_bundle.tgz`
+
 Same metrics bundle works for **Colab vs AMD** (`compare_platforms.py`) and **M.Tech documentation** (CSV/JSON export).

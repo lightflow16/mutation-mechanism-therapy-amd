@@ -372,3 +372,22 @@ def run_rescue(
             "proteinmpnn_pdb": str(mpnn_pdb),
             "ddg_engine": "ThermoMPNN",
         }
+
+
+def interpret_rescue(target: dict, rescue: dict) -> str:
+    """Post-rescue LLM narrative (lightweight rule-based interpreter for metrics)."""
+    from src import progress
+
+    ddg = rescue.get("mutant_ddg_kcal_mol")
+    destab = rescue.get("destabilizing")
+    fold = rescue.get("fold_method") or "none"
+    msg = (
+        f"Rescue summary for {target.get('gene')} {target.get('mutation')}: "
+        f"ddG={ddg} destabilizing={destab}; fold={fold}. "
+    )
+    if destab:
+        msg += "Structural rescue hypothesis supported by destabilizing ddG; research-only."
+    else:
+        msg += "ddG below destabilizing threshold; cautious interpretation required."
+    progress.echo_rescue(msg, ddg=ddg, fold=fold)
+    return msg

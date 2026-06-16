@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import re
 import time
 from typing import Any
 
@@ -10,6 +11,68 @@ from src.config import is_rocm, load_config
 
 _TEXT_MODEL_DEFAULT = "Qwen/Qwen2.5-7B-Instruct"
 _MODEL_CACHE: dict[str, tuple] = {}
+
+_THINK_RE = re.compile(r"<think>(.*?)</think>", re.S | re.I)
+
+
+def split_completion(completion_text: str) -> tuple[str, str]:
+    """Return (reasoning_text, output_text) from a model completion."""
+    text = completion_text or ""
+    reasoning = "\n\n".join(m.strip() for m in _THINK_RE.findall(text) if m.strip())
+    output = _THINK_RE.sub("", text).strip()
+    return reasoning, output or text.strip()
+
+
+def _store_llm_text() -> bool:
+    if os.environ.get("STORE_LLM_TEXT") == "0":
+        return False
+    if os.environ.get("STORE_LLM_TEXT") == "1":
+        return True
+    try:
+        return bool(load_config().get("pipeline", {}).get("store_llm_text", True))
+    except Exception:
+        return True
+
+
+def _llm_response(
+    completion: str,
+    *,
+    prompt: str,
+    system_prompt: str | None,
+    model: str,
+    backend: str,
+    prompt_tokens: int,
+    completion_tokens: int,
+) -> dict[str, Any]:
+    reasoning, output = split_completion(completion)
+    return {
+        "content": completion,
+        "prompt": prompt,
+        "system_prompt": system_prompt or "",
+        "reasoning": reasoning,
+        "output": output or completion,
+        "metadata": {
+            "model": model,
+            "prompt_tokens": prompt_tokens,
+            "completion_tokens": completion_tokens,
+            "total_tokens": prompt_tokens + completion_tokens,
+            "backend": backend,
+        },
+    }
+
+
+def trace_step_from_response(agent: str, step_type: str, resp: dict[str, Any]) -> dict[str, Any]:
+    """Build a trace step dict with prompt / reasoning / output for blackboard or debate logs."""
+    step: dict[str, Any] = {
+        "agent": agent,
+        "type": step_type,
+        "content": resp.get("content", ""),
+    }
+    for key in ("prompt", "system_prompt", "reasoning", "output"):
+        val = resp.get(key)
+        if val:
+            step[key] = val
+    return step
 
 
 def _llm_backend() -> str:
@@ -106,17 +169,18 @@ def call_transformers(
             gene=gene,
             mutation=mutation,
             weight_cache_hit=weight_cache_hit,
+            prompt_text=prompt,
+            system_prompt=system_prompt,
         )
-        return {
-            "content": gen,
-            "metadata": {
-                "model": model_id,
-                "prompt_tokens": in_len,
-                "completion_tokens": int(out_tok),
-                "total_tokens": in_len + int(out_tok),
-                "backend": "transformers",
-            },
-        }
+        return _llm_response(
+            gen,
+            prompt=prompt,
+            system_prompt=system_prompt,
+            model=model_id,
+            backend="transformers",
+            prompt_tokens=in_len,
+            completion_tokens=int(out_tok),
+        )
 
 
 def call_vllm(
@@ -169,17 +233,18 @@ def call_vllm(
             label=label,
             gene=gene,
             mutation=mutation,
+            prompt_text=prompt,
+            system_prompt=system_prompt,
         )
-        return {
-            "content": text,
-            "metadata": {
-                "model": model,
-                "prompt_tokens": in_tok,
-                "completion_tokens": out_tok,
-                "total_tokens": (usage.total_tokens if usage else in_tok + out_tok),
-                "backend": "vllm",
-            },
-        }
+        return _llm_response(
+            text,
+            prompt=prompt,
+            system_prompt=system_prompt,
+            model=model,
+            backend="vllm",
+            prompt_tokens=in_tok,
+            completion_tokens=out_tok,
+        )
 
 
 def call_llm(

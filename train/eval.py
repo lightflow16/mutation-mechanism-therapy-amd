@@ -143,6 +143,71 @@ def main():
 
     cmp_path = metrics_dir() / "architecture_comparison_eval.json"
     cmp_path.write_text(json.dumps(comparisons, indent=2, default=str))
+
+    debate_rows = []
+    for gene, mut in [tuple(x) for x in pcfg.get("debate_cases", [])]:
+        gold = gold_case(gene, mut)
+        gold_reasoning = gold["target_reasoning"]
+        gold_sens, gold_res = extract_therapies_from_reasoning(gold_reasoning)
+        try:
+            debate_run = run_mutation_comparison(
+                gene, mut, architectures=["debate"], live_evidence=False, use_cached_trace=True
+            )
+            result = debate_run["architectures"].get("debate")
+        except Exception as exc:
+            debate_rows.append({
+                "gene": gene, "mutation": mut, "architecture": "debate",
+                "therapy_f1": None, "direction_acc": None, "status": f"error:{exc}",
+            })
+            continue
+        if not result:
+            debate_rows.append({
+                "gene": gene, "mutation": mut, "architecture": "debate",
+                "therapy_f1": None, "direction_acc": None, "status": "missing_trace",
+            })
+            continue
+        reasoning = extract_target_reasoning(result)
+        pred_sens, pred_res = extract_therapies_from_reasoning(reasoning)
+        debate_rows.append({
+            "gene": gene, "mutation": mut, "architecture": "debate",
+            "therapy_f1": round(therapy_f1(pred_sens + pred_res, gold_sens + gold_res), 3),
+            "direction_acc": round(direction_accuracy(reasoning, gold_reasoning), 3),
+            "debate_steps": len((result.get("reasoning") or {}).get("debate_trace") or []),
+            "status": "ok",
+        })
+
+    vus_rows = []
+    for gene, mut in [tuple(x) for x in pcfg.get("vus_demo_cases", [])]:
+        arch = pcfg.get("vus_demo_architecture", "single")
+        try:
+            vus_run = run_mutation_comparison(
+                gene, mut, architectures=[arch], live_evidence=False, use_cached_trace=True
+            )
+            result = vus_run["architectures"].get(arch)
+        except Exception as exc:
+            vus_rows.append({"gene": gene, "mutation": mut, "status": f"error:{exc}"})
+            continue
+        if not result:
+            vus_rows.append({"gene": gene, "mutation": mut, "status": "missing_trace"})
+            continue
+        reasoning = extract_target_reasoning(result)
+        sens, res = extract_therapies_from_reasoning(reasoning)
+        therapy = reasoning.get("therapy") or {}
+        abstained = not sens and not res
+        status_ok = abstained or therapy.get("recommendation_status") == "insufficient_evidence"
+        vus_rows.append({
+            "gene": gene, "mutation": mut, "architecture": arch,
+            "abstained": abstained,
+            "recommendation_status": therapy.get("recommendation_status"),
+            "evidence_tier": (result.get("variant_routing") or {}).get("evidence_tier"),
+            "status": "ok" if status_ok else "therapy_leak",
+        })
+
+    if debate_rows:
+        (metrics_dir() / "debate_eval.json").write_text(json.dumps(debate_rows, indent=2))
+    if vus_rows:
+        (metrics_dir() / "vus_eval.json").write_text(json.dumps(vus_rows, indent=2))
+
     metrics.aggregate_ablation()
     try:
         from src.metrics_bundle import write_platform_summary

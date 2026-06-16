@@ -12,8 +12,8 @@ datasets==5.0.0
 gradio==6.17.3
 qwen-vl-utils==0.0.14
 
-# structure / IO
-py3Dmol
+# structure viz (optional PNG for VL multimodal)
+matplotlib>=3.8
 biopython
 gemmi
 pandas

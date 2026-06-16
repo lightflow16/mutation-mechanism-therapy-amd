@@ -52,6 +52,8 @@ except Exception:
 METRICS_DIR = os.environ.get("METRICS_DIR", "/workspace/shared/metrics")
 CALLS_CSV = os.path.join(METRICS_DIR, "calls.csv")
 PHASES_CSV = os.path.join(METRICS_DIR, "phases.csv")
+LLM_LOG = os.path.join(METRICS_DIR, "llm_calls.jsonl")
+SYS_CSV = os.path.join(METRICS_DIR, "system_samples.csv")
 
 FIELDS = [
     "timestamp", "call_id", "level", "label", "agent_role", "model", "round",
@@ -64,7 +66,29 @@ _LOCK = threading.Lock()
 # stack of currently-open handles, so a phase can aggregate its child calls
 _STACK: contextvars.ContextVar[tuple] = contextvars.ContextVar("metrics_stack", default=())
 
-_THINK_RE = re.compile(r"<think>(.*?)</think>", re.S)
+_THINK_RE = re.compile(r"<think>(.*?)</think>", re.S | re.I)
+
+
+def _split_completion(completion_text: str) -> tuple[str, str]:
+    text = completion_text or ""
+    reasoning = "\n\n".join(m.strip() for m in _THINK_RE.findall(text) if m.strip())
+    output = _THINK_RE.sub("", text).strip()
+    return reasoning, output or text
+
+
+def _store_llm_text_enabled() -> bool:
+    if os.environ.get("STORE_LLM_TEXT") == "0":
+        return False
+    if os.environ.get("STORE_LLM_TEXT") == "1":
+        return True
+    try:
+        from src.config import load_config
+
+        return bool(load_config().get("pipeline", {}).get("store_llm_text", True))
+    except Exception:
+        return True
+
+_LAST_TRACK_ROW: dict | None = None
 
 
 _GPU_OK: bool | None = None
@@ -97,10 +121,12 @@ def reset_gpu_probe() -> None:
 
 def set_metrics_dir(path: str) -> None:
     """Override the output directory at runtime (e.g. to /workspace/shared/metrics)."""
-    global METRICS_DIR, CALLS_CSV, PHASES_CSV
+    global METRICS_DIR, CALLS_CSV, PHASES_CSV, LLM_LOG, SYS_CSV
     METRICS_DIR = path
     CALLS_CSV = os.path.join(METRICS_DIR, "calls.csv")
     PHASES_CSV = os.path.join(METRICS_DIR, "phases.csv")
+    LLM_LOG = os.path.join(METRICS_DIR, "llm_calls.jsonl")
+    SYS_CSV = os.path.join(METRICS_DIR, "system_samples.csv")
 
 
 class _Handle:
@@ -272,6 +298,15 @@ def track(label: str, agent_role: str = "", model: str = "", round_idx=" ",
             "tok_per_s": round(h.egress / wall, 1) if (wall > 0 and h.egress) else "NA",
         }
         _append(PHASES_CSV if level == "phase" else CALLS_CSV, row)
+        global _LAST_TRACK_ROW
+        _LAST_TRACK_ROW = row
+        try:
+            from src import progress
+
+            if level == "call":
+                progress.echo_track_row(row)
+        except Exception:
+            pass
 
 
 @contextlib.contextmanager
@@ -297,10 +332,6 @@ def summary() -> dict:
     return out
 
 
-LLM_LOG = os.path.join(METRICS_DIR, "llm_calls.jsonl")
-SYS_CSV = os.path.join(METRICS_DIR, "system_samples.csv")
-
-
 def log_llm_call(
     agent_role: str,
     model_name: str,
@@ -316,9 +347,13 @@ def log_llm_call(
     gene: str = "",
     mutation: str = "",
     weight_cache_hit: bool = False,
+    multimodal_image: bool = False,
+    prompt_text: str = "",
+    system_prompt: str | None = None,
 ) -> None:
     think = "".join(_THINK_RE.findall(completion_text or ""))
     reasoning_tok = len(think.split())
+    reasoning_text, output_text = _split_completion(completion_text or "")
     if not query_id and gene and mutation:
         query_id = f"{gene}_{mutation}"
     row = {
@@ -338,7 +373,24 @@ def log_llm_call(
         "latency_s": round(latency_s, 4),
         "tok_per_s": round(completion_tokens / latency_s, 1) if latency_s > 0 else "NA",
         "weight_cache_hit": bool(weight_cache_hit),
+        "multimodal_image": bool(multimodal_image),
     }
+    try:
+        if _store_llm_text_enabled():
+            if prompt_text:
+                row["prompt_text"] = prompt_text
+            if system_prompt:
+                row["system_prompt"] = system_prompt
+            if reasoning_text:
+                row["reasoning_text"] = reasoning_text
+            if output_text:
+                row["output_text"] = output_text
+            row["completion_text"] = completion_text or ""
+    except Exception:
+        pass
+    if _LAST_TRACK_ROW:
+        row["gpu_active_s"] = _LAST_TRACK_ROW.get("gpu_active_s")
+        row["peak_vram_gib"] = _LAST_TRACK_ROW.get("peak_vram_gib")
     try:
         from src.platform import detect_platform
 
@@ -353,6 +405,50 @@ def log_llm_call(
             os.fsync(f.fileno())
         except OSError:
             pass
+    try:
+        from src import progress
+
+        progress.echo_llm_call(row, completion_text)
+    except Exception:
+        pass
+
+
+def log_self_correction(
+    *,
+    gene: str,
+    mutation: str,
+    architecture: str = "blackboard",
+    rubric_before: int | float = 0,
+    rubric_after: int | float = 0,
+    agent_role: str = "Mechanism",
+    note: str = "",
+) -> None:
+    """Log reflexion / rubric self-correction events to llm_calls.jsonl."""
+    event = {
+        "event": "self_correction",
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
+        "gene": gene,
+        "mutation": mutation,
+        "architecture": architecture,
+        "agent_role": agent_role,
+        "rubric_before": rubric_before,
+        "rubric_after": rubric_after,
+        "note": note,
+    }
+    os.makedirs(METRICS_DIR, exist_ok=True)
+    with _LOCK, open(LLM_LOG, "a") as f:
+        f.write(json.dumps(event) + "\n")
+        f.flush()
+        try:
+            os.fsync(f.fileno())
+        except OSError:
+            pass
+    try:
+        from src import progress
+
+        progress.echo_self_correction(event)
+    except Exception:
+        pass
 
 
 class SysSampler:

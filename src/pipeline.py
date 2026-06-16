@@ -8,13 +8,22 @@ from typing import Any, Literal
 from src import metrics
 from src.config import get_target, load_config, metrics_dir, setup_env, shared_dir
 from src.cot import run_cot
+from src.debate import run_debate
 from src.evidence import gather_evidence
 from src.mas import run_blackboard
+from src.plm_prior import compute_plm_llr
 from src.reason import reason_single
-from src.rescue import run_rescue
+from src.rescue import interpret_rescue, run_rescue
+from src.route_planner import route_with_planner
 from src.structure import analyze_target
+from src.variant_router import route_variant
 
-Architecture = Literal["single", "cot", "blackboard"]
+try:
+    from src import progress
+except ImportError:
+    progress = None  # type: ignore
+
+Architecture = Literal["single", "cot", "blackboard", "debate"]
 
 
 def route_target(target: dict, structure: dict, evidence: list[dict]) -> str:
@@ -54,19 +63,40 @@ def _run_reasoning(
     evidence: list[dict],
     *,
     lora_path: str | None = None,
+    image_path: str | None = None,
 ) -> dict[str, Any]:
+    img = image_path or structure.get("structure_image_path")
+    if architecture == "debate":
+        return run_debate(target, structure, evidence)
     if architecture == "blackboard":
-        return run_blackboard(target, structure, evidence)
+        return run_blackboard(target, structure, evidence, image_path=img)
     if architecture == "cot":
-        return run_cot(target, structure, evidence)
-    return reason_single(target, structure, evidence, lora_path=lora_path)
+        return run_cot(target, structure, evidence, image_path=img)
+    return reason_single(target, structure, evidence, lora_path=lora_path, image_path=img)
+
+
+def _unwrap_target_reasoning(response_dict: dict) -> dict:
+    """Defensively unwrap nested target_reasoning structures caused by CoT parser schemas."""
+    if not response_dict:
+        return {}
+    if "target_reasoning" in response_dict:
+        inner = response_dict["target_reasoning"]
+        if isinstance(inner, dict) and "target_reasoning" in inner:
+            nested = inner["target_reasoning"]
+            return nested if isinstance(nested, dict) else inner
+        return inner if isinstance(inner, dict) else {}
+    return response_dict
 
 
 def extract_target_reasoning(result: dict) -> dict:
+    if not result:
+        return {}
     r = result.get("reasoning", {})
+    if not isinstance(r, dict):
+        return {}
     if "target_reasoning" in r:
-        return r["target_reasoning"]
-    return r
+        return _unwrap_target_reasoning(r["target_reasoning"])
+    return _unwrap_target_reasoning(r)
 
 
 def extract_therapies_from_reasoning(reasoning: dict) -> tuple[list[str], list[str]]:
@@ -175,6 +205,17 @@ def format_comparison_report(comparison: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def _embed_mtb_panels(comparison: dict[str, Any], by_architecture: dict[str, dict]) -> None:
+    try:
+        from src.mtb_panel import mtb_panel_dict
+
+        bb = by_architecture.get("blackboard")
+        if bb:
+            comparison["mtb_panel"] = mtb_panel_dict(bb)
+    except Exception:
+        pass
+
+
 def _write_mutation_comparison(
     gene: str,
     mutation: str,
@@ -225,6 +266,7 @@ def run_mutation_comparison(
                 missing.append(arch)
         if by_arch:
             comparison = compare_architecture_results(gene, mutation, by_arch)
+            _embed_mtb_panels(comparison, by_arch)
             if missing:
                 comparison["missing_architectures"] = missing
                 comparison["note"] = (
@@ -244,19 +286,50 @@ def run_mutation_comparison(
     route: str | None = None
 
     with metrics.SysSampler(f"comparison_{gene}_{mutation}"):
+        case_idx = 0
         for arch in architectures:
             with metrics.phase(f"comparison_{gene}_{mutation}_{arch}"):
                 if structure is None:
                     structure = analyze_target(target, cache)
                     evidence = gather_evidence(target, live=live_evidence)
-                    route = route_target(target, structure, evidence)
+                    routing = route_variant(target, structure, evidence)
+                    target = {**target, **routing}
+                    plm = compute_plm_llr(
+                        target["uniprot"], target["residue"], target["wt_aa"], target["mut_aa"]
+                    )
+                    if plm.get("plm_llr") is not None:
+                        structure["plm_llr"] = plm["plm_llr"]
+                        structure["plm_perplexity_band"] = plm.get("plm_perplexity_band")
+                    rule_route = route_target(target, structure, evidence)
+                    route = rule_route
+                    pcfg = load_config().get("pipeline", {})
+                    if pcfg.get("use_llm_router", False):
+                        planned = route_with_planner(target, structure, evidence, rule_route=rule_route)
+                        route = planned["route"]
+                        target["route_planner"] = planned
+                    else:
+                        route = routing.get("pathway") or rule_route
+                    if progress:
+                        progress.banner(f"CASE — {gene} {mutation} | route={route}")
+                if progress:
+                    progress.log("pipeline", f"architecture: {arch}", gene=gene, mutation=mutation)
 
                 result: dict[str, Any] = {
                     "target": target,
-                    "structure": {k: v for k, v in structure.items() if k != "render_html"},
+                    "structure": {
+                        k: v for k, v in structure.items()
+                        if k not in ("render_html",)
+                    },
                     "evidence": evidence,
                     "route": route,
                     "architecture": arch,
+                    "variant_routing": {
+                        k: target.get(k)
+                        for k in (
+                            "evidence_tier", "classification", "vus_branch",
+                            "allow_confident_therapy",
+                        )
+                    },
                 }
                 result["reasoning"] = _run_reasoning(
                     arch,
@@ -264,6 +337,7 @@ def run_mutation_comparison(
                     structure,
                     evidence,
                     lora_path=lora_path if arch == "single" else None,
+                    image_path=structure.get("structure_image_path"),
                 )
                 by_arch[arch] = result
                 trace_path = metrics_dir() / f"trace_{gene}_{mutation}_{arch}.json"
@@ -273,12 +347,14 @@ def run_mutation_comparison(
         do_rescue = run_rescue_branch if run_rescue_branch is not None else route == "structural_rescue"
         if do_rescue:
             rescue = run_rescue(target, Path(structure["pdb_path"]))
+            rescue["interpreter"] = interpret_rescue(target, rescue)
             for arch in by_arch:
                 by_arch[arch]["rescue"] = rescue
                 trace_path = metrics_dir() / f"trace_{gene}_{mutation}_{arch}.json"
                 trace_path.write_text(json.dumps(by_arch[arch], indent=2, default=str))
 
     comparison = compare_architecture_results(gene, mutation, by_arch)
+    _embed_mtb_panels(comparison, by_arch)
     _write_mutation_comparison(gene, mutation, comparison, by_arch)
     metrics.aggregate_ablation()
     return {"architectures": by_arch, "comparison": comparison}
@@ -308,7 +384,9 @@ def run_case(
         with metrics.phase(f"pipeline_{gene}_{mutation}_{architecture}"):
             structure = analyze_target(target, cache)
             evidence = gather_evidence(target, live=live_evidence)
-            route = route_target(target, structure, evidence)
+            routing = route_variant(target, structure, evidence)
+            target = {**target, **routing}
+            route = routing.get("pathway") or route_target(target, structure, evidence)
 
             result: dict[str, Any] = {
                 "target": target,
@@ -317,13 +395,16 @@ def run_case(
                 "route": route,
             }
 
-            if architecture == "blackboard":
-                result["reasoning"] = run_blackboard(target, structure, evidence)
+            img = structure.get("structure_image_path")
+            if architecture == "debate":
+                result["reasoning"] = run_debate(target, structure, evidence)
+            elif architecture == "blackboard":
+                result["reasoning"] = run_blackboard(target, structure, evidence, image_path=img)
             elif architecture == "cot":
-                result["reasoning"] = run_cot(target, structure, evidence)
+                result["reasoning"] = run_cot(target, structure, evidence, image_path=img)
             else:
                 result["reasoning"] = reason_single(
-                    target, structure, evidence, lora_path=lora_path
+                    target, structure, evidence, lora_path=lora_path, image_path=img
                 )
 
             do_rescue = run_rescue_branch if run_rescue_branch is not None else route == "structural_rescue"
@@ -347,7 +428,8 @@ def run_all_modes(
     cfg = load_config()
     pcfg = cfg.get("pipeline", {})
     cases = [tuple(x) for x in pcfg.get("demo_cases", [])]
-    architectures: list[Architecture] = pcfg.get("architectures", ["single", "cot", "blackboard"])
+    architectures: list[Architecture] = list(pcfg.get("architectures", ["single", "cot", "blackboard"]))
+    debate_cases = {tuple(x) for x in pcfg.get("debate_cases", [])}
     if live_evidence is None:
         live_evidence = bool(pcfg.get("live_evidence", True))
     if use_cached_baseline is None:
@@ -380,6 +462,18 @@ def run_all_modes(
         if gene.upper() == "TP53" and mut.upper() == "R175H":
             kwargs["run_rescue_branch"] = True
         live_run = run_mutation_comparison(gene, mut, **kwargs)
+        if (gene, mut) in debate_cases:
+            try:
+                debate_run = run_mutation_comparison(
+                    gene, mut,
+                    architectures=["debate"],
+                    use_cached_trace=use_cached_baseline and not live_evidence,
+                    live_evidence=live_evidence,
+                )
+                if debate_run["architectures"].get("debate"):
+                    live_run["architectures"]["debate"] = debate_run["architectures"]["debate"]
+            except FileNotFoundError:
+                pass
         results["live"][key] = live_run
         live_comparisons[key] = live_run["comparison"]
         results["comparisons"][key] = live_run["comparison"]

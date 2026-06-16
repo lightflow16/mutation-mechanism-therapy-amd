@@ -1,0 +1,122 @@
+{
+  "target": {
+    "gene": "PIK3CA",
+    "mutation": "E545K",
+    "class": "ONCOGENE_GOF",
+    "pathway": "inhibitor_rag",
+    "uniprot": "P42336",
+    "residue": 545,
+    "wt_aa": "E",
+    "mut_aa": "K",
+    "civic_profile": "PIK3CA E545K",
+    "disease_context": "Breast Carcinoma"
+  },
+  "structure": {
+    "residue": "E545",
+    "residue_index": 545,
+    "mutation": "E545K",
+    "pLDDT_at_residue": 94.1,
+    "mean_pLDDT_protein": 92.4,
+    "neighboring_residues_within_10A": 10,
+    "local_contact_density_10A": 10,
+    "mpnn_index": 545,
+    "region": "activation loop",
+    "chain": "A",
+    "pdb_path": "/workspace/shared/structures/AF-P42336-F1-model_v6.pdb",
+    "gene": "PIK3CA"
+  },
+  "evidence": [
+    {
+      "source": "CIViC",
+      "therapies": "Alpelisib",
+      "disease": "Breast Carcinoma",
+      "direction": "Sensitivity/Response",
+      "level": "A",
+      "citation": "Andre et al., 2019",
+      "url": "https://civicdb.org/links/evidence_items/8733"
+    },
+    {
+      "source": "CIViC",
+      "therapies": "Alpelisib",
+      "disease": "Colorectal Cancer",
+      "direction": "Resistance",
+      "level": "B",
+      "citation": "context-dependent",
+      "url": "https://civicdb.org"
+    },
+    {
+      "source": "PubMed",
+      "pmid": "31091374",
+      "title": "PIK3CA mutations and alpelisib in breast cancer",
+      "abstract": "PIK3CA E545K sensitizes HR+ breast cancer to PI3K inhibitor alpelisib.",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/31091374/"
+    },
+    {
+      "source": "ClinVar",
+      "gene": "PIK3CA",
+      "mutation": "E545K",
+      "significance": "Pathogenic",
+      "review_status": "reviewed by expert panel"
+    }
+  ],
+  "route": "inhibitor_rag",
+  "architecture": "single",
+  "reasoning": {
+    "variant": {
+      "gene": "PIK3CA",
+      "protein_change": "E545K",
+      "hgvs_p": "PIK3CA.E545K"
+    },
+    "structure": {
+      "residue": "E545",
+      "residue_index": 545,
+      "mutation": "E545K",
+      "pLDDT_at_residue": 94.1,
+      "mean_pLDDT_protein": 92.4,
+      "neighboring_residues_within_10A": 10,
+      "local_contact_density_10A": 10,
+      "mpnn_index": 545,
+      "region": "activation loop",
+      "chain": "A",
+      "gene": "PIK3CA"
+    },
+    "evidence": [
+      {
+        "source": "CIViC",
+        "therapies": "Alpelisib",
+        "disease": "Breast Carcinoma",
+        "direction": "Sensitivity/Response",
+        "level": "A",
+        "citation": "Andre et al., 2019",
+        "url": "https://civicdb.org/links/evidence_items/8733"
+      },
+      {
+        "source": "CIViC",
+        "therapies": "Alpelisib",
+        "disease": "Colorectal Cancer",
+        "direction": "Resistance",
+        "level": "B",
+        "citation": "context-dependent",
+        "url": "https://civicdb.org"
+      },
+      {
+        "source": "PubMed",
+        "pmid": "31091374",
+        "title": "PIK3CA mutations and alpelisib in breast cancer",
+        "abstract": "PIK3CA E545K sensitizes HR+ breast cancer to PI3K inhibitor alpelisib.",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/31091374/"
+      }
+    ],
+    "target_reasoning": {
+      "mechanism": "E545K activates PI3K.",
+      "therapy": {
+        "sensitivity": [
+          "Alpelisib"
+        ],
+        "resistance": [],
+        "context": "HR+ breast cancer"
+      },
+      "confidence": 0.75
+    }
+  }
+}

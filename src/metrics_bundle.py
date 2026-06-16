@@ -34,10 +34,61 @@ METRICS_GLOBS = (
     "workflow_trace_dashboard.html",
     "return_on_reasoning.csv",
     "ror_benchmark.json",
+    "hallucination_report.csv",
+    "hallucination_summary.json",
+    "benchmark_confidence.csv",
+    "fold_confidence_summary.json",
+    "autonomy_report.json",
+    "autonomy_traits.csv",
+    "biodesignbench_style.csv",
+    "task_suite.csv",
+    "able_metrics.csv",
+    "dbtl_metrics.json",
+    "tevv_lite.csv",
+    "evidence_ablation.csv",
+    "full_submission_report.json",
+    "platform_comparison.json",
     "blackboard_ingress_by_role.csv",
     "comparison_*.json",
     "trace_*.json",
 )
+
+
+def export_artifacts_bundle(dest: Path | None = None) -> Path | None:
+    """Copy PDB paths referenced in traces + rescue outputs into artifacts_bundle.tgz."""
+    from src.config import load_config
+
+    md = metrics_dir()
+    cfg = load_config()
+    if not cfg.get("pipeline", {}).get("export_artifacts_bundle", False):
+        return None
+    stamp = time.strftime("%Y%m%d_%H%M%S")
+    platform = detect_platform()
+    bundle_name = f"artifacts_bundle_{platform['platform_id']}_{stamp}"
+    staging = md / bundle_name
+    staging.mkdir(parents=True, exist_ok=True)
+    copied: list[str] = []
+    for trace_path in md.glob("trace_*.json"):
+        trace = json.loads(trace_path.read_text())
+        for block in (trace.get("structure", {}), trace.get("rescue") or {}):
+            for key in ("pdb_path", "boltz_pdb", "esmfold_pdb", "folded_candidate_pdb"):
+                p = block.get(key)
+                if p and Path(p).is_file():
+                    dest_file = staging / Path(p).name
+                    if not dest_file.exists():
+                        shutil.copy2(p, dest_file)
+                        copied.append(str(p))
+    (staging / "artifacts_manifest.json").write_text(
+        json.dumps({"copied_files": copied, "n_files": len(copied)}, indent=2)
+    )
+    if not copied:
+        shutil.rmtree(staging)
+        return None
+    out = Path(dest) if dest else md.parent / f"{bundle_name}.tgz"
+    with tarfile.open(out, "w:gz") as tar:
+        tar.add(staging, arcname=bundle_name)
+    shutil.rmtree(staging)
+    return out
 
 
 def _collect_metrics_files(src: Path) -> list[Path]:

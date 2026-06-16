@@ -168,6 +168,29 @@ def load_case_evidence(gene: str, mutation: str) -> list[dict]:
     return []
 
 
+def score_evidence_tier(evidence: list[dict]) -> str:
+    """Classify evidence strength: strong | weak | none."""
+    if not evidence:
+        return "none"
+    strong_sources = {"civic", "oncokb", "clinvar"}
+    has_therapy = False
+    strong_hits = 0
+    for item in evidence:
+        src = (item.get("source") or "").lower()
+        therapies = (item.get("therapies") or "").strip()
+        if therapies:
+            has_therapy = True
+        if any(s in src for s in strong_sources):
+            strong_hits += 1
+        if item.get("level") in ("A", "B") or item.get("significance"):
+            strong_hits += 1
+    if strong_hits >= 1 and has_therapy:
+        return "strong"
+    if evidence:
+        return "weak"
+    return "none"
+
+
 def gather_evidence(target: dict, live: bool = False) -> list[dict]:
     with metrics.track("evidence_gather", agent_role="Evidence", model="cache+api"):
         ev = load_case_evidence(target["gene"], target["mutation"])

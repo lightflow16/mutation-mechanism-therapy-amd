@@ -264,6 +264,35 @@ def write_productive_metrics_report(out_dir: Path | None = None) -> Path:
     phases = _read_phases(md / "phases.csv")
     sys_rows = _read_system(md / "system_samples.csv")
     rows = compute_productive_rows(llm, phases, sys_rows)
+
+    # Enrich from traces: early_exit actual, rubric, conflict resolution
+    trace_meta: dict[tuple[str, str], dict] = {}
+    for tp in md.glob("trace_*_*.json"):
+        import json as _json
+
+        tr = _json.loads(tp.read_text())
+        parts = tp.stem.replace("trace_", "").rsplit("_", 1)
+        if len(parts) != 2:
+            continue
+        qid = parts[0]
+        arch = parts[1]
+        reasoning = tr.get("reasoning") or {}
+        bb = reasoning.get("blackboard_trace") or []
+        cr_hits = sum(1 for m in bb if m.get("agent") == "ConflictResolver")
+        trace_meta[(qid, arch)] = {
+            "early_exit_actual": reasoning.get("early_exit", False),
+            "mechanism_rubric_after": reasoning.get("mechanism_rubric_after"),
+            "conflict_resolution_rate": 1.0 if cr_hits else 0.0,
+            "reasoning_depth_tokens": reasoning.get("total_tokens", 0),
+        }
+    for r in rows:
+        meta = trace_meta.get((r["query_id"], r["architecture"]), {})
+        r.update(meta)
+        if meta.get("early_exit_actual"):
+            r["early_exit_savings_pct_if_round1_consensus"] = r.get(
+                "early_exit_savings_pct_if_round1_consensus", 0
+            )
+
     before_after = compute_before_after(rows)
 
     prod_csv = md / "productive_throughput.csv"

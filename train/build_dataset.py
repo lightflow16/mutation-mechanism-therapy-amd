@@ -117,10 +117,75 @@ def civic_row_to_case(row: dict) -> dict:
     }
 
 
+def build_dataset_from_traces(
+    traces_dir: Path | None = None,
+    *,
+    metrics_dir_path: Path | None = None,
+    out_path: Path | None = None,
+) -> tuple[Path, int]:
+    """Distill teacher (blackboard) traces into LoRA SFT rows. Returns (out_path, n_rows)."""
+    from src.pipeline import extract_target_reasoning
+
+    tdir = traces_dir or ROOT / "data" / "traces"
+    md = metrics_dir_path or Path(__import__("os").environ.get("METRICS_DIR", ""))
+    dest = out_path or OUT
+    dest.parent.mkdir(parents=True, exist_ok=True)
+
+    sources: list[Path] = list(tdir.glob("*_blackboard.json"))
+    if md and Path(md).is_dir():
+        sources.extend(Path(md).glob("trace_*_blackboard.json"))
+
+    rows: list[dict] = []
+    seen: set[str] = set()
+    for p in sources:
+        key = p.name
+        if key in seen:
+            continue
+        seen.add(key)
+        trace = json.loads(p.read_text())
+        target = trace.get("target", {})
+        structure = trace.get("structure", {})
+        evidence = trace.get("evidence", [])
+        tr = extract_target_reasoning(trace)
+        if not tr or tr.get("raw"):
+            continue
+        label = tr if tr.get("therapy") else tr.get("target_reasoning", tr)
+        case = {
+            "variant": {"gene": target.get("gene"), "protein_change": target.get("mutation")},
+            "structure": structure,
+            "evidence": evidence,
+            "target_reasoning": label,
+        }
+        rows.extend(case_to_examples(case))
+
+    with open(dest, "w") as f:
+        for row in rows:
+            f.write(json.dumps(row) + "\n")
+    return dest, len(rows)
+
+
 def main():
+    import argparse
+
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--from-traces", action="store_true", help="Distill from blackboard trace JSON")
+    ap.add_argument("--traces-only", action="store_true", help="Write only teacher-trace rows")
+    ap.add_argument("--traces-dir", default=None)
+    args = ap.parse_args()
+
     OUT.parent.mkdir(parents=True, exist_ok=True)
     n = 0
-    with open(OUT, "w") as f:
+
+    if args.from_traces or args.traces_only:
+        _, n = build_dataset_from_traces(
+            Path(args.traces_dir) if args.traces_dir else None,
+        )
+        print(f"[distill] {n} teacher-trace rows -> {OUT}")
+        if args.traces_only:
+            return
+
+    mode = "a" if (args.from_traces and n) else "w"
+    with open(OUT, mode) as f:
         for p in sorted(CASES.glob("*.json")):
             case = json.loads(p.read_text())
             for ex in case_to_examples(case):

@@ -162,6 +162,53 @@ def render_py3dmol_html(pdb_path: Path, highlight_residue: int, chain: str = "A"
 """
 
 
+def export_residue_neighborhood_png(
+    pdb_path: Path,
+    highlight_residue: int,
+    out_path: Path,
+    chain: str = "A",
+    radius: float = 15.0,
+) -> Path | None:
+    """Export CA neighborhood scatter PNG for VL multimodal input."""
+    try:
+        import matplotlib
+
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+    except ImportError:
+        return None
+
+    atoms = _parse_ca(pdb_path, chain)
+    if not atoms:
+        return None
+    target = next((a for a in atoms if a["resseq"] == highlight_residue), None)
+    if target is None:
+        return None
+    tx, ty, tz = target["xyz"]
+    nearby = []
+    for a in atoms:
+        dx, dy, dz = a["xyz"][0] - tx, a["xyz"][1] - ty, a["xyz"][2] - tz
+        if (dx * dx + dy * dy + dz * dz) ** 0.5 <= radius:
+            nearby.append(a)
+
+    xs = [a["xyz"][0] for a in nearby]
+    ys = [a["xyz"][1] for a in nearby]
+    cs = [a["plddt"] for a in nearby]
+    fig, ax = plt.subplots(figsize=(5, 4), dpi=100)
+    sc = ax.scatter(xs, ys, c=cs, cmap="viridis", s=40, vmin=0, vmax=100)
+    ax.scatter([tx], [ty], c="red", marker="*", s=200, label=f"mut {highlight_residue}")
+    ax.set_title(f"Residue neighborhood (pLDDT colormap)")
+    ax.set_xlabel("x (Å)")
+    ax.set_ylabel("y (Å)")
+    ax.legend(loc="upper right", fontsize=8)
+    fig.colorbar(sc, ax=ax, label="pLDDT")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.tight_layout()
+    fig.savefig(out_path)
+    plt.close(fig)
+    return out_path
+
+
 def analyze_target(target: dict, cache_dir: Path) -> dict[str, Any]:
     with metrics.track("structure_analyze", agent_role="Structure", model="alphafold"):
         pdb = fetch_pdb(target["uniprot"], cache_dir)
@@ -172,4 +219,10 @@ def analyze_target(target: dict, cache_dir: Path) -> dict[str, Any]:
             pdb, feats["residue_index"], feats.get("chain", "A")
         )
         feats["gene"] = target["gene"]
+        png_path = cache_dir / "images" / f"{target['gene']}_{target['mutation']}_neighborhood.png"
+        exported = export_residue_neighborhood_png(
+            pdb, feats["residue_index"], png_path, feats.get("chain", "A")
+        )
+        if exported:
+            feats["structure_image_path"] = str(exported)
         return feats

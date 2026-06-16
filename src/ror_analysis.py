@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from src.config import ROOT, metrics_dir
+from src.pipeline import extract_target_reasoning, extract_therapies_from_reasoning
 
 
 def _read_json(path: Path) -> Any:
@@ -49,15 +50,7 @@ def _gold_therapy_f1(gene: str, mutation: str, pred_sens: list[str], pred_res: l
 
 
 def _therapies_from_trace(trace: dict) -> tuple[list[str], list[str]]:
-    reasoning = trace.get("reasoning", {})
-    if "target_reasoning" in reasoning:
-        tr = reasoning["target_reasoning"]
-    else:
-        tr = reasoning
-    therapy = tr.get("therapy") or tr
-    if isinstance(therapy, dict):
-        return list(therapy.get("sensitivity") or []), list(therapy.get("resistance") or [])
-    return [], []
+    return extract_therapies_from_reasoning(extract_target_reasoning(trace))
 
 
 def _load_eval_scores(md: Path) -> dict[tuple[str, str, str], dict]:

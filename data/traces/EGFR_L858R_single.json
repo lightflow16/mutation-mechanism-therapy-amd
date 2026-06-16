@@ -1,0 +1,109 @@
+{
+  "target": {
+    "gene": "EGFR",
+    "mutation": "L858R",
+    "class": "ONCOGENE_GOF",
+    "pathway": "inhibitor_rag",
+    "uniprot": "P00533",
+    "residue": 858,
+    "wt_aa": "L",
+    "mut_aa": "R",
+    "civic_profile": "EGFR L858R",
+    "disease_context": "Lung Non-small Cell Carcinoma"
+  },
+  "structure": {
+    "residue": "L858",
+    "residue_index": 858,
+    "mutation": "L858R",
+    "pLDDT_at_residue": 51.2,
+    "mean_pLDDT_protein": 75.9,
+    "neighboring_residues_within_10A": 14,
+    "local_contact_density_10A": 14,
+    "mpnn_index": 858,
+    "region": "unannotated region",
+    "chain": "A",
+    "pdb_path": "/workspace/shared/structures/AF-P00533-F1-model_v6.pdb",
+    "gene": "EGFR"
+  },
+  "evidence": [
+    {
+      "source": "CIViC",
+      "therapies": "Gefitinib,Erlotinib,Afatinib,Osimertinib",
+      "disease": "Lung Non-small Cell Carcinoma",
+      "direction": "Sensitivity/Response",
+      "level": "B",
+      "citation": "Lim et al., 2014",
+      "url": "https://civicdb.org/links/evidence_items/229"
+    },
+    {
+      "source": "PubMed",
+      "pmid": "24947927",
+      "title": "EGFR mutation and lung cancer targeted therapy",
+      "abstract": "EGFR L858R sensitizes NSCLC to EGFR TKIs including erlotinib and osimertinib.",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/24947927/"
+    },
+    {
+      "source": "ClinVar",
+      "gene": "EGFR",
+      "mutation": "L858R",
+      "significance": "Pathogenic/Likely pathogenic",
+      "review_status": "reviewed by expert panel"
+    }
+  ],
+  "route": "inhibitor_rag",
+  "architecture": "single",
+  "reasoning": {
+    "variant": {
+      "gene": "EGFR",
+      "protein_change": "L858R",
+      "hgvs_p": "EGFR.L858R"
+    },
+    "structure": {
+      "residue": "L858",
+      "residue_index": 858,
+      "mutation": "L858R",
+      "pLDDT_at_residue": 51.2,
+      "mean_pLDDT_protein": 75.9,
+      "neighboring_residues_within_10A": 14,
+      "local_contact_density_10A": 14,
+      "mpnn_index": 858,
+      "region": "kinase or functional domain",
+      "chain": "A",
+      "confidence": "0.600"
+    },
+    "evidence": [
+      {
+        "source": "CIViC",
+        "therapies": "Gefitinib,Erlotinib,Afatinib,Osimertinib",
+        "disease": "Lung Non-small Cell Carcinoma",
+        "direction": "Sensitivity/Response",
+        "level": "B",
+        "confidence": "0.700"
+      },
+      {
+        "source": "PubMed",
+        "therapies": "Osimertinib,Erlotinib",
+        "disease": "Lung Non-small Cell Carcinoma",
+        "direction": "Sensitivity/Response",
+        "level": "B",
+        "confidence": "0.700"
+      },
+      {
+        "source": "ClinVar",
+        "therapies": "",
+        "disease": "Lung Non-small Cell Carcinoma",
+        "direction": "Sensitivity/Response",
+        "level": "B",
+        "confidence": "0.700"
+      }
+    ],
+    "therapy": {
+      "sensitivity": [
+        "Osimertinib"
+      ],
+      "resistance": [],
+      "context": "EGFR-mutant NSCLC"
+    },
+    "confidence": "0.700"
+  }
+}

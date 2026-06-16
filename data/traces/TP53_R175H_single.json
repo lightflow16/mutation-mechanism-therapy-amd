@@ -1,0 +1,148 @@
+{
+  "target": {
+    "gene": "TP53",
+    "mutation": "R175H",
+    "class": "TUMOR_SUPPRESSOR_LOF",
+    "pathway": "structural_rescue",
+    "uniprot": "P04637",
+    "residue": 175,
+    "wt_aa": "R",
+    "mut_aa": "H",
+    "civic_profile": "TP53 R175H",
+    "disease_context": "Li-Fraumeni / pan-cancer"
+  },
+  "structure": {
+    "residue": "R175",
+    "residue_index": 175,
+    "mutation": "R175H",
+    "pLDDT_at_residue": 96.6,
+    "mean_pLDDT_protein": 75.1,
+    "neighboring_residues_within_10A": 25,
+    "local_contact_density_10A": 25,
+    "mpnn_index": 175,
+    "region": "DNA-binding surface (beta-sandwich core)",
+    "chain": "A",
+    "pdb_path": "/workspace/shared/structures/AF-P04637-F1-model_v6.pdb",
+    "gene": "TP53"
+  },
+  "evidence": [
+    {
+      "source": "ClinVar",
+      "therapies": "",
+      "disease": "Li-Fraumeni / pan-cancer",
+      "direction": "Loss-of-function",
+      "level": "Pathogenic",
+      "citation": "ClinVar R175H",
+      "url": "https://www.ncbi.nlm.nih.gov/clinvar"
+    },
+    {
+      "source": "PubMed",
+      "pmid": "12032849",
+      "title": "TP53 R175H structural destabilization",
+      "abstract": "R175H destabilizes p53 DNA-binding domain; no direct pharmacologic inhibitor.",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/12032849/"
+    },
+    {
+      "source": "ClinVar",
+      "gene": "TP53",
+      "mutation": "R175H",
+      "significance": "Pathogenic",
+      "review_status": "reviewed by expert panel"
+    }
+  ],
+  "route": "structural_rescue",
+  "architecture": "single",
+  "reasoning": {
+    "variant": {
+      "gene": "TP53",
+      "protein_change": "R175H",
+      "hgvs_p": "p.R175H"
+    },
+    "structure": {
+      "residue": "R175",
+      "residue_index": 175,
+      "mutation": "R175H",
+      "pLDDT_at_residue": 96.6,
+      "mean_pLDDT_protein": 75.1,
+      "neighboring_residues_within_10A": 25,
+      "local_contact_density_10A": 25,
+      "mpnn_index": 175,
+      "region": "DNA-binding surface (beta-sandwich core)",
+      "chain": "A",
+      "gene": "TP53"
+    },
+    "evidence": [
+      {
+        "source": "ClinVar",
+        "therapies": "",
+        "disease": "Li-Fraumeni / pan-cancer",
+        "direction": "Loss-of-function",
+        "level": "Pathogenic",
+        "citation": "ClinVar R175H",
+        "url": "https://www.ncbi.nlm.nih.gov/clinvar"
+      },
+      {
+        "source": "PubMed",
+        "pmid": "12032849",
+        "title": "TP53 R175H structural destabilization",
+        "abstract": "R175H destabilizes p53 DNA-binding domain; no direct pharmacologic inhibitor.",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/12032849/"
+      }
+    ],
+    "target_reasoning": {
+      "mechanism": "Structural destabilization of DNA-binding domain.",
+      "therapy": {
+        "sensitivity": [],
+        "resistance": [],
+        "context": "Li-Fraumeni / pan-cancer"
+      },
+      "confidence": 0.7
+    }
+  },
+  "rescue": {
+    "mutant_ddg_kcal_mol": -0.1236295700073242,
+    "destabilizing": false,
+    "ddg_scope": "local_shell_15A",
+    "ddg_note": "Shell-local ThermoMPNN SSM; literature R175H is often >1 kcal/mol destabilizing on full domain.",
+    "designs": [
+      {
+        "header": ">T=0.8, sample=5, score=1.5157, global_score=1.5979, seq_recovery=0.2982",
+        "sequence": "WXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXQLAXXXXXXXXXXXXXXXXXXXXXRLSYXXXXXXXLVVRRSPLHAAMPLDXXXCPSHFVIQXXXXXXXXFXQXXXXGELVVXXXXXXXXXXXXXXXXXXLFTEPSSSPGGWDGTPVHLXXXXXXXXXXXXXXXXXXVVVV",
+        "score": 1.5157,
+        "fasta": "/workspace/shared/rescue/TP53_R175H/mpnn/seqs/thermo_shell_r175.fa"
+      },
+      {
+        "header": ">T=0.8, sample=8, score=1.6281, global_score=1.7013, seq_recovery=0.2982",
+        "sequence": "WXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXQLAXXXXXXXXXXXXXXXXXXXXXQLRYXXXXXXXKAVVRCPYHINAPEVXXXCPAYTLVPXXXXXXXXYXQXXXXGQWRSXXXXXXXXXXXXXXXXXXKFRCLTHCEGGLEGRLIELXXXXXXXXXXXXXXXXXXVVVS",
+        "score": 1.6281,
+        "fasta": "/workspace/shared/rescue/TP53_R175H/mpnn/seqs/thermo_shell_r175.fa"
+      },
+      {
+        "header": ">T=0.8, sample=2, score=1.6498, global_score=1.7216, seq_recovery=0.2632",
+        "sequence": "WXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXQLAXXXXXXXXXXXXXXXXXXXXXTLRHXXXXXXXHVVIRGELCRASPFSXXXCPADNLVCXXXXXXXXDXRXXXXPWWSTXXXXXXXXXXXXXXXXXXAFLCYSNCPGGLDGTPVVLXXXXXXXXXXXXXXXXXXVNVM",
+        "score": 1.6498,
+        "fasta": "/workspace/shared/rescue/TP53_R175H/mpnn/seqs/thermo_shell_r175.fa"
+      },
+      {
+        "header": ">T=0.8, sample=7, score=1.6646, global_score=1.7375, seq_recovery=0.3158",
+        "sequence": "WXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXQLAXXXXXXXXXXXXXXXXXXXXXTVSFXXXXXXXVTARRCPLCEARGDKXXXCPQSSVVRXXXXXXXXYXKXXXXSEWSYXXXXXXXXXXXXXXXXXXSYLCMSSCPGGWSGKGVVLXXXXXXXXXXXXXXXXXXIEVL",
+        "score": 1.6646,
+        "fasta": "/workspace/shared/rescue/TP53_R175H/mpnn/seqs/thermo_shell_r175.fa"
+      },
+      {
+        "header": ">T=0.8, sample=3, score=1.7553, global_score=1.8216, seq_recovery=0.2456",
+        "sequence": "WXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXQLAXXXXXXXXXXXXXXXXXXXXXNLTFXXXXXXXRRVRRSPEERGRNRKXXXVPRIFLFSXXXXXXXXGXVXXXXGHFTHXXXXXXXXXXXXXXXXXXRFHELSTATGGLNGRPVVLXXXXXXXXXXXXXXXXXXVSVI",
+        "score": 1.7553,
+        "fasta": "/workspace/shared/rescue/TP53_R175H/mpnn/seqs/thermo_shell_r175.fa"
+      }
+    ],
+    "folded_candidate_pdb": "/workspace/shared/rescue/TP53_R175H/boltz/out/boltz_results_input/predictions/input/input_model_0.pdb",
+    "fold_method": "boltz+esmfold",
+    "esmfold_pdb": "/workspace/shared/rescue/TP53_R175H/esmfold_candidate.pdb",
+    "boltz_pdb": "/workspace/shared/rescue/TP53_R175H/boltz/out/boltz_results_input/predictions/input/input_model_0.pdb",
+    "thermompnn_csv": "/workspace/shared/rescue/TP53_R175H/thermompnn/ThermoMPNN_inference_thermo_shell_r175.csv",
+    "thermompnn_shell_pdb": "/workspace/shared/rescue/TP53_R175H/thermompnn/thermo_shell_r175.pdb",
+    "proteinmpnn_pdb": "/workspace/shared/rescue/TP53_R175H/thermompnn/thermo_shell_r175.pdb",
+    "ddg_engine": "ThermoMPNN"
+  }
+}
