@@ -451,7 +451,6 @@ def run_blackboard(
     qid = f"{target['gene']}_{target['mutation']}"
     llm_ctx = dict(
         query_id=qid,
-        architecture="blackboard",
         gene=target["gene"],
         mutation=target["mutation"],
     )
