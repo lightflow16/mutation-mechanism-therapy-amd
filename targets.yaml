@@ -114,6 +114,8 @@ pipeline:
   live_safety_probes: false
   store_llm_text: true
   use_llm_router: false
+  use_int8: false        # set true on CUDA (A100/H100) to halve VRAM and co-reside VL+text models
+  batch_expert_calls: true  # batch Evidence+Therapy and Critic+ConflictResolver in blackboard
   multi_stage_cot: false
   verbose_progress: true
   demo_echo_thinking: true

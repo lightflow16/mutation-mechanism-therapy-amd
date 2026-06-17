@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from src import metrics
-from src.config import setup_env
+from src.config import setup_env, use_int8
 
 # Keyed by (model_id, lora_path) so different LoRA adapters are cached separately.
 _VL_MODEL_CACHE: dict[tuple[str, str | None], tuple[Any, Any]] = {}
@@ -99,16 +99,23 @@ def _load_model(model_id: str, lora_path: str | None = None):
     from transformers import AutoModelForImageTextToText, AutoProcessor
 
     proc = AutoProcessor.from_pretrained(model_id)
-    kwargs = {"dtype": torch.bfloat16, "device_map": "cuda"}
+
+    load_kwargs: dict[str, Any] = {"device_map": "cuda"}
+    if use_int8() and torch.cuda.is_available():
+        from transformers import BitsAndBytesConfig
+        load_kwargs["quantization_config"] = BitsAndBytesConfig(load_in_8bit=True)
+    else:
+        load_kwargs["torch_dtype"] = torch.bfloat16
+
     if lora_path and Path(lora_path).exists():
         from peft import PeftModel
         from src import progress
 
         progress.log("single", f"loading Qwen2.5-VL + LoRA ({lora_path})")
-        base = AutoModelForImageTextToText.from_pretrained(model_id, **kwargs)
+        base = AutoModelForImageTextToText.from_pretrained(model_id, **load_kwargs)
         model = PeftModel.from_pretrained(base, lora_path)
     else:
-        model = AutoModelForImageTextToText.from_pretrained(model_id, **kwargs)
+        model = AutoModelForImageTextToText.from_pretrained(model_id, **load_kwargs)
 
     _VL_MODEL_CACHE[cache_key] = (proc, model)
     return proc, model

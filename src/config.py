@@ -33,6 +33,23 @@ def is_rocm() -> bool:
         return False
 
 
+def use_int8() -> bool:
+    """True when int8 quantization should be applied to LLMs.
+
+    Enabled when USE_INT8=1 env var is set OR pipeline.use_int8 is true in config,
+    AND a CUDA GPU is present, AND NOT ROCm (bitsandbytes is CUDA-only).
+    MI300X has 192 GiB HBM — quantization is unnecessary and unsupported there.
+    """
+    if is_rocm():
+        return False
+    if os.environ.get("USE_INT8") == "1":
+        return True
+    try:
+        return bool(load_config().get("pipeline", {}).get("use_int8", False))
+    except Exception:
+        return False
+
+
 def _resolve_path(preferred: str | None, local_name: str) -> Path:
     """Use notebook paths on AMD; fall back to repo-local dirs for offline dev."""
     if preferred:

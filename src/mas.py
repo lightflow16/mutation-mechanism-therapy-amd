@@ -9,7 +9,7 @@ from typing import Any
 
 from src import metrics, progress
 from src.config import load_config
-from src.llm_client import call_llm, trace_step_from_response
+from src.llm_client import call_llm, call_transformers_batch, trace_step_from_response, use_vllm
 from src.reason import parse_reasoning_json, vl_generate
 
 BMAS_ROOT = Path(__file__).resolve().parents[1] / "external" / "sde_project_bMAS"
@@ -287,6 +287,40 @@ def _resolver_system() -> str:
     )
 
 
+def _build_expert_request(
+    role: str,
+    desc: str,
+    problem: str,
+    public: list[dict],
+    vus_note: str,
+    cfg: dict,
+    llm_ctx: dict,
+    rnd: int,
+) -> dict:
+    """Build a call_transformers_batch request dict for a text expert."""
+    bu, mo = _endpoint(cfg, role)
+    prior = _bb_compact(public)
+    prompt = (
+        f"Role: {role}. Task: {desc}\n\n"
+        f"Case data:\n{problem}\n\n"
+        f"Prior blackboard (one-line summaries only — do not copy):\n{prior}\n\n"
+        f"{_JSON_ONLY}"
+        + (vus_note if role == "Therapy" else "")
+    )
+    return {
+        "prompt": prompt,
+        "system_prompt": _expert_system(role),
+        "temperature": 0.2,
+        "max_tokens": 512,
+        "agent_role": role,
+        "label": f"expert_{role.lower()}",
+        "_role": role,
+        "_bu": bu,
+        "_mo": mo,
+        **{k: v for k, v in llm_ctx.items()},
+    }
+
+
 def run_blackboard(
     target: dict,
     structure: dict,
@@ -352,149 +386,212 @@ def run_blackboard(
             target["gene"], target["mutation"], 0, max_rounds, "Planner", step["content"]
         )
 
+        pcfg = cfg.get("pipeline", {})
+        do_batch = bool(pcfg.get("batch_expert_calls", True)) and not use_vllm()
+
         rounds_done = 0
         for rnd in range(1, max_rounds + 1):
             if early_exit:
                 break
             rounds_done = rnd
-            for role, desc in EXPERTS:
-                prior = _bb_compact(public)
-                prompt = (
-                    f"Role: {role}. Task: {desc}\n\n"
-                    f"Case data:\n{problem}\n\n"
-                    f"Prior blackboard (one-line summaries only — do not copy):\n{prior}\n\n"
-                    f"{_JSON_ONLY}"
-                    + (vus_note if role == "Therapy" else "")
-                )
-                if role == "Structure" and img and Path(img).exists():
-                    llm_resp = vl_generate(
-                        prompt,
-                        image_path=img,
-                        agent_role=role,
-                        architecture="blackboard",
-                        label=f"expert_{role.lower()}",
-                        query_id=qid,
-                        gene=target["gene"],
-                        mutation=target["mutation"],
-                    )
-                else:
-                    bu, mo = _endpoint(cfg, role)
-                    llm_resp = call_llm(
-                        prompt,
-                        base_url=bu,
-                        model=mo,
-                        system_prompt=_expert_system(role),
-                        agent_role=role,
-                        round_idx=rnd,
-                        label=f"expert_{role.lower()}",
-                        **llm_ctx,
-                    )
-                step = _append_step(role, "expert", llm_resp)
-                public.append(step)
-                total_tokens += llm_resp["metadata"]["total_tokens"]
-                progress.echo_blackboard_step(
-                    target["gene"],
-                    target["mutation"],
-                    rnd,
-                    max_rounds,
-                    role,
-                    step.get("stance_summary") or step["content"],
-                )
 
-                if role == "Mechanism" and rnd == 1:
-                    rubric_before, gaps, tok = _invoke_critic_rubric(
+            # ── Step A: Structure expert (VL model / image — always sequential) ──
+            struct_role, struct_desc = EXPERTS[0]
+            struct_prompt = (
+                f"Role: {struct_role}. Task: {struct_desc}\n\n"
+                f"Case data:\n{problem}\n\n"
+                f"Prior blackboard (one-line summaries only — do not copy):\n{_bb_compact(public)}\n\n"
+                f"{_JSON_ONLY}"
+            )
+            if img and Path(img).exists():
+                struct_resp = vl_generate(
+                    struct_prompt,
+                    image_path=img,
+                    agent_role=struct_role,
+                    architecture="blackboard",
+                    label="expert_structure",
+                    query_id=qid,
+                    gene=target["gene"],
+                    mutation=target["mutation"],
+                )
+            else:
+                bu, mo = _endpoint(cfg, struct_role)
+                struct_resp = call_llm(
+                    struct_prompt,
+                    base_url=bu, model=mo,
+                    system_prompt=_expert_system(struct_role),
+                    agent_role=struct_role, round_idx=rnd,
+                    label="expert_structure", **llm_ctx,
+                )
+            step = _append_step(struct_role, "expert", struct_resp)
+            public.append(step)
+            total_tokens += struct_resp["metadata"]["total_tokens"]
+            progress.echo_blackboard_step(
+                target["gene"], target["mutation"], rnd, max_rounds,
+                struct_role, step.get("stance_summary") or step["content"],
+            )
+
+            # ── Step B: Mechanism (sequential — Critic rubric fires immediately after) ──
+            mech_role, mech_desc = EXPERTS[1]
+            mech_prompt = (
+                f"Role: {mech_role}. Task: {mech_desc}\n\n"
+                f"Case data:\n{problem}\n\n"
+                f"Prior blackboard (one-line summaries only — do not copy):\n{_bb_compact(public)}\n\n"
+                f"{_JSON_ONLY}"
+            )
+            bu, mo = _endpoint(cfg, mech_role)
+            mech_resp = call_llm(
+                mech_prompt,
+                base_url=bu, model=mo,
+                system_prompt=_expert_system(mech_role),
+                agent_role=mech_role, round_idx=rnd,
+                label="expert_mechanism", **llm_ctx,
+            )
+            step = _append_step(mech_role, "expert", mech_resp)
+            public.append(step)
+            total_tokens += mech_resp["metadata"]["total_tokens"]
+            progress.echo_blackboard_step(
+                target["gene"], target["mutation"], rnd, max_rounds,
+                mech_role, step.get("stance_summary") or step["content"],
+            )
+
+            if rnd == 1:
+                rubric_before, gaps, rtok = _invoke_critic_rubric(
+                    cfg, public, llm_ctx=llm_ctx, rnd=rnd
+                )
+                total_tokens += rtok
+                if rubric_before < 2:
+                    bu2, mo2 = _endpoint(cfg, "Mechanism")
+                    reflex = call_llm(
+                        f"Revise mechanism JSON using Critic feedback (gaps: {gaps}).\n"
+                        f"Case:\n{problem}\n\nPrior:\n{_bb_compact(public)}\n\n{_JSON_ONLY}",
+                        base_url=bu2, model=mo2,
+                        system_prompt=_expert_system("Mechanism") + " (reflexion pass)",
+                        agent_role="Mechanism", round_idx=rnd,
+                        label="mechanism_reflexion", **llm_ctx,
+                    )
+                    public.append(_append_step("Mechanism", "reflexion", reflex))
+                    total_tokens += reflex["metadata"]["total_tokens"]
+                    rubric_after, _, rtok2 = _invoke_critic_rubric(
                         cfg, public, llm_ctx=llm_ctx, rnd=rnd
                     )
-                    total_tokens += tok
-                    if rubric_before < 2:
-                        bu, mo = _endpoint(cfg, "Mechanism")
-                        reflex = call_llm(
-                            f"Revise mechanism JSON using Critic feedback (gaps: {gaps}).\n"
-                            f"Case:\n{problem}\n\nPrior:\n{_bb_compact(public)}\n\n{_JSON_ONLY}",
-                            base_url=bu,
-                            model=mo,
-                            system_prompt=_expert_system("Mechanism") + " (reflexion pass)",
-                            agent_role="Mechanism",
-                            round_idx=rnd,
-                            label="mechanism_reflexion",
-                            **llm_ctx,
-                        )
-                        public.append(_append_step("Mechanism", "reflexion", reflex))
-                        total_tokens += reflex["metadata"]["total_tokens"]
-                        rubric_after, _, tok2 = _invoke_critic_rubric(
-                            cfg, public, llm_ctx=llm_ctx, rnd=rnd
-                        )
-                        total_tokens += tok2
-                        metrics.log_self_correction(
-                            gene=target["gene"],
-                            mutation=target["mutation"],
-                            rubric_before=rubric_before,
-                            rubric_after=rubric_after,
-                        )
-                    else:
-                        rubric_after = rubric_before
+                    total_tokens += rtok2
+                    metrics.log_self_correction(
+                        gene=target["gene"], mutation=target["mutation"],
+                        rubric_before=rubric_before, rubric_after=rubric_after,
+                    )
+                else:
+                    rubric_after = rubric_before
 
-            bu, mo = _endpoint(cfg, "Critic")
-            cr = call_llm(
+            # ── Step C: Evidence + Therapy — BATCHED (2 prompts → 1 generate call) ──
+            # Both see the same blackboard snapshot (including Structure + Mechanism).
+            # Evidence does not need Therapy's output and vice versa, so batching
+            # is semantically safe and raises effective GPU utilisation.
+            ev_role, ev_desc = EXPERTS[2]
+            th_role, th_desc = EXPERTS[3]
+            if do_batch:
+                bb_snap = _bb_compact(public)
+                batch_reqs = [
+                    _build_expert_request(ev_role, ev_desc, problem, public, vus_note, cfg, llm_ctx, rnd),
+                    _build_expert_request(th_role, th_desc, problem, public, vus_note, cfg, llm_ctx, rnd),
+                ]
+                _, mo_batch = _endpoint(cfg, ev_role)
+                batch_resps = call_transformers_batch(batch_reqs, model_id=mo_batch)
+                for (role, desc), resp in zip(EXPERTS[2:], batch_resps):
+                    resp["metadata"].setdefault("round_idx", rnd)
+                    bstep = _append_step(role, "expert", resp)
+                    public.append(bstep)
+                    total_tokens += resp["metadata"]["total_tokens"]
+                    progress.echo_blackboard_step(
+                        target["gene"], target["mutation"], rnd, max_rounds,
+                        role, bstep.get("stance_summary") or bstep["content"],
+                    )
+            else:
+                for role, desc in EXPERTS[2:]:
+                    prior = _bb_compact(public)
+                    prompt = (
+                        f"Role: {role}. Task: {desc}\n\n"
+                        f"Case data:\n{problem}\n\n"
+                        f"Prior blackboard (one-line summaries only — do not copy):\n{prior}\n\n"
+                        f"{_JSON_ONLY}"
+                        + (vus_note if role == "Therapy" else "")
+                    )
+                    bu, mo = _endpoint(cfg, role)
+                    llm_resp = call_llm(
+                        prompt, base_url=bu, model=mo,
+                        system_prompt=_expert_system(role),
+                        agent_role=role, round_idx=rnd,
+                        label=f"expert_{role.lower()}", **llm_ctx,
+                    )
+                    step = _append_step(role, "expert", llm_resp)
+                    public.append(step)
+                    total_tokens += llm_resp["metadata"]["total_tokens"]
+                    progress.echo_blackboard_step(
+                        target["gene"], target["mutation"], rnd, max_rounds,
+                        role, step.get("stance_summary") or step["content"],
+                    )
+
+            # ── Step D: Critic + ConflictResolver — BATCHED ──
+            bb_now = _bb_compact(public)
+            critic_prompt = (
                 f"Check claims vs evidence. Flag hallucinated pLDDT or unsupported therapies.\n"
-                f"Blackboard:\n{_bb_compact(public)}\n\n{_JSON_ONLY}",
-                base_url=bu,
-                model=mo,
-                system_prompt=_critic_system(),
-                agent_role="Critic",
-                round_idx=rnd,
-                label="critic",
-                **llm_ctx,
+                f"Blackboard:\n{bb_now}\n\n{_JSON_ONLY}"
             )
-            step = _append_step("Critic", "critique", cr)
-            public.append(step)
-            total_tokens += cr["metadata"]["total_tokens"]
+            resolver_prompt = (
+                f"Resolve sensitivity vs resistance conflicts by disease context.\n"
+                f"Blackboard:\n{bb_now}\n\n{_JSON_ONLY}"
+            )
+            bu_c, mo_c = _endpoint(cfg, "Critic")
+            bu_r, mo_r = _endpoint(cfg, "ConflictResolver")
+
+            if do_batch and mo_c == mo_r:
+                crit_res_resps = call_transformers_batch(
+                    [
+                        {"prompt": critic_prompt, "system_prompt": _critic_system(),
+                         "agent_role": "Critic", "label": "critic", "max_tokens": 256},
+                        {"prompt": resolver_prompt, "system_prompt": _resolver_system(),
+                         "agent_role": "ConflictResolver", "label": "conflict_resolver", "max_tokens": 256},
+                    ],
+                    model_id=mo_c,
+                )
+                cr_resp, xr_resp = crit_res_resps
+            else:
+                cr_resp = call_llm(
+                    critic_prompt, base_url=bu_c, model=mo_c,
+                    system_prompt=_critic_system(),
+                    agent_role="Critic", round_idx=rnd, label="critic", **llm_ctx,
+                )
+                xr_resp = call_llm(
+                    resolver_prompt, base_url=bu_r, model=mo_r,
+                    system_prompt=_resolver_system(),
+                    agent_role="ConflictResolver", round_idx=rnd,
+                    label="conflict_resolver", **llm_ctx,
+                )
+
+            cr_step = _append_step("Critic", "critique", cr_resp)
+            public.append(cr_step)
+            total_tokens += cr_resp["metadata"]["total_tokens"]
             progress.echo_blackboard_step(
-                target["gene"],
-                target["mutation"],
-                rnd,
-                max_rounds,
-                "Critic",
-                step.get("stance_summary") or step["content"],
+                target["gene"], target["mutation"], rnd, max_rounds,
+                "Critic", cr_step.get("stance_summary") or cr_step["content"],
             )
 
-            bu, mo = _endpoint(cfg, "ConflictResolver")
-            xr = call_llm(
-                f"Resolve sensitivity vs resistance conflicts by disease context.\n"
-                f"Blackboard:\n{_bb_compact(public)}\n\n{_JSON_ONLY}",
-                base_url=bu,
-                model=mo,
-                system_prompt=_resolver_system(),
-                agent_role="ConflictResolver",
-                round_idx=rnd,
-                label="conflict_resolver",
-                **llm_ctx,
-            )
-            step = _append_step("ConflictResolver", "resolution", xr)
-            public.append(step)
-            total_tokens += xr["metadata"]["total_tokens"]
+            xr_step = _append_step("ConflictResolver", "resolution", xr_resp)
+            public.append(xr_step)
+            total_tokens += xr_resp["metadata"]["total_tokens"]
             progress.echo_blackboard_step(
-                target["gene"],
-                target["mutation"],
-                rnd,
-                max_rounds,
-                "ConflictResolver",
-                step.get("stance_summary") or step["content"],
+                target["gene"], target["mutation"], rnd, max_rounds,
+                "ConflictResolver", xr_step.get("stance_summary") or xr_step["content"],
             )
 
             if rnd == 1 and _round1_consensus(
-                step.get("stance_summary") or cr["content"],
-                public[-1].get("stance_summary") or xr["content"],
+                xr_step.get("stance_summary") or cr_resp.get("content", ""),
+                public[-1].get("stance_summary") or xr_resp.get("content", ""),
             ):
                 early_exit = True
                 progress.echo_blackboard_step(
-                    target["gene"],
-                    target["mutation"],
-                    rnd,
-                    max_rounds,
-                    "system",
-                    "consensus reached",
-                    early_exit=True,
+                    target["gene"], target["mutation"], rnd, max_rounds,
+                    "system", "consensus reached", early_exit=True,
                 )
 
         bu, mo = _endpoint(cfg, "Decider")

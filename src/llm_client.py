@@ -7,7 +7,7 @@ import time
 from typing import Any
 
 from src import metrics
-from src.config import is_rocm, load_config
+from src.config import is_rocm, load_config, use_int8
 
 _TEXT_MODEL_DEFAULT = "Qwen/Qwen2.5-7B-Instruct"
 _MODEL_CACHE: dict[str, tuple] = {}
@@ -112,9 +112,20 @@ def _get_text_model(model_id: str = _TEXT_MODEL_DEFAULT) -> tuple[Any, Any, bool
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
     tok = AutoTokenizer.from_pretrained(model_id)
-    model = AutoModelForCausalLM.from_pretrained(
-        model_id, dtype=torch.bfloat16, device_map="cuda",
-    )
+    # Left-pad so batched sequences stay correctly aligned for causal generation.
+    tok.padding_side = "left"
+    if tok.pad_token is None:
+        tok.pad_token = tok.eos_token
+
+    load_kwargs: dict[str, Any] = {"device_map": "cuda"}
+    if use_int8() and torch.cuda.is_available():
+        # int8 halves VRAM (7B: ~14 GiB → ~7 GiB), allowing VL+text to co-reside.
+        from transformers import BitsAndBytesConfig
+        load_kwargs["quantization_config"] = BitsAndBytesConfig(load_in_8bit=True)
+    else:
+        load_kwargs["torch_dtype"] = torch.bfloat16
+
+    model = AutoModelForCausalLM.from_pretrained(model_id, **load_kwargs)
     _MODEL_CACHE[model_id] = (tok, model)
     return tok, model, False
 
@@ -183,6 +194,91 @@ def call_transformers(
             prompt_tokens=in_len,
             completion_tokens=int(out_tok),
         )
+
+
+def call_transformers_batch(
+    requests: list[dict[str, Any]],
+    model_id: str = _TEXT_MODEL_DEFAULT,
+) -> list[dict[str, Any]]:
+    """Run multiple prompts in a single batched generate() call.
+
+    Each request dict must contain 'prompt' and may contain 'system_prompt',
+    'temperature' (default 0.2), and 'max_tokens' (default 512).
+    Returns a list of response dicts in the same order as requests.
+
+    Batching keeps the GPU saturated with parallel sequences instead of
+    alternating between generate → idle → generate, raising effective GFX%.
+    """
+    if not requests:
+        return []
+    if len(requests) == 1:
+        r = requests[0]
+        return [call_transformers(
+            r["prompt"],
+            model_id=model_id,
+            system_prompt=r.get("system_prompt"),
+            temperature=r.get("temperature", 0.2),
+            max_tokens=r.get("max_tokens", 512),
+            agent_role=r.get("agent_role", ""),
+            label=r.get("label", "llm_batch"),
+        )]
+
+    import torch as _torch
+    tok, model, cache_hit = _get_text_model(model_id)
+
+    texts: list[str] = []
+    for r in requests:
+        msgs: list[dict] = []
+        if r.get("system_prompt"):
+            msgs.append({"role": "system", "content": r["system_prompt"]})
+        msgs.append({"role": "user", "content": r["prompt"]})
+        texts.append(tok.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True))
+
+    # Left-padding already configured on tok at load time.
+    inputs = tok(texts, return_tensors="pt", padding=True, truncation=True).to("cuda")
+    # Per-sequence actual input length (excluding padding) for correct output slicing.
+    in_lens = (inputs["input_ids"] != tok.pad_token_id).sum(dim=1).tolist()
+
+    max_new = max(r.get("max_tokens", 512) for r in requests)
+    temperature = requests[0].get("temperature", 0.2)
+    gen_kwargs: dict = {"max_new_tokens": max_new}
+    if temperature > 0:
+        gen_kwargs["do_sample"] = True
+        gen_kwargs["temperature"] = temperature
+    else:
+        gen_kwargs["do_sample"] = False
+
+    t0 = time.perf_counter()
+    with _torch.autocast("cuda", dtype=_torch.bfloat16, enabled=_torch.cuda.is_available()):
+        out = model.generate(**inputs, **gen_kwargs)
+    latency = time.perf_counter() - t0
+
+    results: list[dict[str, Any]] = []
+    for i, (r, in_len) in enumerate(zip(requests, in_lens)):
+        gen = tok.decode(out[i][in_len:], skip_special_tokens=True)
+        out_tok = int(out[i].shape[0] - in_len)
+        results.append(_llm_response(
+            gen,
+            prompt=r["prompt"],
+            system_prompt=r.get("system_prompt"),
+            model=model_id,
+            backend="transformers_batch",
+            prompt_tokens=in_len,
+            completion_tokens=out_tok,
+        ))
+
+    metrics.log_llm_call(
+        f"batch({len(requests)})",
+        model_id,
+        "",
+        sum(in_lens),
+        "",
+        sum(int(out[i].shape[0] - in_lens[i]) for i in range(len(requests))),
+        latency,
+        weight_cache_hit=cache_hit,
+        label=f"batch_{len(requests)}_experts",
+    )
+    return results
 
 
 def call_vllm(
