@@ -228,6 +228,18 @@ def fold_boltz(
         "--recycling_steps", "1", "--diffusion_samples", "1",
         "--no_kernels", "--output_format", "pdb",
     ]
+    # Boltz runs in an isolated venv whose PyTorch Lightning may lack ROCm support.
+    # If the GPU backend probe fails, retry transparently on CPU so the rescue
+    # branch succeeds on AMD ROCm hosts without changing anything else.
+    _CPU_FALLBACK_SENTINEL = "No supported gpu backend found"
+    _cpu_cmd = [
+        boltz_bin, "predict", str(yaml_path.name),
+        "--out_dir", str(out_dir),
+        "--cache", str(cache_dir),
+        "--accelerator", "cpu",
+        "--recycling_steps", "1", "--diffusion_samples", "1",
+        "--no_kernels", "--output_format", "pdb",
+    ]
     with metrics.track("boltz_fold", agent_role="Rescue", model="boltz-2.2.1"):
         try:
             r = subprocess.run(cmd, cwd=str(yaml_path.parent), capture_output=True, text=True)
@@ -235,6 +247,12 @@ def fold_boltz(
             if required:
                 raise RuntimeError(f"Boltz failed to start: {exc}") from exc
             return None
+        if r.returncode != 0 and _CPU_FALLBACK_SENTINEL in (r.stderr or r.stdout or ""):
+            # ROCm host: boltz venv's PL cannot detect GPU backend — retry on CPU.
+            import shutil as _shutil
+            _shutil.rmtree(str(out_dir), ignore_errors=True)
+            out_dir.mkdir(parents=True, exist_ok=True)
+            r = subprocess.run(_cpu_cmd, cwd=str(yaml_path.parent), capture_output=True, text=True)
         if r.returncode != 0:
             detail = (r.stderr or r.stdout or "").strip()
             tail = detail[-4000:] if len(detail) > 4000 else detail
