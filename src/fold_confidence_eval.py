@@ -246,7 +246,7 @@ def _base_row(
         "llm_confidence_raw": llm_raw if llm_raw is not None else "",
         "llm_confidence_norm": llm_norm,
         "llm_confidence_scope": "mechanism" if task_type == "confidence_only" else "rescue_success",
-        "llm_explanation": (tr.get("mechanism") or "")[:240],
+        "llm_explanation": ((_m if isinstance(_m := tr.get("mechanism") or "", str) else str(_m)))[:240],
         "accepted_by_threshold": 1 if llm_norm >= accept_thresh else 0,
         "calibration_bin": _calibration_bin(llm_norm),
         "split": "benchmark",

@@ -163,7 +163,8 @@ def compare_architecture_results(
         routes[arch] = result.get("route")
         sens_by[arch] = sens
         res_by[arch] = res
-        mech_by[arch] = (tr.get("mechanism") or "")[:500]
+        _mech = tr.get("mechanism") or ""
+        mech_by[arch] = (_mech if isinstance(_mech, str) else str(_mech))[:500]
         conf_by[arch] = tr.get("confidence")
         reasoning = result.get("reasoning", {})
         tokens_by[arch] = reasoning.get("total_tokens", 0)
