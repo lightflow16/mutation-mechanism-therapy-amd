@@ -111,7 +111,8 @@ pipeline:
   export_artifacts_bundle: true
   run_lora_train: false
   lora_distill_from_traces: true
-  live_safety_probes: false
+  run_lora_comparison: true   # base vs fine-tuned 2×4 matrix; only runs when adapter is loaded
+  live_safety_probes: true   # runs on GPU; falls back to mock_refusal on CPU-only
   store_llm_text: true
   use_llm_router: false
   use_int8: false        # set true on CUDA (A100/H100) to halve VRAM and co-reside VL+text models

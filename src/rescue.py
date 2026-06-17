@@ -377,7 +377,7 @@ def run_rescue(
                 if mut_ddg is not None and mut_ddg <= rescue_cfg.get("ddg_destabilizing_threshold", 1.0)
                 else None
             ),
-            "designs": designs[:5],
+            "designs": designs,
             "folded_candidate_pdb": str(primary_pdb) if primary_pdb else None,
             "fold_method": fold_method,
             "esmfold_pdb": str(esmfold_pdb) if esmfold_pdb else None,

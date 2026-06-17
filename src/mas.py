@@ -17,6 +17,60 @@ if str(BMAS_ROOT) not in sys.path:
     sys.path.insert(0, str(BMAS_ROOT))
 
 
+def _bb_call(
+    prompt: str,
+    *,
+    lora_path: str | None,
+    base_url: str,
+    model: str,
+    system_prompt: str | None = None,
+    agent_role: str = "",
+    round_idx: int | str = 1,
+    label: str = "llm_call",
+    query_id: str = "",
+    gene: str = "",
+    mutation: str = "",
+    temperature: float = 0.2,
+    max_tokens: int = 512,
+) -> dict[str, Any]:
+    """Route a blackboard agent call through the LoRA-aware VL model when a
+    fine-tuned adapter is available, otherwise fall back to call_llm.
+
+    This lets every agent in the blackboard (Planner, Structure, Mechanism,
+    Evidence, Therapy, Critic, ConflictResolver, Decider) benefit from the
+    domain-specific LoRA weights trained on oncology variant data, enabling
+    a proper base-model vs fine-tuned comparison across all architectures.
+    """
+    if lora_path:
+        return vl_generate(
+            prompt,
+            lora_path=lora_path,
+            system_prompt=system_prompt,
+            agent_role=agent_role,
+            architecture="blackboard",
+            label=label,
+            query_id=query_id,
+            gene=gene,
+            mutation=mutation,
+            max_new_tokens=max_tokens,
+        )
+    return call_llm(
+        prompt,
+        base_url=base_url,
+        model=model,
+        system_prompt=system_prompt,
+        temperature=temperature,
+        max_tokens=max_tokens,
+        agent_role=agent_role,
+        round_idx=round_idx,
+        label=label,
+        query_id=query_id,
+        architecture="blackboard",
+        gene=gene,
+        mutation=mutation,
+    )
+
+
 EXPERTS = [
     (
         "Structure",
@@ -222,6 +276,38 @@ def _normalize_decider_output(parsed: dict, public: list[dict]) -> dict:
     return parsed
 
 
+def _decider_context(public: list[dict]) -> str:
+    """Return a tightly scoped context for the Decider (≤3 key claims).
+
+    Instead of re-feeding the full compacted blackboard (~8 agent summaries,
+    ~10× ingress amplification), emit only the three claims the Decider
+    actually needs: mechanism, therapy evidence, and the conflict resolution rule.
+    This reduces Decider ingress tokens by ~70-80%.
+    """
+    picks: dict[str, str] = {}
+    for step in reversed(public):
+        agent = step.get("agent", "")
+        claim = step.get("key_claim") or step.get("stance_summary") or ""
+        if not claim:
+            continue
+        if agent == "Mechanism" and "mechanism" not in picks:
+            picks["mechanism"] = claim[:200]
+        elif agent in ("Evidence", "Therapy") and "therapy" not in picks:
+            picks["therapy"] = claim[:200]
+        elif agent == "ConflictResolver" and "conflict" not in picks:
+            picks["conflict"] = claim[:200]
+        if len(picks) == 3:
+            break
+    lines = []
+    if picks.get("mechanism"):
+        lines.append(f"[Mechanism] {picks['mechanism']}")
+    if picks.get("therapy"):
+        lines.append(f"[Therapy/Evidence] {picks['therapy']}")
+    if picks.get("conflict"):
+        lines.append(f"[ConflictResolver] {picks['conflict']}")
+    return "\n".join(lines) or _bb_compact(public, max_entries=3)
+
+
 def _round1_consensus(critic_text: str, conflict_text: str) -> bool:
     combined = f"{critic_text}\n{conflict_text}".lower()
     flags = ("hallucin", "contradict", "conflict", "disagree", "incorrect", "unsupported", "error")
@@ -244,6 +330,7 @@ def _invoke_critic_rubric(
     *,
     llm_ctx: dict,
     rnd: int,
+    lora_path: str | None = None,
 ) -> tuple[int, str, int]:
     bu, mo = _endpoint(cfg, "Critic")
     prompt = (
@@ -251,8 +338,9 @@ def _invoke_critic_rubric(
         "Reply with: score: N\\ngaps: ...\\n\n"
         f"{_bb_compact(public)}"
     )
-    cr = call_llm(
+    cr = _bb_call(
         prompt,
+        lora_path=lora_path,
         base_url=bu,
         model=mo,
         system_prompt="You are the Mechanism rubric Critic.",
@@ -328,7 +416,16 @@ def run_blackboard(
     *,
     max_rounds: int = 2,
     image_path: str | None = None,
+    lora_path: str | None = None,
 ) -> dict[str, Any]:
+    """Blackboard MAS with Planner → Experts → Critic → ConflictResolver → Decider.
+
+    When lora_path is provided every agent call is routed through the LoRA-aware
+    VL backbone (via _bb_call), so the full multi-agent pipeline benefits from
+    the fine-tuned oncology weights.  Batching is automatically disabled when
+    the LoRA path is active because vl_generate is a sequential single-model
+    call that cannot be batched in the same way as call_transformers_batch.
+    """
     cfg = load_config()
     img = image_path or structure.get("structure_image_path")
     allow_therapy = target.get("allow_confident_therapy", True)
@@ -366,9 +463,10 @@ def run_blackboard(
 
     with metrics.phase(f"blackboard_{target['gene']}_{target['mutation']}", model="bMAS"):
         base_url, model = _endpoint(cfg, "Planner")
-        pr = call_llm(
+        pr = _bb_call(
             f"Plan the analysis steps for:\n{problem}\n\n"
             "Output a short numbered plan (plain text, max 10 steps).",
+            lora_path=lora_path,
             base_url=base_url,
             model=model,
             system_prompt="You are the Planner. Output a short numbered plan only.",
@@ -387,7 +485,8 @@ def run_blackboard(
         )
 
         pcfg = cfg.get("pipeline", {})
-        do_batch = bool(pcfg.get("batch_expert_calls", True)) and not use_vllm()
+        # Disable batching when LoRA is active: vl_generate is sequential-only.
+        do_batch = bool(pcfg.get("batch_expert_calls", True)) and not use_vllm() and not lora_path
 
         rounds_done = 0
         for rnd in range(1, max_rounds + 1):
@@ -407,6 +506,7 @@ def run_blackboard(
                 struct_resp = vl_generate(
                     struct_prompt,
                     image_path=img,
+                    lora_path=lora_path,
                     agent_role=struct_role,
                     architecture="blackboard",
                     label="expert_structure",
@@ -416,8 +516,9 @@ def run_blackboard(
                 )
             else:
                 bu, mo = _endpoint(cfg, struct_role)
-                struct_resp = call_llm(
+                struct_resp = _bb_call(
                     struct_prompt,
+                    lora_path=lora_path,
                     base_url=bu, model=mo,
                     system_prompt=_expert_system(struct_role),
                     agent_role=struct_role, round_idx=rnd,
@@ -440,8 +541,9 @@ def run_blackboard(
                 f"{_JSON_ONLY}"
             )
             bu, mo = _endpoint(cfg, mech_role)
-            mech_resp = call_llm(
+            mech_resp = _bb_call(
                 mech_prompt,
+                lora_path=lora_path,
                 base_url=bu, model=mo,
                 system_prompt=_expert_system(mech_role),
                 agent_role=mech_role, round_idx=rnd,
@@ -457,14 +559,15 @@ def run_blackboard(
 
             if rnd == 1:
                 rubric_before, gaps, rtok = _invoke_critic_rubric(
-                    cfg, public, llm_ctx=llm_ctx, rnd=rnd
+                    cfg, public, llm_ctx=llm_ctx, rnd=rnd, lora_path=lora_path
                 )
                 total_tokens += rtok
                 if rubric_before < 2:
                     bu2, mo2 = _endpoint(cfg, "Mechanism")
-                    reflex = call_llm(
+                    reflex = _bb_call(
                         f"Revise mechanism JSON using Critic feedback (gaps: {gaps}).\n"
                         f"Case:\n{problem}\n\nPrior:\n{_bb_compact(public)}\n\n{_JSON_ONLY}",
+                        lora_path=lora_path,
                         base_url=bu2, model=mo2,
                         system_prompt=_expert_system("Mechanism") + " (reflexion pass)",
                         agent_role="Mechanism", round_idx=rnd,
@@ -473,7 +576,7 @@ def run_blackboard(
                     public.append(_append_step("Mechanism", "reflexion", reflex))
                     total_tokens += reflex["metadata"]["total_tokens"]
                     rubric_after, _, rtok2 = _invoke_critic_rubric(
-                        cfg, public, llm_ctx=llm_ctx, rnd=rnd
+                        cfg, public, llm_ctx=llm_ctx, rnd=rnd, lora_path=lora_path
                     )
                     total_tokens += rtok2
                     metrics.log_self_correction(
@@ -517,8 +620,8 @@ def run_blackboard(
                         + (vus_note if role == "Therapy" else "")
                     )
                     bu, mo = _endpoint(cfg, role)
-                    llm_resp = call_llm(
-                        prompt, base_url=bu, model=mo,
+                    llm_resp = _bb_call(
+                        prompt, lora_path=lora_path, base_url=bu, model=mo,
                         system_prompt=_expert_system(role),
                         agent_role=role, round_idx=rnd,
                         label=f"expert_{role.lower()}", **llm_ctx,
@@ -556,13 +659,13 @@ def run_blackboard(
                 )
                 cr_resp, xr_resp = crit_res_resps
             else:
-                cr_resp = call_llm(
-                    critic_prompt, base_url=bu_c, model=mo_c,
+                cr_resp = _bb_call(
+                    critic_prompt, lora_path=lora_path, base_url=bu_c, model=mo_c,
                     system_prompt=_critic_system(),
                     agent_role="Critic", round_idx=rnd, label="critic", **llm_ctx,
                 )
-                xr_resp = call_llm(
-                    resolver_prompt, base_url=bu_r, model=mo_r,
+                xr_resp = _bb_call(
+                    resolver_prompt, lora_path=lora_path, base_url=bu_r, model=mo_r,
                     system_prompt=_resolver_system(),
                     agent_role="ConflictResolver", round_idx=rnd,
                     label="conflict_resolver", **llm_ctx,
@@ -605,11 +708,12 @@ def run_blackboard(
             f' "therapy": {{"sensitivity": ["drug1", ...], "resistance": ["drug1", ...], "context": "..."}},\n'
             f' "confidence": "0.0-1.0",\n'
             f' "next_best_action": "standard_of_care|tumor_board|clinical_trial|structural_rescue"}}\n\n'
-            f"Blackboard summaries:\n{_bb_compact(public)}"
+            f"Key claims (mechanism · therapy · conflict resolution):\n{_decider_context(public)}"
             + vus_note
         )
-        dr = call_llm(
+        dr = _bb_call(
             decider_prompt,
+            lora_path=lora_path,
             base_url=bu,
             model=mo,
             system_prompt=(
@@ -653,10 +757,11 @@ def run_blackboard(
                 "",
             )
             if therapy_detail:
-                rp = call_llm(
+                rp = _bb_call(
                     f"Based only on this therapy analysis:\n{therapy_detail[:800]}\n\n"
                     f'Return ONLY this JSON with no wrapper and no markdown:\n'
                     f'{{"sensitivity": ["drug_name"], "resistance": [], "context": "..."}}',
+                    lora_path=lora_path,
                     base_url=bu,
                     model=mo,
                     system_prompt="You are the Decider. Return JSON only. No markdown. No 'reasoning' key.",
