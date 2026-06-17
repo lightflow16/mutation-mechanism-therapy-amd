@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from src import metrics
-from src.config import load_config, shared_dir
+from src.config import is_rocm, load_config, shared_dir
 from src.helpers.structure_helpers import (
     count_chain_residues,
     extract_local_shell_pdb,
@@ -207,7 +207,17 @@ def fold_boltz(
     *,
     required: bool = True,
 ) -> Path | None:
-    """Run Boltz in isolated env with --no_kernels (ROCm probe validated)."""
+    """Run Boltz with --no_kernels, folding on CPU when no CUDA GPU is usable.
+
+    Boltz ships CUDA-only wheels: its bundled PyTorch Lightning cannot drive an
+    AMD ROCm GPU. Rather than let the GPU attempt fail silently (which left AMD
+    runs with esmfold-only and a failed fold gate), we:
+      * skip the doomed GPU attempt entirely on ROCm hosts and fold on CPU, and
+      * on non-ROCm hosts, fall back to CPU on *any* GPU failure (the GPU-backend
+        error text varies across driver / Lightning versions, so we no longer
+        gate the retry on a single sentinel string).
+    CPU folding is slower; give it a larger timeout via BOLTZ_CPU_TIMEOUT_S.
+    """
     boltz_bin = os.environ.get("BOLTZ_BIN", str(ROOT / "external" / "boltz_venv" / "bin" / "boltz"))
     if not Path(boltz_bin).is_file() and not shutil.which(boltz_bin):
         msg = f"Boltz not found ({boltz_bin}). Run: bash scripts/setup_boltz_venv.sh"
@@ -220,55 +230,68 @@ def fold_boltz(
     yaml_path.write_text(
         f"version: 1\nsequences:\n  - protein:\n      id: A\n      sequence: {sequence}\n      msa: empty\n"
     )
-    cmd = [
-        boltz_bin, "predict", str(yaml_path.name),
-        "--out_dir", str(out_dir),
-        "--cache", str(cache_dir),
-        "--accelerator", "gpu", "--devices", "1",
-        "--recycling_steps", "1", "--diffusion_samples", "1",
-        "--no_kernels", "--output_format", "pdb",
-    ]
-    # Boltz runs in an isolated venv whose PyTorch Lightning may lack ROCm support.
-    # If the GPU backend probe fails, retry transparently on CPU so the rescue
-    # branch succeeds on AMD ROCm hosts without changing anything else.
-    _CPU_FALLBACK_SENTINEL = "No supported gpu backend found"
-    _cpu_cmd = [
-        boltz_bin, "predict", str(yaml_path.name),
-        "--out_dir", str(out_dir),
-        "--cache", str(cache_dir),
-        "--accelerator", "cpu",
-        "--recycling_steps", "1", "--diffusion_samples", "1",
-        "--no_kernels", "--output_format", "pdb",
-    ]
-    _BOLTZ_TIMEOUT = int(os.environ.get("BOLTZ_TIMEOUT_S", "600"))
+
+    def _boltz_cmd(accelerator: str) -> list[str]:
+        cmd = [
+            boltz_bin, "predict", str(yaml_path.name),
+            "--out_dir", str(out_dir),
+            "--cache", str(cache_dir),
+            "--accelerator", accelerator,
+        ]
+        if accelerator == "gpu":
+            cmd += ["--devices", "1"]
+        cmd += [
+            "--recycling_steps", "1", "--diffusion_samples", "1",
+            "--no_kernels", "--output_format", "pdb",
+        ]
+        return cmd
+
+    def _reset_out_dir() -> None:
+        shutil.rmtree(str(out_dir), ignore_errors=True)
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+    gpu_timeout = int(os.environ.get("BOLTZ_TIMEOUT_S", "600"))
+    cpu_timeout = int(os.environ.get("BOLTZ_CPU_TIMEOUT_S", "2400"))
+
+    try:
+        rocm_host = bool(is_rocm())
+    except Exception:
+        rocm_host = False
+
     with metrics.track("boltz_fold", agent_role="Rescue", model="boltz-2.2.1"):
-        try:
-            r = subprocess.run(
-                cmd, cwd=str(yaml_path.parent), capture_output=True, text=True,
-                timeout=_BOLTZ_TIMEOUT,
-            )
-        except subprocess.TimeoutExpired:
-            if required:
-                raise RuntimeError(f"Boltz timed out after {_BOLTZ_TIMEOUT}s (GPU run)")
-            return None
-        except OSError as exc:
-            if required:
-                raise RuntimeError(f"Boltz failed to start: {exc}") from exc
-            return None
-        if r.returncode != 0 and _CPU_FALLBACK_SENTINEL in (r.stderr or r.stdout or ""):
-            # ROCm host: boltz venv's PL cannot detect GPU backend — retry on CPU.
-            import shutil as _shutil
-            _shutil.rmtree(str(out_dir), ignore_errors=True)
-            out_dir.mkdir(parents=True, exist_ok=True)
+        r = None
+        if not rocm_host:
             try:
                 r = subprocess.run(
-                    _cpu_cmd, cwd=str(yaml_path.parent), capture_output=True, text=True,
-                    timeout=_BOLTZ_TIMEOUT,
+                    _boltz_cmd("gpu"), cwd=str(yaml_path.parent),
+                    capture_output=True, text=True, timeout=gpu_timeout,
                 )
             except subprocess.TimeoutExpired:
                 if required:
-                    raise RuntimeError(f"Boltz timed out after {_BOLTZ_TIMEOUT}s (CPU fallback)")
+                    raise RuntimeError(f"Boltz timed out after {gpu_timeout}s (GPU run)")
                 return None
+            except OSError as exc:
+                if required:
+                    raise RuntimeError(f"Boltz failed to start: {exc}") from exc
+                return None
+
+        # Fold on CPU when the host is ROCm (no CUDA GPU) or the GPU attempt failed.
+        if rocm_host or r is None or r.returncode != 0:
+            _reset_out_dir()
+            try:
+                r = subprocess.run(
+                    _boltz_cmd("cpu"), cwd=str(yaml_path.parent),
+                    capture_output=True, text=True, timeout=cpu_timeout,
+                )
+            except subprocess.TimeoutExpired:
+                if required:
+                    raise RuntimeError(f"Boltz timed out after {cpu_timeout}s (CPU fold)")
+                return None
+            except OSError as exc:
+                if required:
+                    raise RuntimeError(f"Boltz failed to start on CPU: {exc}") from exc
+                return None
+
         if r.returncode != 0:
             detail = (r.stderr or r.stdout or "").strip()
             tail = detail[-4000:] if len(detail) > 4000 else detail

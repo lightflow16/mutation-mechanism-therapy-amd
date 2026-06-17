@@ -12,6 +12,27 @@ from src.config import is_rocm, load_config, use_int8
 _TEXT_MODEL_DEFAULT = "Qwen/Qwen2.5-7B-Instruct"
 _MODEL_CACHE: dict[str, tuple] = {}
 
+# Map vLLM-style short names (as stored in serving.endpoints[*].model) to their
+# canonical HuggingFace repo IDs so that the transformers fallback path can call
+# AutoTokenizer/AutoModelForCausalLM.from_pretrained without a 401/404 error.
+_VLLM_TO_HF: dict[str, str] = {
+    "qwen2.5-7b-instruct": "Qwen/Qwen2.5-7B-Instruct",
+    "qwen2.5-3b-instruct": "Qwen/Qwen2.5-3B-Instruct",
+    "qwen2.5-vl-7b": "Qwen/Qwen2.5-VL-7B-Instruct",
+    "qwen2.5-vl-7b-instruct": "Qwen/Qwen2.5-VL-7B-Instruct",
+}
+
+
+def _normalize_model_id(model_id: str) -> str:
+    """Return the canonical HF repo ID for a model string.
+
+    vLLM endpoints advertise short names like ``qwen2.5-7b-instruct``.
+    When the transformers fallback is used those names must be converted to
+    their full ``Org/Repo`` form before calling ``from_pretrained``.
+    """
+    return _VLLM_TO_HF.get(model_id.lower(), model_id)
+
+
 _THINK_RE = re.compile(r"<think>(.*?)</think>", re.S | re.I)
 
 
@@ -105,6 +126,7 @@ def use_vllm() -> bool:
 
 
 def _get_text_model(model_id: str = _TEXT_MODEL_DEFAULT) -> tuple[Any, Any, bool]:
+    model_id = _normalize_model_id(model_id)
     if model_id in _MODEL_CACHE:
         tok, model = _MODEL_CACHE[model_id]
         return tok, model, True

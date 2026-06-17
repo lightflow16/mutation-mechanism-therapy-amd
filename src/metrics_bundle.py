@@ -383,8 +383,17 @@ def compare_platform_bundles(
     out_path.write_text(json.dumps(result, indent=2))
     csv_path = out_path.with_suffix(".csv")
     if phase_diffs:
+        # Build the union of all keys across every row, preserving insertion
+        # order from the first row and appending any extras found later.
+        # This prevents DictWriter from raising ValueError when the ratio
+        # field (only present when va > 0) is missing from the first row.
+        seen_fields: dict[str, None] = {}
+        for row in phase_diffs:
+            for k in row:
+                seen_fields[k] = None
+        all_fields = list(seen_fields)
         with csv_path.open("w", newline="") as f:
-            w = csv.DictWriter(f, fieldnames=list(phase_diffs[0].keys()))
+            w = csv.DictWriter(f, fieldnames=all_fields, extrasaction="ignore")
             w.writeheader()
             w.writerows(phase_diffs)
     return result
