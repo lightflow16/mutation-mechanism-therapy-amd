@@ -419,7 +419,11 @@ def run_blackboard(
 
         bu, mo = _endpoint(cfg, "Decider")
         decider_prompt = (
-            f"Produce final JSON reasoning (mechanism + therapy + confidence).\n"
+            f"Produce the final decision as JSON with EXACTLY this structure:\n"
+            f'{{"mechanism": {{"description": "...", "pathway": "..."}},\n'
+            f' "therapy": {{"sensitivity": ["drug1", ...], "resistance": ["drug1", ...], "context": "..."}},\n'
+            f' "confidence": "0.0-1.0",\n'
+            f' "next_best_action": "standard_of_care|tumor_board|clinical_trial|structural_rescue"}}\n\n'
             f"Blackboard summaries:\n{_bb_compact(public)}"
             + vus_note
         )
@@ -427,7 +431,7 @@ def run_blackboard(
             decider_prompt,
             base_url=bu,
             model=mo,
-            system_prompt="You are the Decider. Return valid JSON only.",
+            system_prompt="You are the Decider. Return valid JSON only. Do NOT wrap the JSON in a 'reasoning' key.",
             agent_role="Decider",
             round_idx=rounds_done + 1,
             label="decider",

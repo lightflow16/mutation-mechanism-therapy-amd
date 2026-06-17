@@ -10,6 +10,9 @@ from typing import Any
 from src import metrics
 from src.config import setup_env
 
+# Keyed by (model_id, lora_path) so different LoRA adapters are cached separately.
+_VL_MODEL_CACHE: dict[tuple[str, str | None], tuple[Any, Any]] = {}
+
 
 REASONING_SCHEMA = """
 Return ONLY valid JSON with keys:
@@ -66,6 +69,10 @@ def build_prompt(target: dict, structure: dict, evidence: list[dict]) -> str:
 
 
 def _load_model(model_id: str, lora_path: str | None = None):
+    cache_key = (model_id, lora_path)
+    if cache_key in _VL_MODEL_CACHE:
+        return _VL_MODEL_CACHE[cache_key]
+
     import torch
     from transformers import AutoModelForImageTextToText, AutoProcessor
 
@@ -80,6 +87,8 @@ def _load_model(model_id: str, lora_path: str | None = None):
         model = PeftModel.from_pretrained(base, lora_path)
     else:
         model = AutoModelForImageTextToText.from_pretrained(model_id, **kwargs)
+
+    _VL_MODEL_CACHE[cache_key] = (proc, model)
     return proc, model
 
 

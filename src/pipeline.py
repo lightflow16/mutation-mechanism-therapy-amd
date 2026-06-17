@@ -76,7 +76,13 @@ def _run_reasoning(
 
 
 def _unwrap_target_reasoning(response_dict: dict) -> dict:
-    """Defensively unwrap nested target_reasoning structures caused by CoT parser schemas."""
+    """Defensively unwrap nested target_reasoning structures caused by CoT parser schemas.
+
+    Handles three common Decider/CoT output shapes:
+      1. {"target_reasoning": {"therapy": ...}}          — standard CoT schema
+      2. {"target_reasoning": {"target_reasoning": ...}} — double-nested CoT
+      3. {"reasoning": {"therapy": ...}}                 — Decider 7B schema
+    """
     if not response_dict:
         return {}
     if "target_reasoning" in response_dict:
@@ -85,6 +91,9 @@ def _unwrap_target_reasoning(response_dict: dict) -> dict:
             nested = inner["target_reasoning"]
             return nested if isinstance(nested, dict) else inner
         return inner if isinstance(inner, dict) else {}
+    # Decider (Qwen-7B) uses {"reasoning": {"mechanism": ..., "therapy": ...}}
+    if "reasoning" in response_dict and isinstance(response_dict["reasoning"], dict):
+        return response_dict["reasoning"]
     return response_dict
 
 
@@ -472,6 +481,12 @@ def run_all_modes(
                 )
                 if debate_run["architectures"].get("debate"):
                     live_run["architectures"]["debate"] = debate_run["architectures"]["debate"]
+                    # Re-compute and re-write the merged comparison so the debate
+                    # sub-run does not overwrite the single/cot/blackboard results.
+                    merged_comparison = compare_architecture_results(gene, mut, live_run["architectures"])
+                    _embed_mtb_panels(merged_comparison, live_run["architectures"])
+                    _write_mutation_comparison(gene, mut, merged_comparison, live_run["architectures"])
+                    live_run["comparison"] = merged_comparison
             except FileNotFoundError:
                 pass
         results["live"][key] = live_run
