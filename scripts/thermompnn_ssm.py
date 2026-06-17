@@ -124,7 +124,7 @@ def run_ssm(pdb_path: Path, chain: str, model_path: Path, out_dir: Path) -> Path
             )
         )
 
-    with torch.no_grad():
+    with torch.no_grad(), torch.autocast(device.type, dtype=torch.bfloat16, enabled=device.type == "cuda"):
         pred, _ = model(mut_pdb, final_mutation_list)
 
     rows = []

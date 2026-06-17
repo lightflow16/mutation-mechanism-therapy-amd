@@ -130,7 +130,8 @@ def vl_generate(
         ).to("cuda")
         in_len = inputs["input_ids"].shape[1]
         t0 = time.perf_counter()
-        out = model.generate(**inputs, max_new_tokens=max_new_tokens)
+        with torch.autocast("cuda", dtype=torch.bfloat16, enabled=torch.cuda.is_available()):
+            out = model.generate(**inputs, max_new_tokens=max_new_tokens)
         latency = time.perf_counter() - t0
         gen = proc.decode(out[0][in_len:], skip_special_tokens=True)
         out_tok = int(out[0].shape[0] - in_len)

@@ -150,7 +150,9 @@ def call_transformers(
             gen_kwargs["temperature"] = temperature
         else:
             gen_kwargs["do_sample"] = False
-        out = model.generate(**inputs, **gen_kwargs)
+        import torch as _torch
+        with _torch.autocast("cuda", dtype=_torch.bfloat16, enabled=_torch.cuda.is_available()):
+            out = model.generate(**inputs, **gen_kwargs)
         latency = time.perf_counter() - t0
         gen = tok.decode(out[0][in_len:], skip_special_tokens=True)
         out_tok = out[0].shape[0] - in_len

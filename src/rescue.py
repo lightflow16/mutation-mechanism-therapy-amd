@@ -22,6 +22,9 @@ ROOT = Path(__file__).resolve().parents[1]
 THERMOMPNN_DIR = ROOT / "external" / "ThermoMPNN"
 MPNN_REPO = ROOT / "external" / "ProteinMPNN"
 
+# Module-level singleton so ESMFold is loaded once per process, not per rescue call.
+_ESMFOLD_CACHE: dict[str, Any] = {}
+
 
 def _thermompnn_env() -> dict[str, str]:
     env = os.environ.copy()
@@ -167,19 +170,29 @@ def mutation_ddg(
     return None
 
 
+def _get_esmfold_model():
+    """Return a cached ESMFold model, loading it once per process."""
+    if "model" not in _ESMFOLD_CACHE:
+        import torch
+        from transformers import EsmForProteinFolding
+
+        model = EsmForProteinFolding.from_pretrained(
+            "facebook/esmfold_v1", low_cpu_mem_usage=True
+        )
+        if torch.cuda.is_available():
+            model = model.cuda()
+        _ESMFOLD_CACHE["model"] = model.eval()
+    return _ESMFOLD_CACHE["model"]
+
+
 def fold_esmfold(sequence: str, out_pdb: Path) -> Path:
     setup = load_config()
     os.environ.setdefault("HF_HOME", setup.get("paths", {}).get("hf_cache", "/workspace/shared/hf_cache"))
     with metrics.track("esmfold_fold", agent_role="Rescue", model="facebook/esmfold_v1"):
         import torch
-        from transformers import EsmForProteinFolding, AutoTokenizer
-        tok = AutoTokenizer.from_pretrained("facebook/esmfold_v1")
-        model = EsmForProteinFolding.from_pretrained("facebook/esmfold_v1", low_cpu_mem_usage=True)
-        if torch.cuda.is_available():
-            model = model.cuda().eval()
-            pdb = model.infer_pdb(sequence)
-        else:
-            model = model.eval()
+
+        model = _get_esmfold_model()
+        with torch.no_grad():
             pdb = model.infer_pdb(sequence)
     out_pdb.parent.mkdir(parents=True, exist_ok=True)
     out_pdb.write_text(pdb)

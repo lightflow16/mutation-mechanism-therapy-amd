@@ -66,6 +66,8 @@ def configure_paths(cfg: dict | None = None) -> Path:
     os.environ.setdefault("METRICS_DIR", str(met))
     if is_rocm():
         os.environ.setdefault("LLM_BACKEND", "transformers")
+        # Reduce VRAM fragmentation on MI300X by enabling expandable memory segments.
+        os.environ.setdefault("PYTORCH_HIP_ALLOC_CONF", "expandable_segments:True")
     return ROOT
 
 

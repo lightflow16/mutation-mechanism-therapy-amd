@@ -26,6 +26,16 @@ except ImportError:
 Architecture = Literal["single", "cot", "blackboard", "debate"]
 
 
+def _flush_gpu_cache() -> None:
+    """Release fragmented VRAM between heavy pipeline phases."""
+    try:
+        import torch
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+    except Exception:
+        pass
+
+
 def route_target(target: dict, structure: dict, evidence: list[dict]) -> str:
     """Planner-style route: inhibitor_rag vs structural_rescue."""
     if target.get("pathway") == "structural_rescue":
@@ -318,11 +328,12 @@ def run_mutation_comparison(
                         target["route_planner"] = planned
                     else:
                         route = routing.get("pathway") or rule_route
-                    if progress:
-                        progress.banner(f"CASE — {gene} {mutation} | route={route}")
+                if progress:
+                    progress.banner(f"CASE — {gene} {mutation} | route={route}")
                 if progress:
                     progress.log("pipeline", f"architecture: {arch}", gene=gene, mutation=mutation)
 
+                _flush_gpu_cache()
                 result: dict[str, Any] = {
                     "target": target,
                     "structure": {
@@ -355,6 +366,7 @@ def run_mutation_comparison(
         assert structure is not None and route is not None
         do_rescue = run_rescue_branch if run_rescue_branch is not None else route == "structural_rescue"
         if do_rescue:
+            _flush_gpu_cache()
             rescue = run_rescue(target, Path(structure["pdb_path"]))
             rescue["interpreter"] = interpret_rescue(target, rescue)
             for arch in by_arch:
@@ -404,6 +416,7 @@ def run_case(
                 "route": route,
             }
 
+            _flush_gpu_cache()
             img = structure.get("structure_image_path")
             if architecture == "debate":
                 result["reasoning"] = run_debate(target, structure, evidence)
@@ -418,6 +431,7 @@ def run_case(
 
             do_rescue = run_rescue_branch if run_rescue_branch is not None else route == "structural_rescue"
             if do_rescue:
+                _flush_gpu_cache()
                 pdb = Path(structure["pdb_path"])
                 result["rescue"] = run_rescue(target, pdb)
 
