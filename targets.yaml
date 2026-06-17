@@ -85,7 +85,7 @@ rescue:
   pack_shell_radius: 8.0
   thermompnn_shell_radius: 15.0
   thermompnn_full_protein_max_residues: 80
-  require_boltz: true
+  require_boltz: false
   require_esmfold: true
   require_proteinmpnn: true
   fold_confidence_ptm_threshold: 0.15

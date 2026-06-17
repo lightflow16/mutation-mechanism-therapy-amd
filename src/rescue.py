@@ -240,9 +240,17 @@ def fold_boltz(
         "--recycling_steps", "1", "--diffusion_samples", "1",
         "--no_kernels", "--output_format", "pdb",
     ]
+    _BOLTZ_TIMEOUT = int(os.environ.get("BOLTZ_TIMEOUT_S", "600"))
     with metrics.track("boltz_fold", agent_role="Rescue", model="boltz-2.2.1"):
         try:
-            r = subprocess.run(cmd, cwd=str(yaml_path.parent), capture_output=True, text=True)
+            r = subprocess.run(
+                cmd, cwd=str(yaml_path.parent), capture_output=True, text=True,
+                timeout=_BOLTZ_TIMEOUT,
+            )
+        except subprocess.TimeoutExpired:
+            if required:
+                raise RuntimeError(f"Boltz timed out after {_BOLTZ_TIMEOUT}s (GPU run)")
+            return None
         except OSError as exc:
             if required:
                 raise RuntimeError(f"Boltz failed to start: {exc}") from exc
@@ -252,7 +260,15 @@ def fold_boltz(
             import shutil as _shutil
             _shutil.rmtree(str(out_dir), ignore_errors=True)
             out_dir.mkdir(parents=True, exist_ok=True)
-            r = subprocess.run(_cpu_cmd, cwd=str(yaml_path.parent), capture_output=True, text=True)
+            try:
+                r = subprocess.run(
+                    _cpu_cmd, cwd=str(yaml_path.parent), capture_output=True, text=True,
+                    timeout=_BOLTZ_TIMEOUT,
+                )
+            except subprocess.TimeoutExpired:
+                if required:
+                    raise RuntimeError(f"Boltz timed out after {_BOLTZ_TIMEOUT}s (CPU fallback)")
+                return None
         if r.returncode != 0:
             detail = (r.stderr or r.stdout or "").strip()
             tail = detail[-4000:] if len(detail) > 4000 else detail
