@@ -41,20 +41,42 @@ If evidence_tier is weak or none, set recommendation_status to insufficient_evid
 
 
 def parse_reasoning_json(text: str) -> dict[str, Any]:
-    """Parse model output; strip ```json fences and tolerate truncated JSON."""
+    """Parse model output, extracting the first valid JSON object.
+
+    Handles:
+    - Multiple / duplicate ```json ... ``` fences (strips all of them)
+    - Duplicated JSON blocks (raw_decode stops at the first complete object)
+    - Wrapped objects like {"reasoning": {...}} — returned as-is for callers to normalise
+    """
     raw = (text or "").strip()
-    if raw.startswith("```"):
-        raw = re.sub(r"^```(?:json)?\s*", "", raw, flags=re.I)
-        raw = re.sub(r"\s*```\s*$", "", raw)
+    # Strip every markdown fence block, not just leading/trailing
+    raw = re.sub(r"```(?:json)?\s*", "", raw, flags=re.I)
+    raw = re.sub(r"```", "", raw).strip()
+
     start = raw.find("{")
-    end = raw.rfind("}") + 1
-    if start < 0 or end <= start:
+    if start < 0:
         return {"raw": text}
-    chunk = raw[start:end]
+
+    # raw_decode stops after the first syntactically complete object, avoiding
+    # the rfind("}") bug that spans across multiple concatenated JSON blocks.
+    decoder = json.JSONDecoder()
     try:
-        return json.loads(chunk)
+        obj, _ = decoder.raw_decode(raw, start)
+        if isinstance(obj, dict):
+            return obj
     except json.JSONDecodeError:
-        return {"raw": text, "parse_error": True}
+        pass
+
+    # Fallback: try each {...} region in order until one parses
+    for m in re.finditer(r"\{", raw):
+        try:
+            obj, _ = decoder.raw_decode(raw, m.start())
+            if isinstance(obj, dict):
+                return obj
+        except json.JSONDecodeError:
+            continue
+
+    return {"raw": text, "parse_error": True}
 
 
 def build_prompt(target: dict, structure: dict, evidence: list[dict]) -> str:

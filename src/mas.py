@@ -143,6 +143,85 @@ def _append_step(
     return step
 
 
+def _extract_drugs_from_trace(public: list[dict]) -> tuple[list[str], list[str]]:
+    """Last-resort drug extraction from Therapy / Evidence / Decider trace text."""
+    sensitivity: list[str] = []
+    resistance: list[str] = []
+    for step in reversed(public):
+        if step.get("agent") not in ("Therapy", "Evidence", "Decider"):
+            continue
+        content = " ".join(filter(None, [
+            step.get("detail"), step.get("content"), step.get("stance_summary"),
+        ]))
+        sm = re.search(r"sensitivity[:\s]+([A-Za-z][A-Za-z0-9\s,;/\-]+?)(?:\n|resistance|context|$)", content, re.I)
+        if sm:
+            sensitivity.extend(
+                d.strip() for d in re.split(r"[,;]", sm.group(1))
+                if d.strip() and 2 < len(d.strip()) < 50
+            )
+        rm = re.search(r"resistance[:\s]+([A-Za-z][A-Za-z0-9\s,;/\-]+?)(?:\n|sensitivity|context|$)", content, re.I)
+        if rm:
+            resistance.extend(
+                d.strip() for d in re.split(r"[,;]", rm.group(1))
+                if d.strip() and 2 < len(d.strip()) < 50
+            )
+        if sensitivity or resistance:
+            break
+    return list(dict.fromkeys(sensitivity)), list(dict.fromkeys(resistance))
+
+
+def _normalize_decider_output(parsed: dict, public: list[dict]) -> dict:
+    """Normalise Decider JSON to {mechanism, therapy:{sensitivity,resistance}, confidence, next_best_action}.
+
+    Handles:
+    - {"reasoning": {...}} wrapper the model sometimes adds despite instructions
+    - {"structure": {"therapy": "<prose>", ...}} nesting (PIK3CA pattern)
+    - therapy as a plain string instead of a dict
+    - mechanism as a dict instead of a string
+    Falls back to trace extraction when therapy lists remain empty after normalisation.
+    """
+    if not isinstance(parsed, dict) or "raw" in parsed:
+        return parsed
+
+    # Unwrap spurious {"reasoning": {...}} wrapper
+    if "reasoning" in parsed and isinstance(parsed["reasoning"], dict) and "therapy" not in parsed:
+        parsed = parsed["reasoning"]
+
+    # Unwrap {"structure": {...}} nesting
+    inner = parsed.get("structure")
+    if isinstance(inner, dict) and "therapy" not in parsed and (
+        "mechanism" in inner or "therapy" in inner or "confidence" in inner
+    ):
+        parsed = {**parsed, **inner}
+        parsed.pop("structure", None)
+
+    # Normalise mechanism dict → string
+    mech = parsed.get("mechanism")
+    if isinstance(mech, dict):
+        parsed["mechanism"] = (
+            mech.get("description") or mech.get("summary") or mech.get("pathway") or str(mech)
+        )
+
+    # Normalise therapy string → dict with empty lists (prose stored as context)
+    therapy = parsed.get("therapy")
+    if isinstance(therapy, str):
+        parsed["therapy"] = {"sensitivity": [], "resistance": [], "context": therapy}
+    elif not isinstance(therapy, dict):
+        parsed["therapy"] = {"sensitivity": [], "resistance": [], "context": ""}
+    else:
+        parsed["therapy"].setdefault("sensitivity", [])
+        parsed["therapy"].setdefault("resistance", [])
+
+    # If lists are still empty, try the blackboard trace as a fallback
+    if not parsed["therapy"]["sensitivity"] and not parsed["therapy"]["resistance"]:
+        sens, res = _extract_drugs_from_trace(public)
+        if sens or res:
+            parsed["therapy"]["sensitivity"] = sens
+            parsed["therapy"]["resistance"] = res
+
+    return parsed
+
+
 def _round1_consensus(critic_text: str, conflict_text: str) -> bool:
     combined = f"{critic_text}\n{conflict_text}".lower()
     flags = ("hallucin", "contradict", "conflict", "disagree", "incorrect", "unsupported", "error")
@@ -247,6 +326,7 @@ def run_blackboard(
     )
     early_exit = False
     rubric_before = rubric_after = None
+    parsed: dict[str, Any] = {}
 
     progress.banner(f"Blackboard | {target['gene']} {target['mutation']}")
 
@@ -418,9 +498,13 @@ def run_blackboard(
                 )
 
         bu, mo = _endpoint(cfg, "Decider")
+        # Concrete one-shot example keeps the model on the right schema.
         decider_prompt = (
-            f"Produce the final decision as JSON with EXACTLY this structure:\n"
-            f'{{"mechanism": {{"description": "...", "pathway": "..."}},\n'
+            f"Produce the final decision as JSON with EXACTLY this structure "
+            f"(example: {{\"mechanism\": \"EGFR L858R activates kinase domain\", "
+            f"\"therapy\": {{\"sensitivity\": [\"Osimertinib\"], \"resistance\": [], \"context\": \"NSCLC\"}}, "
+            f"\"confidence\": \"0.9\", \"next_best_action\": \"standard_of_care\"}}):\n"
+            f'{{"mechanism": "...",\n'
             f' "therapy": {{"sensitivity": ["drug1", ...], "resistance": ["drug1", ...], "context": "..."}},\n'
             f' "confidence": "0.0-1.0",\n'
             f' "next_best_action": "standard_of_care|tumor_board|clinical_trial|structural_rescue"}}\n\n'
@@ -431,10 +515,15 @@ def run_blackboard(
             decider_prompt,
             base_url=bu,
             model=mo,
-            system_prompt="You are the Decider. Return valid JSON only. Do NOT wrap the JSON in a 'reasoning' key.",
+            system_prompt=(
+                "You are the Decider. Return valid JSON only. "
+                "Do NOT wrap the JSON in a 'reasoning' key. "
+                "Do NOT use markdown fences. Output one JSON object."
+            ),
             agent_role="Decider",
             round_idx=rounds_done + 1,
             label="decider",
+            temperature=0,
             **llm_ctx,
         )
         step = trace_step_from_response("Decider", "decision", dr)
@@ -451,10 +540,43 @@ def run_blackboard(
             step.get("key_claim") or step["content"],
         )
 
-    try:
-        parsed = parse_reasoning_json(dr["content"])
-    except Exception:
-        parsed = {"raw": dr["content"]}
+        try:
+            parsed = parse_reasoning_json(dr["content"])
+        except Exception:
+            parsed = {"raw": dr["content"]}
+
+        # Normalise nesting / string-therapy / mechanism-dict before extraction.
+        parsed = _normalize_decider_output(parsed, public)
+
+        # Repair pass: if therapy lists are still empty, re-prompt with the
+        # Therapy expert's full detail text and a minimal schema.
+        if not parsed.get("therapy", {}).get("sensitivity") and not parsed.get("therapy", {}).get("resistance"):
+            therapy_detail = next(
+                (s.get("detail") or s.get("content") or "" for s in reversed(public) if s.get("agent") == "Therapy"),
+                "",
+            )
+            if therapy_detail:
+                rp = call_llm(
+                    f"Based only on this therapy analysis:\n{therapy_detail[:800]}\n\n"
+                    f'Return ONLY this JSON with no wrapper and no markdown:\n'
+                    f'{{"sensitivity": ["drug_name"], "resistance": [], "context": "..."}}',
+                    base_url=bu,
+                    model=mo,
+                    system_prompt="You are the Decider. Return JSON only. No markdown. No 'reasoning' key.",
+                    agent_role="Decider",
+                    round_idx=rounds_done + 2,
+                    label="decider_repair",
+                    temperature=0,
+                    **llm_ctx,
+                )
+                rp_parsed = parse_reasoning_json(rp["content"])
+                if isinstance(rp_parsed, dict) and (
+                    rp_parsed.get("sensitivity") or rp_parsed.get("resistance")
+                ):
+                    parsed.setdefault("therapy", {})["sensitivity"] = list(rp_parsed.get("sensitivity") or [])
+                    parsed["therapy"]["resistance"] = list(rp_parsed.get("resistance") or [])
+                    parsed["therapy"]["context"] = rp_parsed.get("context", "")
+                total_tokens += rp["metadata"]["total_tokens"]
 
     return {
         "architecture": "blackboard",
