@@ -75,13 +75,19 @@ def _run_reasoning(
     lora_path: str | None = None,
     image_path: str | None = None,
 ) -> dict[str, Any]:
+    """Dispatch to the correct architecture, threading lora_path through every branch.
+
+    Previously LoRA was restricted to the single-agent path.  Now all four
+    architectures receive the adapter so the full 2×4 evaluation matrix
+    (base vs fine-tuned) × (single / cot / blackboard / debate) is possible.
+    """
     img = image_path or structure.get("structure_image_path")
     if architecture == "debate":
-        return run_debate(target, structure, evidence)
+        return run_debate(target, structure, evidence, lora_path=lora_path)
     if architecture == "blackboard":
-        return run_blackboard(target, structure, evidence, image_path=img)
+        return run_blackboard(target, structure, evidence, image_path=img, lora_path=lora_path)
     if architecture == "cot":
-        return run_cot(target, structure, evidence, image_path=img)
+        return run_cot(target, structure, evidence, image_path=img, lora_path=lora_path)
     return reason_single(target, structure, evidence, lora_path=lora_path, image_path=img)
 
 
@@ -356,7 +362,7 @@ def run_mutation_comparison(
                     target,
                     structure,
                     evidence,
-                    lora_path=lora_path if arch == "single" else None,
+                    lora_path=lora_path,
                     image_path=structure.get("structure_image_path"),
                 )
                 by_arch[arch] = result
@@ -419,11 +425,15 @@ def run_case(
             _flush_gpu_cache()
             img = structure.get("structure_image_path")
             if architecture == "debate":
-                result["reasoning"] = run_debate(target, structure, evidence)
+                result["reasoning"] = run_debate(target, structure, evidence, lora_path=lora_path)
             elif architecture == "blackboard":
-                result["reasoning"] = run_blackboard(target, structure, evidence, image_path=img)
+                result["reasoning"] = run_blackboard(
+                    target, structure, evidence, image_path=img, lora_path=lora_path
+                )
             elif architecture == "cot":
-                result["reasoning"] = run_cot(target, structure, evidence, image_path=img)
+                result["reasoning"] = run_cot(
+                    target, structure, evidence, image_path=img, lora_path=lora_path
+                )
             else:
                 result["reasoning"] = reason_single(
                     target, structure, evidence, lora_path=lora_path, image_path=img

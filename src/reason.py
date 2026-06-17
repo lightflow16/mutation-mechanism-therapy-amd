@@ -127,6 +127,7 @@ def vl_generate(
     image_path: str | None = None,
     model_id: str = "Qwen/Qwen2.5-VL-7B-Instruct",
     lora_path: str | None = None,
+    system_prompt: str | None = None,
     max_new_tokens: int = 1024,
     agent_role: str = "SingleAgent",
     architecture: str = "single",
@@ -135,7 +136,14 @@ def vl_generate(
     gene: str = "",
     mutation: str = "",
 ) -> dict[str, Any]:
-    """Shared VL generate path for single agent and Structure expert."""
+    """Shared VL generate path for single agent and Structure expert.
+
+    When lora_path is provided the fine-tuned LoRA adapter is merged onto the
+    base Qwen2.5-VL backbone, enabling LoRA-aware inference for every
+    architecture (not just single-agent).
+    system_prompt is injected as a chat-template system role when supplied,
+    which is needed for blackboard/debate agents that rely on role framing.
+    """
     from src import progress
 
     mm = bool(image_path and Path(image_path).exists())
@@ -150,7 +158,10 @@ def vl_generate(
         content = [{"type": "text", "text": prompt}]
         if mm:
             content.insert(0, {"type": "image", "image": f"file://{Path(image_path).resolve()}"})
-        messages = [{"role": "user", "content": content}]
+        messages: list[dict] = []
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+        messages.append({"role": "user", "content": content})
         text = proc.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
         image_inputs, video_inputs = process_vision_info(messages)
         inputs = proc(

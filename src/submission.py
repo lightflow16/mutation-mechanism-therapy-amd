@@ -43,8 +43,16 @@ def run_full_submission(
     run_lora_train: bool | None = None,
     skip_live: bool = False,
     reload_modules: bool = True,
+    run_lora_comparison: bool | None = None,
 ) -> dict[str, Any]:
-    """Always run all architectures × all demo cases (live), eval, and export metrics."""
+    """Always run all architectures × all demo cases (live), eval, and export metrics.
+
+    When a LoRA adapter is loaded and run_lora_comparison is True (or the
+    pipeline.run_lora_comparison config key is set), also runs the full 2×4
+    evaluation matrix (base model vs fine-tuned × single/cot/blackboard/debate)
+    and writes lora_comparison.csv + lora_comparison_summary.txt alongside the
+    other metrics outputs.
+    """
     if reload_modules:
         from src.config import reload_src_modules
 
@@ -163,6 +171,32 @@ def run_full_submission(
     except Exception:
         pass
     report["steps"].append("productive_dashboard")
+
+    # ── LoRA base-vs-fine-tuned comparison (2×4 matrix) ──────────────────────
+    if run_lora_comparison is None:
+        run_lora_comparison = bool(pcfg.get("run_lora_comparison", True))
+    if lora_ok and run_lora_comparison:
+        print("\nRunning base vs LoRA comparison matrix (2 model variants × 4 architectures)...")
+        print("  LoRA traces reused from the live matrix above — only base model runs fresh.")
+        try:
+            # Pass --reuse-lora-traces so the script reads the LoRA traces that were
+            # already written by the live matrix above instead of re-running the model.
+            env = os.environ.copy()
+            env["PYTHONPATH"] = str(ROOT)
+            import subprocess as _sp
+            _sp.check_call(
+                [sys.executable, str(ROOT / "scripts" / "run_lora_comparison.py"),
+                 "--reuse-lora-traces"],
+                env=env,
+            )
+            report["steps"].append("lora_comparison")
+            cmp_csv = metrics_dir() / "lora_comparison.csv"
+            report["lora_comparison_csv"] = str(cmp_csv) if cmp_csv.is_file() else None
+        except Exception as exc:
+            report["lora_comparison_error"] = str(exc)
+            print(f"  [warn] LoRA comparison failed: {exc}")
+    elif not lora_ok:
+        print("\nSkipping LoRA comparison — no adapter weights found.")
 
     if bool(pcfg.get("export_metrics_bundle", True)):
         bundle = export_metrics_bundle()

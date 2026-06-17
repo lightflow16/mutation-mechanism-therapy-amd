@@ -17,7 +17,14 @@ def run_cot(
     evidence: list[dict],
     *,
     image_path: str | None = None,
+    lora_path: str | None = None,
 ) -> dict[str, Any]:
+    """Chain-of-thought reasoning.
+
+    When lora_path is supplied every LLM call is routed through vl_generate
+    so the fine-tuned LoRA weights are applied.  This makes CoT a fair
+    comparison point against the base-model CoT run.
+    """
     cfg = load_config()
     ep = cfg.get("serving", {}).get("endpoints", {}).get("reasoner", {})
     base_url = ep.get("base_url", "http://localhost:8000/v1")
@@ -34,10 +41,13 @@ def run_cot(
     progress.banner(f"CoT | {target['gene']} {target['mutation']} | starting chain-of-thought")
 
     with metrics.phase(f"cot_{target['gene']}_{target['mutation']}", model=model):
-        if img and Path(img).exists():
+        if lora_path or (img and Path(img).exists()):
+            # Route through the VL model so the LoRA adapter is applied.
             resp = vl_generate(
                 cot_prompt,
-                image_path=img,
+                image_path=img if (img and Path(img).exists()) else None,
+                lora_path=lora_path,
+                system_prompt="You are a precision oncology reasoning assistant.",
                 agent_role="CoT",
                 architecture="cot",
                 label="cot_reason",
@@ -47,7 +57,7 @@ def run_cot(
             )
             text = resp["content"]
             total_tokens = resp["metadata"]["total_tokens"]
-            multimodal = True
+            multimodal = bool(img and Path(img).exists())
         else:
             resp = call_llm(
                 cot_prompt,
@@ -78,19 +88,32 @@ def run_cot(
             verify_prompt = (
                 f"Verify the prior JSON against evidence. Return corrected JSON only.\n{text[:4000]}"
             )
-            vr = call_llm(
-                verify_prompt,
-                base_url=base_url,
-                model=model,
-                system_prompt="Verify oncology JSON; fix therapy direction errors.",
-                agent_role="CoT",
-                round_idx=2,
-                label="cot_verify",
-                query_id=qid,
-                architecture="cot",
-                gene=target["gene"],
-                mutation=target["mutation"],
-            )
+            if lora_path:
+                vr = vl_generate(
+                    verify_prompt,
+                    lora_path=lora_path,
+                    system_prompt="Verify oncology JSON; fix therapy direction errors.",
+                    agent_role="CoT",
+                    architecture="cot",
+                    label="cot_verify",
+                    query_id=qid,
+                    gene=target["gene"],
+                    mutation=target["mutation"],
+                )
+            else:
+                vr = call_llm(
+                    verify_prompt,
+                    base_url=base_url,
+                    model=model,
+                    system_prompt="Verify oncology JSON; fix therapy direction errors.",
+                    agent_role="CoT",
+                    round_idx=2,
+                    label="cot_verify",
+                    query_id=qid,
+                    architecture="cot",
+                    gene=target["gene"],
+                    mutation=target["mutation"],
+                )
             text = vr["content"]
             parsed = parse_reasoning_json(text)
             total_tokens += vr["metadata"]["total_tokens"]
