@@ -1,0 +1,31 @@
+{
+  "by_architecture": {
+    "single": {
+      "n_calls": 5,
+      "thinking_tokens": 0,
+      "multimodal_calls": 5,
+      "mean_latency_s": 46.54
+    },
+    "cot": {
+      "n_calls": 5,
+      "thinking_tokens": 350,
+      "multimodal_calls": 5,
+      "mean_latency_s": 60.2
+    },
+    "blackboard": {
+      "n_calls": 40,
+      "thinking_tokens": 0,
+      "multimodal_calls": 4,
+      "mean_latency_s": 6.47
+    },
+    "debate": {
+      "n_calls": 3,
+      "thinking_tokens": 0,
+      "multimodal_calls": 0,
+      "mean_latency_s": 25.76
+    }
+  },
+  "n_trace_rows": 13,
+  "lora_path": "/workspace/shared/lora_adapter_final",
+  "lora_loaded": true
+}

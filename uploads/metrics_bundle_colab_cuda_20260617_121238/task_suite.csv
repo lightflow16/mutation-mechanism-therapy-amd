@@ -1,0 +1,4 @@
+task_id,type,passed,therapy_f1,direction_acc,criterion,architecture_used
+T-EGFR,pure_reasoning,True,1.0,1.0,F1>=0.5 and direction_acc>=0.5,cot
+T-PIK3CA,conflict_reasoning,True,,,ConflictResolver resolves sensitivity/resistance,
+T-TP53,rescue_dbtl,True,,,rescue completes; ddG gate; fold_method boltz+esmfold,

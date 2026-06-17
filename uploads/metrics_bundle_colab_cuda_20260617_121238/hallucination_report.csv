@@ -1,0 +1,14 @@
+gene,mutation,architecture,HR_design,HR_property,HR_evidence,HR_tool,HR_rescue,HR_safety,BVR,HR_policy,structural_hallucination_rate
+EGFR,L858R,blackboard,0.0,0.0,0.375,0.0,0.0,0.0,1.0,0.0,0.0
+EGFR,L858R,cot,1.0,0.0,0.5,0.0,0.0,0.0,1.0,0.0,0.0
+EGFR,L858R,single,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0
+EGFR,T790M,blackboard,0.0,0.0,0.375,0.0,0.0,0.0,1.0,0.0,0.0
+EGFR,T790M,cot,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0
+EGFR,T790M,single,0.0,0.0,0.444,0.0,0.0,0.0,1.0,0.0,0.0
+PIK3CA,E545K,blackboard,0.0,0.0,0.5,0.0,0.0,0.0,1.0,0.0,0.0
+PIK3CA,E545K,cot,1.0,0.0,0.333,0.0,0.0,0.0,1.0,0.0,0.0
+PIK3CA,E545K,debate,1.0,0.0,0.333,0.0,0.0,0.0,1.0,0.0,0.0
+PIK3CA,E545K,single,0.0,0.0,0.333,0.0,0.0,0.0,1.0,0.0,0.0
+TP53,R175H,blackboard,0.0,0.0,0.0,0.0,0.0,0.0,0.75,0.0,0.25
+TP53,R175H,cot,1.0,0.0,0.0,0.0,0.0,0.0,0.75,0.0,0.25
+TP53,R175H,single,0.0,0.0,1.0,0.0,0.0,0.0,0.75,0.0,0.25

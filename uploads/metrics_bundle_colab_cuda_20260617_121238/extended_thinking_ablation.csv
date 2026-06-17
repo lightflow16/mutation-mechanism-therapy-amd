@@ -1,0 +1,14 @@
+query_id,gene,mutation,architecture,early_exit,mechanism_rubric_before,mechanism_rubric_after,conflict_resolution_rate,multimodal_image,thinking_tokens,multimodal_calls_arch,headline_ablation
+EGFR_L858R,EGFR,L858R,blackboard,True,1,1,1.0,True,0,4,blackboard_vs_single
+EGFR_L858R,EGFR,L858R,cot,False,,,0.0,True,350,5,cot_vs_single
+EGFR_L858R,EGFR,L858R,single,False,,,0.0,False,0,5,single_vs_single
+EGFR_T790M,EGFR,T790M,blackboard,True,2,2,1.0,True,0,4,blackboard_vs_single
+EGFR_T790M,EGFR,T790M,cot,False,,,0.0,True,350,5,cot_vs_single
+EGFR_T790M,EGFR,T790M,single,False,,,0.0,False,0,5,single_vs_single
+PIK3CA_E545K,PIK3CA,E545K,blackboard,True,2,2,1.0,True,0,4,blackboard_vs_single
+PIK3CA_E545K,PIK3CA,E545K,cot,False,,,0.0,True,350,5,cot_vs_single
+PIK3CA_E545K,PIK3CA,E545K,debate,False,,,0.0,False,0,0,debate_vs_single
+PIK3CA_E545K,PIK3CA,E545K,single,False,,,0.0,False,0,5,single_vs_single
+TP53_R175H,TP53,R175H,blackboard,True,2,2,1.0,True,0,4,blackboard_vs_single
+TP53_R175H,TP53,R175H,cot,False,,,0.0,True,350,5,cot_vs_single
+TP53_R175H,TP53,R175H,single,False,,,0.0,False,0,5,single_vs_single

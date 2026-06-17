@@ -1,0 +1,70 @@
+{
+  "started_at": "2026-06-17T11:52:48",
+  "platform_id": "colab_cuda",
+  "vendor": "NVIDIA",
+  "gpu_name": "NVIDIA A100-SXM4-80GB",
+  "torch_version": "2.11.0+cu128",
+  "llm_backend": "auto",
+  "metrics_dir": "/content/mutation-mechanism-therapy-amd/metrics/colab",
+  "hostname": "678289fc2551",
+  "git_commit": "7f1b98f",
+  "config": {
+    "always_run_all": true,
+    "architectures": [
+      "single",
+      "cot",
+      "blackboard"
+    ],
+    "demo_cases": [
+      [
+        "EGFR",
+        "L858R"
+      ],
+      [
+        "EGFR",
+        "T790M"
+      ],
+      [
+        "PIK3CA",
+        "E545K"
+      ],
+      [
+        "TP53",
+        "R175H"
+      ]
+    ],
+    "debate_cases": [
+      [
+        "PIK3CA",
+        "E545K"
+      ]
+    ],
+    "vus_demo_cases": [
+      [
+        "EGFR",
+        "G719S"
+      ]
+    ],
+    "vus_demo_architecture": "single",
+    "vus_require_empty_kb": true,
+    "live_evidence": true,
+    "use_cached_baseline": true,
+    "run_eval_after_live": true,
+    "export_metrics_bundle": true,
+    "export_artifacts_bundle": true,
+    "run_lora_train": false,
+    "lora_distill_from_traces": true,
+    "run_lora_comparison": true,
+    "live_safety_probes": true,
+    "store_llm_text": true,
+    "use_llm_router": false,
+    "use_int8": false,
+    "batch_expert_calls": true,
+    "multi_stage_cot": false,
+    "verbose_progress": true,
+    "demo_echo_thinking": true
+  },
+  "mode": "full_submission",
+  "lora_path": "/workspace/shared/lora_adapter_final",
+  "lora_loaded": true
+}

@@ -1,0 +1,1210 @@
+{
+  "narrative": "Prefer productive_egress_tokens_per_gpu_s and gpu_productivity_ratio over mean gfx %.",
+  "productive_throughput": [
+    {
+      "query_id": "EGFR_L858R",
+      "gene": "EGFR",
+      "mutation": "L858R",
+      "architecture": "blackboard",
+      "platform_id": "colab_cuda",
+      "n_agent_steps": 11,
+      "ingress_tokens": 5808,
+      "egress_tokens": 892,
+      "reasoning_tokens": 0,
+      "latency_to_decision_s": 75.7926,
+      "round_2_latency_s": 0.0,
+      "weight_cache_hits": 0,
+      "planner_calls": 1,
+      "expert_calls": 5,
+      "n_models_used": 1,
+      "heterogeneous_models": "Qwen/Qwen2.5-VL-7B-Instruct",
+      "gpu_active_s": 284.719,
+      "gpu_attached_s": 284.719,
+      "gpu_productivity_ratio": 1.0,
+      "productive_egress_tokens_per_gpu_s": 3.13,
+      "workflow_density_steps_per_s": 0.145,
+      "ingress_amplification": 6.51,
+      "weight_cache_hit_rate": 0.0,
+      "early_exit_savings_pct_if_round1_consensus": 0.0,
+      "mean_gfx_util_sampled": 30.7,
+      "peak_vram_gib_sampled": 63.428,
+      "early_exit_actual": true,
+      "mechanism_rubric_before": 1,
+      "mechanism_rubric_after": 1,
+      "conflict_resolution_rate": 1.0,
+      "thinking_tokens": 0
+    },
+    {
+      "query_id": "EGFR_L858R",
+      "gene": "EGFR",
+      "mutation": "L858R",
+      "architecture": "cot",
+      "platform_id": "colab_cuda",
+      "n_agent_steps": 3,
+      "ingress_tokens": 3176,
+      "egress_tokens": 2094,
+      "reasoning_tokens": 363,
+      "latency_to_decision_s": 129.437,
+      "round_2_latency_s": 0.0,
+      "weight_cache_hits": 0,
+      "planner_calls": 0,
+      "expert_calls": 0,
+      "n_models_used": 1,
+      "heterogeneous_models": "Qwen/Qwen2.5-VL-7B-Instruct",
+      "gpu_active_s": 340.603,
+      "gpu_attached_s": 340.603,
+      "gpu_productivity_ratio": 1.0,
+      "productive_egress_tokens_per_gpu_s": 6.15,
+      "workflow_density_steps_per_s": 0.023,
+      "ingress_amplification": 1.52,
+      "weight_cache_hit_rate": 0.0,
+      "early_exit_savings_pct_if_round1_consensus": 0.0,
+      "mean_gfx_util_sampled": 30.7,
+      "peak_vram_gib_sampled": 63.428,
+      "early_exit_actual": false,
+      "mechanism_rubric_before": null,
+      "mechanism_rubric_after": null,
+      "conflict_resolution_rate": 0.0,
+      "thinking_tokens": 363
+    },
+    {
+      "query_id": "EGFR_L858R",
+      "gene": "EGFR",
+      "mutation": "L858R",
+      "architecture": "single",
+      "platform_id": "colab_cuda",
+      "n_agent_steps": 3,
+      "ingress_tokens": 3116,
+      "egress_tokens": 2083,
+      "reasoning_tokens": 0,
+      "latency_to_decision_s": 141.43630000000002,
+      "round_2_latency_s": 0.0,
+      "weight_cache_hits": 0,
+      "planner_calls": 0,
+      "expert_calls": 0,
+      "n_models_used": 1,
+      "heterogeneous_models": "Qwen/Qwen2.5-VL-7B-Instruct",
+      "gpu_active_s": 658.178,
+      "gpu_attached_s": 658.498,
+      "gpu_productivity_ratio": 1.0,
+      "productive_egress_tokens_per_gpu_s": 3.16,
+      "workflow_density_steps_per_s": 0.021,
+      "ingress_amplification": 1.5,
+      "weight_cache_hit_rate": 0.0,
+      "early_exit_savings_pct_if_round1_consensus": 0.0,
+      "mean_gfx_util_sampled": 30.7,
+      "peak_vram_gib_sampled": 63.428,
+      "early_exit_actual": false,
+      "mechanism_rubric_before": null,
+      "mechanism_rubric_after": null,
+      "conflict_resolution_rate": 0.0,
+      "thinking_tokens": 0
+    },
+    {
+      "query_id": "EGFR_T790M",
+      "gene": "EGFR",
+      "mutation": "T790M",
+      "architecture": "blackboard",
+      "platform_id": "colab_cuda",
+      "n_agent_steps": 9,
+      "ingress_tokens": 6115,
+      "egress_tokens": 699,
+      "reasoning_tokens": 0,
+      "latency_to_decision_s": 59.3381,
+      "round_2_latency_s": 0.0,
+      "weight_cache_hits": 0,
+      "planner_calls": 1,
+      "expert_calls": 4,
+      "n_models_used": 1,
+      "heterogeneous_models": "Qwen/Qwen2.5-VL-7B-Instruct",
+      "gpu_active_s": 284.719,
+      "gpu_attached_s": 284.719,
+      "gpu_productivity_ratio": 1.0,
+      "productive_egress_tokens_per_gpu_s": 2.46,
+      "workflow_density_steps_per_s": 0.152,
+      "ingress_amplification": 8.75,
+      "weight_cache_hit_rate": 0.0,
+      "early_exit_savings_pct_if_round1_consensus": 0.0,
+      "mean_gfx_util_sampled": 30.7,
+      "peak_vram_gib_sampled": 63.428,
+      "early_exit_actual": true,
+      "mechanism_rubric_before": 2,
+      "mechanism_rubric_after": 2,
+      "conflict_resolution_rate": 1.0,
+      "thinking_tokens": 0
+    },
+    {
+      "query_id": "EGFR_T790M",
+      "gene": "EGFR",
+      "mutation": "T790M",
+      "architecture": "cot",
+      "platform_id": "colab_cuda",
+      "n_agent_steps": 1,
+      "ingress_tokens": 1307,
+      "egress_tokens": 848,
+      "reasoning_tokens": 107,
+      "latency_to_decision_s": 71.3591,
+      "round_2_latency_s": 0.0,
+      "weight_cache_hits": 0,
+      "planner_calls": 0,
+      "expert_calls": 0,
+      "n_models_used": 1,
+      "heterogeneous_models": "Qwen/Qwen2.5-VL-7B-Instruct",
+      "gpu_active_s": 340.603,
+      "gpu_attached_s": 340.603,
+      "gpu_productivity_ratio": 1.0,
+      "productive_egress_tokens_per_gpu_s": 2.49,
+      "workflow_density_steps_per_s": 0.014,
+      "ingress_amplification": 1.54,
+      "weight_cache_hit_rate": 0.0,
+      "early_exit_savings_pct_if_round1_consensus": 0.0,
+      "mean_gfx_util_sampled": 30.7,
+      "peak_vram_gib_sampled": 63.428,
+      "early_exit_actual": false,
+      "mechanism_rubric_before": null,
+      "mechanism_rubric_after": null,
+      "conflict_resolution_rate": 0.0,
+      "thinking_tokens": 107
+    },
+    {
+      "query_id": "EGFR_T790M",
+      "gene": "EGFR",
+      "mutation": "T790M",
+      "architecture": "single",
+      "platform_id": "colab_cuda",
+      "n_agent_steps": 1,
+      "ingress_tokens": 1287,
+      "egress_tokens": 442,
+      "reasoning_tokens": 0,
+      "latency_to_decision_s": 37.2721,
+      "round_2_latency_s": 0.0,
+      "weight_cache_hits": 0,
+      "planner_calls": 0,
+      "expert_calls": 0,
+      "n_models_used": 1,
+      "heterogeneous_models": "Qwen/Qwen2.5-VL-7B-Instruct",
+      "gpu_active_s": 658.178,
+      "gpu_attached_s": 658.498,
+      "gpu_productivity_ratio": 1.0,
+      "productive_egress_tokens_per_gpu_s": 0.67,
+      "workflow_density_steps_per_s": 0.027,
+      "ingress_amplification": 2.91,
+      "weight_cache_hit_rate": 0.0,
+      "early_exit_savings_pct_if_round1_consensus": 0.0,
+      "mean_gfx_util_sampled": 30.7,
+      "peak_vram_gib_sampled": 63.428,
+      "early_exit_actual": false,
+      "mechanism_rubric_before": null,
+      "mechanism_rubric_after": null,
+      "conflict_resolution_rate": 0.0,
+      "thinking_tokens": 0
+    },
+    {
+      "query_id": "PIK3CA_E545K",
+      "gene": "PIK3CA",
+      "mutation": "E545K",
+      "architecture": "blackboard",
+      "platform_id": "colab_cuda",
+      "n_agent_steps": 9,
+      "ingress_tokens": 5357,
+      "egress_tokens": 749,
+      "reasoning_tokens": 0,
+      "latency_to_decision_s": 63.3004,
+      "round_2_latency_s": 0.0,
+      "weight_cache_hits": 0,
+      "planner_calls": 1,
+      "expert_calls": 4,
+      "n_models_used": 1,
+      "heterogeneous_models": "Qwen/Qwen2.5-VL-7B-Instruct",
+      "gpu_active_s": 284.719,
+      "gpu_attached_s": 284.719,
+      "gpu_productivity_ratio": 1.0,
+      "productive_egress_tokens_per_gpu_s": 2.63,
+      "workflow_density_steps_per_s": 0.142,
+      "ingress_amplification": 7.15,
+      "weight_cache_hit_rate": 0.0,
+      "early_exit_savings_pct_if_round1_consensus": 0.0,
+      "mean_gfx_util_sampled": 30.7,
+      "peak_vram_gib_sampled": 63.428,
+      "early_exit_actual": true,
+      "mechanism_rubric_before": 2,
+      "mechanism_rubric_after": 2,
+      "conflict_resolution_rate": 1.0,
+      "thinking_tokens": 0
+    },
+    {
+      "query_id": "PIK3CA_E545K",
+      "gene": "PIK3CA",
+      "mutation": "E545K",
+      "architecture": "cot",
+      "platform_id": "colab_cuda",
+      "n_agent_steps": 1,
+      "ingress_tokens": 1154,
+      "egress_tokens": 1024,
+      "reasoning_tokens": 60,
+      "latency_to_decision_s": 86.1112,
+      "round_2_latency_s": 0.0,
+      "weight_cache_hits": 0,
+      "planner_calls": 0,
+      "expert_calls": 0,
+      "n_models_used": 1,
+      "heterogeneous_models": "Qwen/Qwen2.5-VL-7B-Instruct",
+      "gpu_active_s": 340.603,
+      "gpu_attached_s": 340.603,
+      "gpu_productivity_ratio": 1.0,
+      "productive_egress_tokens_per_gpu_s": 3.01,
+      "workflow_density_steps_per_s": 0.012,
+      "ingress_amplification": 1.13,
+      "weight_cache_hit_rate": 0.0,
+      "early_exit_savings_pct_if_round1_consensus": 0.0,
+      "mean_gfx_util_sampled": 30.7,
+      "peak_vram_gib_sampled": 63.428,
+      "early_exit_actual": false,
+      "mechanism_rubric_before": null,
+      "mechanism_rubric_after": null,
+      "conflict_resolution_rate": 0.0,
+      "thinking_tokens": 60
+    },
+    {
+      "query_id": "PIK3CA_E545K",
+      "gene": "PIK3CA",
+      "mutation": "E545K",
+      "architecture": "debate",
+      "platform_id": "colab_cuda",
+      "n_agent_steps": 3,
+      "ingress_tokens": 1779,
+      "egress_tokens": 2181,
+      "reasoning_tokens": 0,
+      "latency_to_decision_s": 77.2876,
+      "round_2_latency_s": 22.254,
+      "weight_cache_hits": 2,
+      "planner_calls": 0,
+      "expert_calls": 0,
+      "n_models_used": 1,
+      "heterogeneous_models": "Qwen/Qwen2.5-7B-Instruct",
+      "gpu_active_s": 0.0,
+      "gpu_attached_s": 0.0,
+      "gpu_productivity_ratio": "NA",
+      "productive_egress_tokens_per_gpu_s": "NA",
+      "workflow_density_steps_per_s": 0.039,
+      "ingress_amplification": 0.82,
+      "weight_cache_hit_rate": 0.667,
+      "early_exit_savings_pct_if_round1_consensus": 28.8,
+      "mean_gfx_util_sampled": 30.7,
+      "peak_vram_gib_sampled": 63.428,
+      "early_exit_actual": false,
+      "mechanism_rubric_before": null,
+      "mechanism_rubric_after": null,
+      "conflict_resolution_rate": 0.0,
+      "thinking_tokens": 0
+    },
+    {
+      "query_id": "PIK3CA_E545K",
+      "gene": "PIK3CA",
+      "mutation": "E545K",
+      "architecture": "single",
+      "platform_id": "colab_cuda",
+      "n_agent_steps": 1,
+      "ingress_tokens": 1134,
+      "egress_tokens": 475,
+      "reasoning_tokens": 0,
+      "latency_to_decision_s": 40.0632,
+      "round_2_latency_s": 0.0,
+      "weight_cache_hits": 0,
+      "planner_calls": 0,
+      "expert_calls": 0,
+      "n_models_used": 1,
+      "heterogeneous_models": "Qwen/Qwen2.5-VL-7B-Instruct",
+      "gpu_active_s": 658.178,
+      "gpu_attached_s": 658.498,
+      "gpu_productivity_ratio": 1.0,
+      "productive_egress_tokens_per_gpu_s": 0.72,
+      "workflow_density_steps_per_s": 0.025,
+      "ingress_amplification": 2.39,
+      "weight_cache_hit_rate": 0.0,
+      "early_exit_savings_pct_if_round1_consensus": 0.0,
+      "mean_gfx_util_sampled": 30.7,
+      "peak_vram_gib_sampled": 63.428,
+      "early_exit_actual": false,
+      "mechanism_rubric_before": null,
+      "mechanism_rubric_after": null,
+      "conflict_resolution_rate": 0.0,
+      "thinking_tokens": 0
+    },
+    {
+      "query_id": "TP53_R175H",
+      "gene": "TP53",
+      "mutation": "R175H",
+      "architecture": "blackboard",
+      "platform_id": "colab_cuda",
+      "n_agent_steps": 10,
+      "ingress_tokens": 5312,
+      "egress_tokens": 716,
+      "reasoning_tokens": 0,
+      "latency_to_decision_s": 60.3693,
+      "round_2_latency_s": 0.0,
+      "weight_cache_hits": 0,
+      "planner_calls": 1,
+      "expert_calls": 4,
+      "n_models_used": 1,
+      "heterogeneous_models": "Qwen/Qwen2.5-VL-7B-Instruct",
+      "gpu_active_s": 284.719,
+      "gpu_attached_s": 284.719,
+      "gpu_productivity_ratio": 1.0,
+      "productive_egress_tokens_per_gpu_s": 2.51,
+      "workflow_density_steps_per_s": 0.166,
+      "ingress_amplification": 7.42,
+      "weight_cache_hit_rate": 0.0,
+      "early_exit_savings_pct_if_round1_consensus": 0.0,
+      "mean_gfx_util_sampled": 30.7,
+      "peak_vram_gib_sampled": 63.428,
+      "early_exit_actual": true,
+      "mechanism_rubric_before": 2,
+      "mechanism_rubric_after": 2,
+      "conflict_resolution_rate": 1.0,
+      "thinking_tokens": 0
+    },
+    {
+      "query_id": "TP53_R175H",
+      "gene": "TP53",
+      "mutation": "R175H",
+      "architecture": "cot",
+      "platform_id": "colab_cuda",
+      "n_agent_steps": 1,
+      "ingress_tokens": 1082,
+      "egress_tokens": 636,
+      "reasoning_tokens": 65,
+      "latency_to_decision_s": 53.1803,
+      "round_2_latency_s": 0.0,
+      "weight_cache_hits": 0,
+      "planner_calls": 0,
+      "expert_calls": 0,
+      "n_models_used": 1,
+      "heterogeneous_models": "Qwen/Qwen2.5-VL-7B-Instruct",
+      "gpu_active_s": 340.603,
+      "gpu_attached_s": 340.603,
+      "gpu_productivity_ratio": 1.0,
+      "productive_egress_tokens_per_gpu_s": 1.87,
+      "workflow_density_steps_per_s": 0.019,
+      "ingress_amplification": 1.7,
+      "weight_cache_hit_rate": 0.0,
+      "early_exit_savings_pct_if_round1_consensus": 0.0,
+      "mean_gfx_util_sampled": 30.7,
+      "peak_vram_gib_sampled": 63.428,
+      "early_exit_actual": false,
+      "mechanism_rubric_before": null,
+      "mechanism_rubric_after": null,
+      "conflict_resolution_rate": 0.0,
+      "thinking_tokens": 65
+    },
+    {
+      "query_id": "TP53_R175H",
+      "gene": "TP53",
+      "mutation": "R175H",
+      "architecture": "single",
+      "platform_id": "colab_cuda",
+      "n_agent_steps": 1,
+      "ingress_tokens": 1062,
+      "egress_tokens": 549,
+      "reasoning_tokens": 0,
+      "latency_to_decision_s": 46.5379,
+      "round_2_latency_s": 0.0,
+      "weight_cache_hits": 0,
+      "planner_calls": 0,
+      "expert_calls": 0,
+      "n_models_used": 1,
+      "heterogeneous_models": "Qwen/Qwen2.5-VL-7B-Instruct",
+      "gpu_active_s": 658.178,
+      "gpu_attached_s": 658.498,
+      "gpu_productivity_ratio": 1.0,
+      "productive_egress_tokens_per_gpu_s": 0.83,
+      "workflow_density_steps_per_s": 0.021,
+      "ingress_amplification": 1.93,
+      "weight_cache_hit_rate": 0.0,
+      "early_exit_savings_pct_if_round1_consensus": 0.0,
+      "mean_gfx_util_sampled": 30.7,
+      "peak_vram_gib_sampled": 63.428,
+      "early_exit_actual": false,
+      "mechanism_rubric_before": null,
+      "mechanism_rubric_after": null,
+      "conflict_resolution_rate": 0.0,
+      "thinking_tokens": 0
+    },
+    {
+      "query_id": "unknown",
+      "gene": "EGFR",
+      "mutation": "L858R",
+      "architecture": "blackboard",
+      "platform_id": "",
+      "n_agent_steps": 1,
+      "ingress_tokens": 0,
+      "egress_tokens": 0,
+      "reasoning_tokens": 0,
+      "latency_to_decision_s": 0.0,
+      "round_2_latency_s": 0.0,
+      "weight_cache_hits": 0,
+      "planner_calls": 0,
+      "expert_calls": 1,
+      "n_models_used": 0,
+      "heterogeneous_models": "",
+      "gpu_active_s": 284.719,
+      "gpu_attached_s": 284.719,
+      "gpu_productivity_ratio": 1.0,
+      "productive_egress_tokens_per_gpu_s": 0.0,
+      "workflow_density_steps_per_s": "NA",
+      "ingress_amplification": "NA",
+      "weight_cache_hit_rate": 0.0,
+      "early_exit_savings_pct_if_round1_consensus": 0,
+      "mean_gfx_util_sampled": 30.7,
+      "peak_vram_gib_sampled": 63.428
+    },
+    {
+      "query_id": "unknown",
+      "gene": "",
+      "mutation": "",
+      "architecture": "safety_probe",
+      "platform_id": "colab_cuda",
+      "n_agent_steps": 2,
+      "ingress_tokens": 95,
+      "egress_tokens": 427,
+      "reasoning_tokens": 0,
+      "latency_to_decision_s": 14.865400000000001,
+      "round_2_latency_s": 0.0,
+      "weight_cache_hits": 2,
+      "planner_calls": 0,
+      "expert_calls": 0,
+      "n_models_used": 1,
+      "heterogeneous_models": "Qwen/Qwen2.5-7B-Instruct",
+      "gpu_active_s": 0.0,
+      "gpu_attached_s": 0.0,
+      "gpu_productivity_ratio": "NA",
+      "productive_egress_tokens_per_gpu_s": "NA",
+      "workflow_density_steps_per_s": 0.135,
+      "ingress_amplification": 0.22,
+      "weight_cache_hit_rate": 1.0,
+      "early_exit_savings_pct_if_round1_consensus": 0.0,
+      "mean_gfx_util_sampled": 30.7,
+      "peak_vram_gib_sampled": 63.428
+    }
+  ],
+  "before_after_single_vs_blackboard": [
+    {
+      "query_id": "EGFR_L858R",
+      "metric": "latency_to_decision_s",
+      "baseline_single": 141.43630000000002,
+      "blackboard_mas": 75.7926
+    },
+    {
+      "query_id": "EGFR_L858R",
+      "metric": "productive_egress_tokens_per_gpu_s",
+      "baseline_single": 3.16,
+      "blackboard_mas": 3.13
+    },
+    {
+      "query_id": "EGFR_L858R",
+      "metric": "gpu_productivity_ratio",
+      "baseline_single": 1.0,
+      "blackboard_mas": 1.0
+    },
+    {
+      "query_id": "EGFR_L858R",
+      "metric": "workflow_density_steps_per_s",
+      "baseline_single": 0.021,
+      "blackboard_mas": 0.145
+    },
+    {
+      "query_id": "EGFR_L858R",
+      "metric": "n_agent_steps",
+      "baseline_single": 3,
+      "blackboard_mas": 11
+    },
+    {
+      "query_id": "EGFR_T790M",
+      "metric": "latency_to_decision_s",
+      "baseline_single": 37.2721,
+      "blackboard_mas": 59.3381
+    },
+    {
+      "query_id": "EGFR_T790M",
+      "metric": "productive_egress_tokens_per_gpu_s",
+      "baseline_single": 0.67,
+      "blackboard_mas": 2.46
+    },
+    {
+      "query_id": "EGFR_T790M",
+      "metric": "gpu_productivity_ratio",
+      "baseline_single": 1.0,
+      "blackboard_mas": 1.0
+    },
+    {
+      "query_id": "EGFR_T790M",
+      "metric": "workflow_density_steps_per_s",
+      "baseline_single": 0.027,
+      "blackboard_mas": 0.152
+    },
+    {
+      "query_id": "EGFR_T790M",
+      "metric": "n_agent_steps",
+      "baseline_single": 1,
+      "blackboard_mas": 9
+    },
+    {
+      "query_id": "PIK3CA_E545K",
+      "metric": "latency_to_decision_s",
+      "baseline_single": 40.0632,
+      "blackboard_mas": 63.3004
+    },
+    {
+      "query_id": "PIK3CA_E545K",
+      "metric": "productive_egress_tokens_per_gpu_s",
+      "baseline_single": 0.72,
+      "blackboard_mas": 2.63
+    },
+    {
+      "query_id": "PIK3CA_E545K",
+      "metric": "gpu_productivity_ratio",
+      "baseline_single": 1.0,
+      "blackboard_mas": 1.0
+    },
+    {
+      "query_id": "PIK3CA_E545K",
+      "metric": "workflow_density_steps_per_s",
+      "baseline_single": 0.025,
+      "blackboard_mas": 0.142
+    },
+    {
+      "query_id": "PIK3CA_E545K",
+      "metric": "n_agent_steps",
+      "baseline_single": 1,
+      "blackboard_mas": 9
+    },
+    {
+      "query_id": "TP53_R175H",
+      "metric": "latency_to_decision_s",
+      "baseline_single": 46.5379,
+      "blackboard_mas": 60.3693
+    },
+    {
+      "query_id": "TP53_R175H",
+      "metric": "productive_egress_tokens_per_gpu_s",
+      "baseline_single": 0.83,
+      "blackboard_mas": 2.51
+    },
+    {
+      "query_id": "TP53_R175H",
+      "metric": "gpu_productivity_ratio",
+      "baseline_single": 1.0,
+      "blackboard_mas": 1.0
+    },
+    {
+      "query_id": "TP53_R175H",
+      "metric": "workflow_density_steps_per_s",
+      "baseline_single": 0.021,
+      "blackboard_mas": 0.166
+    },
+    {
+      "query_id": "TP53_R175H",
+      "metric": "n_agent_steps",
+      "baseline_single": 1,
+      "blackboard_mas": 10
+    },
+    {
+      "query_id": "unknown",
+      "metric": "latency_to_decision_s",
+      "baseline_single": null,
+      "blackboard_mas": 0.0
+    },
+    {
+      "query_id": "unknown",
+      "metric": "productive_egress_tokens_per_gpu_s",
+      "baseline_single": null,
+      "blackboard_mas": 0.0
+    },
+    {
+      "query_id": "unknown",
+      "metric": "gpu_productivity_ratio",
+      "baseline_single": null,
+      "blackboard_mas": 1.0
+    },
+    {
+      "query_id": "unknown",
+      "metric": "workflow_density_steps_per_s",
+      "baseline_single": null,
+      "blackboard_mas": "NA"
+    },
+    {
+      "query_id": "unknown",
+      "metric": "n_agent_steps",
+      "baseline_single": null,
+      "blackboard_mas": 1
+    }
+  ],
+  "agent_traces": {
+    "EGFR_L858R": {
+      "query_id": "EGFR_L858R",
+      "architecture": "blackboard",
+      "n_nodes": 11,
+      "total_latency_s": 75.79,
+      "nodes": [
+        {
+          "id": "n0",
+          "agent": "Planner",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 9.6953,
+          "egress_tokens": 114,
+          "timestamp": "2026-06-17T11:54:51"
+        },
+        {
+          "id": "n1",
+          "agent": "Structure",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 8.594,
+          "egress_tokens": 101,
+          "timestamp": "2026-06-17T11:55:00"
+        },
+        {
+          "id": "n2",
+          "agent": "Mechanism",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 7.1241,
+          "egress_tokens": 84,
+          "timestamp": "2026-06-17T11:55:07"
+        },
+        {
+          "id": "n3",
+          "agent": "CriticRubric",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 5.9235,
+          "egress_tokens": 70,
+          "timestamp": "2026-06-17T11:55:13"
+        },
+        {
+          "id": "n4",
+          "agent": "Mechanism",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 6.1149,
+          "egress_tokens": 72,
+          "timestamp": "2026-06-17T11:55:19"
+        },
+        {
+          "id": "n5",
+          "agent": "CriticRubric",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 5.9094,
+          "egress_tokens": 70,
+          "timestamp": "2026-06-17T11:55:25"
+        },
+        {
+          "id": "n6",
+          "agent": "Evidence",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 7.9372,
+          "egress_tokens": 94,
+          "timestamp": "2026-06-17T11:55:33"
+        },
+        {
+          "id": "n7",
+          "agent": "Therapy",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 6.7032,
+          "egress_tokens": 78,
+          "timestamp": "2026-06-17T11:55:40"
+        },
+        {
+          "id": "n8",
+          "agent": "Critic",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 5.5132,
+          "egress_tokens": 64,
+          "timestamp": "2026-06-17T11:55:45"
+        },
+        {
+          "id": "n9",
+          "agent": "ConflictResolver",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 6.3353,
+          "egress_tokens": 75,
+          "timestamp": "2026-06-17T11:55:52"
+        },
+        {
+          "id": "n10",
+          "agent": "Decider",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 5.9425,
+          "egress_tokens": 70,
+          "timestamp": "2026-06-17T11:55:58"
+        }
+      ],
+      "edges": [
+        {
+          "from": "n0",
+          "to": "n1",
+          "type": "sequential"
+        },
+        {
+          "from": "n1",
+          "to": "n2",
+          "type": "sequential"
+        },
+        {
+          "from": "n2",
+          "to": "n3",
+          "type": "sequential"
+        },
+        {
+          "from": "n3",
+          "to": "n4",
+          "type": "sequential"
+        },
+        {
+          "from": "n4",
+          "to": "n5",
+          "type": "sequential"
+        },
+        {
+          "from": "n5",
+          "to": "n6",
+          "type": "sequential"
+        },
+        {
+          "from": "n6",
+          "to": "n7",
+          "type": "sequential"
+        },
+        {
+          "from": "n7",
+          "to": "n8",
+          "type": "sequential"
+        },
+        {
+          "from": "n8",
+          "to": "n9",
+          "type": "sequential"
+        },
+        {
+          "from": "n9",
+          "to": "n10",
+          "type": "sequential"
+        }
+      ]
+    },
+    "EGFR_T790M": {
+      "query_id": "EGFR_T790M",
+      "architecture": "blackboard",
+      "n_nodes": 9,
+      "total_latency_s": 59.34,
+      "nodes": [
+        {
+          "id": "n0",
+          "agent": "Planner",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 9.7822,
+          "egress_tokens": 116,
+          "timestamp": "2026-06-17T11:58:01"
+        },
+        {
+          "id": "n1",
+          "agent": "Structure",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 7.3021,
+          "egress_tokens": 85,
+          "timestamp": "2026-06-17T11:58:08"
+        },
+        {
+          "id": "n2",
+          "agent": "Mechanism",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 7.3877,
+          "egress_tokens": 88,
+          "timestamp": "2026-06-17T11:58:16"
+        },
+        {
+          "id": "n3",
+          "agent": "CriticRubric",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 1.981,
+          "egress_tokens": 23,
+          "timestamp": "2026-06-17T11:58:18"
+        },
+        {
+          "id": "n4",
+          "agent": "Evidence",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 7.1445,
+          "egress_tokens": 84,
+          "timestamp": "2026-06-17T11:58:25"
+        },
+        {
+          "id": "n5",
+          "agent": "Therapy",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 6.3372,
+          "egress_tokens": 74,
+          "timestamp": "2026-06-17T11:58:31"
+        },
+        {
+          "id": "n6",
+          "agent": "Critic",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 5.8699,
+          "egress_tokens": 69,
+          "timestamp": "2026-06-17T11:58:37"
+        },
+        {
+          "id": "n7",
+          "agent": "ConflictResolver",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 8.0291,
+          "egress_tokens": 95,
+          "timestamp": "2026-06-17T11:58:45"
+        },
+        {
+          "id": "n8",
+          "agent": "Decider",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 5.5044,
+          "egress_tokens": 65,
+          "timestamp": "2026-06-17T11:58:51"
+        }
+      ],
+      "edges": [
+        {
+          "from": "n0",
+          "to": "n1",
+          "type": "sequential"
+        },
+        {
+          "from": "n1",
+          "to": "n2",
+          "type": "sequential"
+        },
+        {
+          "from": "n2",
+          "to": "n3",
+          "type": "sequential"
+        },
+        {
+          "from": "n3",
+          "to": "n4",
+          "type": "sequential"
+        },
+        {
+          "from": "n4",
+          "to": "n5",
+          "type": "sequential"
+        },
+        {
+          "from": "n5",
+          "to": "n6",
+          "type": "sequential"
+        },
+        {
+          "from": "n6",
+          "to": "n7",
+          "type": "sequential"
+        },
+        {
+          "from": "n7",
+          "to": "n8",
+          "type": "sequential"
+        }
+      ]
+    },
+    "PIK3CA_E545K": {
+      "query_id": "PIK3CA_E545K",
+      "architecture": "blackboard",
+      "n_nodes": 9,
+      "total_latency_s": 63.3,
+      "nodes": [
+        {
+          "id": "n0",
+          "agent": "Planner",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 11.2821,
+          "egress_tokens": 134,
+          "timestamp": "2026-06-17T12:01:11"
+        },
+        {
+          "id": "n1",
+          "agent": "Structure",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 8.3677,
+          "egress_tokens": 98,
+          "timestamp": "2026-06-17T12:01:20"
+        },
+        {
+          "id": "n2",
+          "agent": "Mechanism",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 7.6822,
+          "egress_tokens": 91,
+          "timestamp": "2026-06-17T12:01:28"
+        },
+        {
+          "id": "n3",
+          "agent": "CriticRubric",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 1.8536,
+          "egress_tokens": 22,
+          "timestamp": "2026-06-17T12:01:29"
+        },
+        {
+          "id": "n4",
+          "agent": "Evidence",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 6.1606,
+          "egress_tokens": 73,
+          "timestamp": "2026-06-17T12:01:36"
+        },
+        {
+          "id": "n5",
+          "agent": "Therapy",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 7.7612,
+          "egress_tokens": 92,
+          "timestamp": "2026-06-17T12:01:43"
+        },
+        {
+          "id": "n6",
+          "agent": "Critic",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 6.9,
+          "egress_tokens": 82,
+          "timestamp": "2026-06-17T12:01:50"
+        },
+        {
+          "id": "n7",
+          "agent": "ConflictResolver",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 7.2855,
+          "egress_tokens": 86,
+          "timestamp": "2026-06-17T12:01:58"
+        },
+        {
+          "id": "n8",
+          "agent": "Decider",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 6.0075,
+          "egress_tokens": 71,
+          "timestamp": "2026-06-17T12:02:04"
+        }
+      ],
+      "edges": [
+        {
+          "from": "n0",
+          "to": "n1",
+          "type": "sequential"
+        },
+        {
+          "from": "n1",
+          "to": "n2",
+          "type": "sequential"
+        },
+        {
+          "from": "n2",
+          "to": "n3",
+          "type": "sequential"
+        },
+        {
+          "from": "n3",
+          "to": "n4",
+          "type": "sequential"
+        },
+        {
+          "from": "n4",
+          "to": "n5",
+          "type": "sequential"
+        },
+        {
+          "from": "n5",
+          "to": "n6",
+          "type": "sequential"
+        },
+        {
+          "from": "n6",
+          "to": "n7",
+          "type": "sequential"
+        },
+        {
+          "from": "n7",
+          "to": "n8",
+          "type": "sequential"
+        }
+      ]
+    },
+    "TP53_R175H": {
+      "query_id": "TP53_R175H",
+      "architecture": "blackboard",
+      "n_nodes": 10,
+      "total_latency_s": 60.37,
+      "nodes": [
+        {
+          "id": "n0",
+          "agent": "Planner",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 6.968,
+          "egress_tokens": 82,
+          "timestamp": "2026-06-17T12:05:58"
+        },
+        {
+          "id": "n1",
+          "agent": "Structure",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 9.47,
+          "egress_tokens": 111,
+          "timestamp": "2026-06-17T12:06:08"
+        },
+        {
+          "id": "n2",
+          "agent": "Mechanism",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 5.1215,
+          "egress_tokens": 61,
+          "timestamp": "2026-06-17T12:06:13"
+        },
+        {
+          "id": "n3",
+          "agent": "CriticRubric",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 1.8748,
+          "egress_tokens": 22,
+          "timestamp": "2026-06-17T12:06:15"
+        },
+        {
+          "id": "n4",
+          "agent": "Evidence",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 6.5629,
+          "egress_tokens": 78,
+          "timestamp": "2026-06-17T12:06:22"
+        },
+        {
+          "id": "n5",
+          "agent": "Therapy",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 6.3615,
+          "egress_tokens": 75,
+          "timestamp": "2026-06-17T12:06:28"
+        },
+        {
+          "id": "n6",
+          "agent": "Critic",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 6.8595,
+          "egress_tokens": 83,
+          "timestamp": "2026-06-17T12:06:35"
+        },
+        {
+          "id": "n7",
+          "agent": "ConflictResolver",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 7.2262,
+          "egress_tokens": 86,
+          "timestamp": "2026-06-17T12:06:42"
+        },
+        {
+          "id": "n8",
+          "agent": "Decider",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 5.2134,
+          "egress_tokens": 62,
+          "timestamp": "2026-06-17T12:06:47"
+        },
+        {
+          "id": "n9",
+          "agent": "Decider",
+          "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+          "round": 1,
+          "latency_s": 4.7115,
+          "egress_tokens": 56,
+          "timestamp": "2026-06-17T12:06:52"
+        }
+      ],
+      "edges": [
+        {
+          "from": "n0",
+          "to": "n1",
+          "type": "sequential"
+        },
+        {
+          "from": "n1",
+          "to": "n2",
+          "type": "sequential"
+        },
+        {
+          "from": "n2",
+          "to": "n3",
+          "type": "sequential"
+        },
+        {
+          "from": "n3",
+          "to": "n4",
+          "type": "sequential"
+        },
+        {
+          "from": "n4",
+          "to": "n5",
+          "type": "sequential"
+        },
+        {
+          "from": "n5",
+          "to": "n6",
+          "type": "sequential"
+        },
+        {
+          "from": "n6",
+          "to": "n7",
+          "type": "sequential"
+        },
+        {
+          "from": "n7",
+          "to": "n8",
+          "type": "sequential"
+        },
+        {
+          "from": "n8",
+          "to": "n9",
+          "type": "sequential"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "target": {
+    "gene": "EGFR",
+    "mutation": "L858R",
+    "class": "ONCOGENE_GOF",
+    "pathway": "inhibitor_rag",
+    "uniprot": "P00533",
+    "residue": 858,
+    "wt_aa": "L",
+    "mut_aa": "R",
+    "civic_profile": "EGFR L858R",
+    "disease_context": "Lung Non-small Cell Carcinoma",
+    "evidence_tier": "strong",
+    "classification": "known_driver",
+    "vus_branch": "known",
+    "allow_confident_therapy": true,
+    "recommendation_status": "approved",
+    "next_best_action": "none",
+    "confidence_scope": "therapy",
+    "mechanism_hypothesis": "Established pathogenic driver pathway."
+  },
+  "structure": {
+    "residue": "L858",
+    "residue_index": 858,
+    "mutation": "L858R",
+    "pLDDT_at_residue": 51.2,
+    "mean_pLDDT_protein": 75.9,
+    "neighboring_residues_within_10A": 14,
+    "local_contact_density_10A": 14,
+    "mpnn_index": 858,
+    "region": "unannotated region",
+    "chain": "A",
+    "pdb_path": "/workspace/shared/structures/AF-P00533-F1-model_v6.pdb",
+    "gene": "EGFR",
+    "structure_image_path": "/workspace/shared/structures/images/EGFR_L858R_neighborhood.png",
+    "plm_llr": -3.268,
+    "plm_perplexity_band": "deleterious"
+  },
+  "evidence": [
+    {
+      "source": "CIViC",
+      "therapies": "Gefitinib,Erlotinib,Afatinib,Osimertinib",
+      "disease": "Lung Non-small Cell Carcinoma",
+      "direction": "Sensitivity/Response",
+      "level": "B",
+      "citation": "Lim et al., 2014",
+      "url": "https://civicdb.org/links/evidence_items/229"
+    },
+    {
+      "source": "PubMed",
+      "pmid": "42299598",
+      "title": "Mechanism of afatinib resistance in non-small cell lung cancer patients with nonclassical EGFR mutations: A multicenter, retrospective study.",
+      "abstract": "Epidermal growth factor receptor (EGFR) tyrosine kinase inhibitors (TKIs) are standard treatments for non-small cell lung cancer (NSCLC) patients with EGFR mutations, but resistance inevitably develops. While resistance mechanisms in classical mutations are well studied, those in nonclassical mutations remain unclear. As a widely used EGFR-TKI, afatinib's resistance mechanisms in nonclassical mutations warrant further investigation to improve clinical outcomes. This study included NSCLC patients",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42299598/"
+    },
+    {
+      "source": "PubMed",
+      "pmid": "42123865",
+      "title": "Cudratricusxanthone A Exhibits Antitumor Activities Against NSCLC Harboring EGFR L792H and G796R Triple Mutations via Regulating EGFR-ERK/AKT/STAT3 Signaling.",
+      "abstract": "",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42123865/"
+    }
+  ],
+  "route": "inhibitor_rag",
+  "architecture": "single",
+  "variant_routing": {
+    "evidence_tier": "strong",
+    "classification": "known_driver",
+    "vus_branch": "known",
+    "allow_confident_therapy": true
+  },
+  "reasoning": {
+    "variant": {
+      "gene": "EGFR",
+      "protein_change": "L858R",
+      "hgvs_p": "p.L858R"
+    },
+    "structure": {
+      "residue": "L858",
+      "residue_index": 858,
+      "mutation": "L858R",
+      "pLDDT_at_residue": 51.2,
+      "mean_pLDDT_protein": 75.9,
+      "neighboring_residues_within_10A": 14,
+      "local_contact_density_10A": 14,
+      "mpnn_index": 858,
+      "region": "unannotated region",
+      "chain": "A",
+      "gene": "EGFR",
+      "structure_image_path": "/workspace/shared/structures/images/EGFR_L858R_neighborhood.png"
+    },
+    "evidence": [
+      {
+        "source": "CIViC",
+        "therapies": [
+          "Gefitinib",
+          "Erlotinib",
+          "Afatinib",
+          "Osimertinib"
+        ],
+        "disease": "Lung Non-small Cell Carcinoma",
+        "direction": "Sensitivity/Response",
+        "level": "B",
+        "citation": "Lim et al., 2014",
+        "url": "https://civicdb.org/links/evidence_items/229"
+      },
+      {
+        "source": "PubMed",
+        "pmid": "42299598",
+        "title": "Mechanism of afatinib resistance in non-small cell lung cancer patients with nonclassical EGFR mutations: A multicenter, retrospective study.",
+        "abstract": "Epidermal growth factor receptor (EGFR) tyrosine kinase inhibitors (TKIs) are standard treatments for non-small cell lung cancer (NSCLC) patients with EGFR mutations, but resistance inevitably develops. While resistance mechanisms in classical mutations are well studied, those in nonclassical mutations remain unclear. As a widely used EGFR-TKI, afatinib's resistance mechanisms in nonclassical mutations warrant further investigation to improve clinical outcomes. This study included NSCLC patients",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/42299598/"
+      },
+      {
+        "source": "PubMed",
+        "pmid": "42123865",
+        "title": "Cudratricusxanthone A Exhibits Antitumor Activities Against NSCLC Harboring EGFR L792H and G796R Triple Mutations via Regulating EGFR-ERK/AKT/STAT3 Signaling.",
+        "abstract": "",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/42123865/"
+      }
+    ],
+    "classification": "known_driver",
+    "evidence_tier": "weak",
+    "target_reasoning": {
+      "mechanism": "The mutation L858R in EGFR is known to confer resistance to EGFR TKIs such as Gefitinib, Erlotinib, Afatinib, and Osimertinib.",
+      "mechanism_hypothesis": "The mutation L858R may alter the binding site of EGFR TKIs, leading to reduced efficacy.",
+      "therapy": {
+        "sensitivity": [
+          "Gefitinib",
+          "Erlotinib",
+          "Afatinib",
+          "Osimertinib"
+        ],
+        "resistance": [],
+        "context": "Lung Non-small Cell Carcinoma",
+        "recommendation_status": "insufficient_evidence"
+      },
+      "next_best_action": "tumor_board",
+      "confidence": 0.7
+    },
+    "llm_io": {
+      "prompt": "Variant: EGFR L858R (ONCOGENE_GOF)\nDisease context: Lung Non-small Cell Carcinoma\nVerified structural features (from AlphaFold P00533):\n{\n  \"residue\": \"L858\",\n  \"residue_index\": 858,\n  \"mutation\": \"L858R\",\n  \"pLDDT_at_residue\": 51.2,\n  \"mean_pLDDT_protein\": 75.9,\n  \"neighboring_residues_within_10A\": 14,\n  \"local_contact_density_10A\": 14,\n  \"mpnn_index\": 858,\n  \"region\": \"unannotated region\",\n  \"chain\": \"A\",\n  \"gene\": \"EGFR\",\n  \"structure_image_path\": \"/workspace/shared/structures/images/EGFR_L858R_neighborhood.png\",\n  \"plm_llr\": -3.268,\n  \"plm_perplexity_band\": \"deleterious\"\n}\n\nEvidence items:\n[\n  {\n    \"source\": \"CIViC\",\n    \"therapies\": \"Gefitinib,Erlotinib,Afatinib,Osimertinib\",\n    \"disease\": \"Lung Non-small Cell Carcinoma\",\n    \"direction\": \"Sensitivity/Response\",\n    \"level\": \"B\",\n    \"citation\": \"Lim et al., 2014\",\n    \"url\": \"https://civicdb.org/links/evidence_items/229\"\n  },\n  {\n    \"source\": \"PubMed\",\n    \"pmid\": \"42299598\",\n    \"title\": \"Mechanism of afatinib resistance in non-small cell lung cancer patients with nonclassical EGFR mutations: A multicenter, retrospective study.\",\n    \"abstract\": \"Epidermal growth factor receptor (EGFR) tyrosine kinase inhibitors (TKIs) are standard treatments for non-small cell lung cancer (NSCLC) patients with EGFR mutations, but resistance inevitably develops. While resistance mechanisms in classical mutations are well studied, those in nonclassical mutations remain unclear. As a widely used EGFR-TKI, afatinib's resistance mechanisms in nonclassical mutations warrant further investigation to improve clinical outcomes. This study included NSCLC patients\",\n    \"url\": \"https://pubmed.ncbi.nlm.nih.gov/42299598/\"\n  },\n  {\n    \"source\": \"PubMed\",\n    \"pmid\": \"42123865\",\n    \"title\": \"Cudratricusxanthone A Exhibits Antitumor Activities Against NSCLC Harboring EGFR L792H and G796R Triple Mutations via Regulating EGFR-ERK/AKT/STAT3 Signaling.\",\n    \"abstract\": \"\",\n    \"url\": \"https://pubmed.ncbi.nlm.nih.gov/42123865/\"\n  }\n]\n\n\nReturn ONLY valid JSON with keys:\n{\n  \"variant\": {\"gene\": \"...\", \"protein_change\": \"...\", \"hgvs_p\": \"...\"},\n  \"structure\": {... numeric features verbatim ...},\n  \"evidence\": [...],\n  \"classification\": \"known_driver|likely_driver|vus|unknown\",\n  \"evidence_tier\": \"strong|weak|none\",\n  \"target_reasoning\": {\n    \"mechanism\": \"...\",\n    \"mechanism_hypothesis\": \"...\",\n    \"therapy\": {\n      \"sensitivity\": [...],\n      \"resistance\": [...],\n      \"context\": \"...\",\n      \"recommendation_status\": \"confident|insufficient_evidence\"\n    },\n    \"next_best_action\": \"standard_of_care|tumor_board|clinical_trial|structural_rescue\",\n    \"confidence\": \"0.0-1.0\"\n  }\n}\nUse ONLY the provided numeric structure features; do not invent pLDDT values.\nIf evidence_tier is weak or none, set recommendation_status to insufficient_evidence.\n",
+      "reasoning": "",
+      "output": "```json\n{\n  \"variant\": {\n    \"gene\": \"EGFR\",\n    \"protein_change\": \"L858R\",\n    \"hgvs_p\": \"p.L858R\"\n  },\n  \"structure\": {\n    \"residue\": \"L858\",\n    \"residue_index\": 858,\n    \"mutation\": \"L858R\",\n    \"pLDDT_at_residue\": 51.2,\n    \"mean_pLDDT_protein\": 75.9,\n    \"neighboring_residues_within_10A\": 14,\n    \"local_contact_density_10A\": 14,\n    \"mpnn_index\": 858,\n    \"region\": \"unannotated region\",\n    \"chain\": \"A\",\n    \"gene\": \"EGFR\",\n    \"structure_image_path\": \"/workspace/shared/structures/images/EGFR_L858R_neighborhood.png\"\n  },\n  \"evidence\": [\n    {\n      \"source\": \"CIViC\",\n      \"therapies\": [\"Gefitinib\", \"Erlotinib\", \"Afatinib\", \"Osimertinib\"],\n      \"disease\": \"Lung Non-small Cell Carcinoma\",\n      \"direction\": \"Sensitivity/Response\",\n      \"level\": \"B\",\n      \"citation\": \"Lim et al., 2014\",\n      \"url\": \"https://civicdb.org/links/evidence_items/229\"\n    },\n    {\n      \"source\": \"PubMed\",\n      \"pmid\": \"42299598\",\n      \"title\": \"Mechanism of afatinib resistance in non-small cell lung cancer patients with nonclassical EGFR mutations: A multicenter, retrospective study.\",\n      \"abstract\": \"Epidermal growth factor receptor (EGFR) tyrosine kinase inhibitors (TKIs) are standard treatments for non-small cell lung cancer (NSCLC) patients with EGFR mutations, but resistance inevitably develops. While resistance mechanisms in classical mutations are well studied, those in nonclassical mutations remain unclear. As a widely used EGFR-TKI, afatinib's resistance mechanisms in nonclassical mutations warrant further investigation to improve clinical outcomes. This study included NSCLC patients\",\n      \"url\": \"https://pubmed.ncbi.nlm.nih.gov/42299598/\"\n    },\n    {\n      \"source\": \"PubMed\",\n      \"pmid\": \"42123865\",\n      \"title\": \"Cudratricusxanthone A Exhibits Antitumor Activities Against NSCLC Harboring EGFR L792H and G796R Triple Mutations via Regulating EGFR-ERK/AKT/STAT3 Signaling.\",\n      \"abstract\": \"\",\n      \"url\": \"https://pubmed.ncbi.nlm.nih.gov/42123865/\"\n    }\n  ],\n  \"classification\": \"known_driver\",\n  \"evidence_tier\": \"weak\",\n  \"target_reasoning\": {\n    \"mechanism\": \"The mutation L858R in EGFR is known to confer resistance to EGFR TKIs such as Gefitinib, Erlotinib, Afatinib, and Osimertinib.\",\n    \"mechanism_hypothesis\": \"The mutation L858R may alter the binding site of EGFR TKIs, leading to reduced efficacy.\",\n    \"therapy\": {\n      \"sensitivity\": [\"Gefitinib\", \"Erlotinib\", \"Afatinib\", \"Osimertinib\"],\n      \"resistance\": [],\n      \"context\": \"Lung Non-small Cell Carcinoma\",\n      \"recommendation_status\": \"insufficient_evidence\"\n    },\n    \"next_best_action\": \"tumor_board\",\n    \"confidence\": 0.7\n  }\n}\n```",
+      "content": "```json\n{\n  \"variant\": {\n    \"gene\": \"EGFR\",\n    \"protein_change\": \"L858R\",\n    \"hgvs_p\": \"p.L858R\"\n  },\n  \"structure\": {\n    \"residue\": \"L858\",\n    \"residue_index\": 858,\n    \"mutation\": \"L858R\",\n    \"pLDDT_at_residue\": 51.2,\n    \"mean_pLDDT_protein\": 75.9,\n    \"neighboring_residues_within_10A\": 14,\n    \"local_contact_density_10A\": 14,\n    \"mpnn_index\": 858,\n    \"region\": \"unannotated region\",\n    \"chain\": \"A\",\n    \"gene\": \"EGFR\",\n    \"structure_image_path\": \"/workspace/shared/structures/images/EGFR_L858R_neighborhood.png\"\n  },\n  \"evidence\": [\n    {\n      \"source\": \"CIViC\",\n      \"therapies\": [\"Gefitinib\", \"Erlotinib\", \"Afatinib\", \"Osimertinib\"],\n      \"disease\": \"Lung Non-small Cell Carcinoma\",\n      \"direction\": \"Sensitivity/Response\",\n      \"level\": \"B\",\n      \"citation\": \"Lim et al., 2014\",\n      \"url\": \"https://civicdb.org/links/evidence_items/229\"\n    },\n    {\n      \"source\": \"PubMed\",\n      \"pmid\": \"42299598\",\n      \"title\": \"Mechanism of afatinib resistance in non-small cell lung cancer patients with nonclassical EGFR mutations: A multicenter, retrospective study.\",\n      \"abstract\": \"Epidermal growth factor receptor (EGFR) tyrosine kinase inhibitors (TKIs) are standard treatments for non-small cell lung cancer (NSCLC) patients with EGFR mutations, but resistance inevitably develops. While resistance mechanisms in classical mutations are well studied, those in nonclassical mutations remain unclear. As a widely used EGFR-TKI, afatinib's resistance mechanisms in nonclassical mutations warrant further investigation to improve clinical outcomes. This study included NSCLC patients\",\n      \"url\": \"https://pubmed.ncbi.nlm.nih.gov/42299598/\"\n    },\n    {\n      \"source\": \"PubMed\",\n      \"pmid\": \"42123865\",\n      \"title\": \"Cudratricusxanthone A Exhibits Antitumor Activities Against NSCLC Harboring EGFR L792H and G796R Triple Mutations via Regulating EGFR-ERK/AKT/STAT3 Signaling.\",\n      \"abstract\": \"\",\n      \"url\": \"https://pubmed.ncbi.nlm.nih.gov/42123865/\"\n    }\n  ],\n  \"classification\": \"known_driver\",\n  \"evidence_tier\": \"weak\",\n  \"target_reasoning\": {\n    \"mechanism\": \"The mutation L858R in EGFR is known to confer resistance to EGFR TKIs such as Gefitinib, Erlotinib, Afatinib, and Osimertinib.\",\n    \"mechanism_hypothesis\": \"The mutation L858R may alter the binding site of EGFR TKIs, leading to reduced efficacy.\",\n    \"therapy\": {\n      \"sensitivity\": [\"Gefitinib\", \"Erlotinib\", \"Afatinib\", \"Osimertinib\"],\n      \"resistance\": [],\n      \"context\": \"Lung Non-small Cell Carcinoma\",\n      \"recommendation_status\": \"insufficient_evidence\"\n    },\n    \"next_best_action\": \"tumor_board\",\n    \"confidence\": 0.7\n  }\n}\n```"
+    }
+  }
+}

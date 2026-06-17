@@ -1,0 +1,10 @@
+agent_role,n_calls,ingress_tokens,egress_tokens,ingress_waste_estimate,ingress_amplification
+Mechanism,6,4167,396,3771,10.52
+Structure,4,3857,395,3462,9.76
+Therapy,4,3691,319,3372,11.57
+Evidence,4,3512,329,3183,10.67
+Planner,4,2405,446,1959,5.39
+Critic,4,1491,298,1193,5.0
+ConflictResolver,4,1451,342,1109,4.24
+Decider,5,1202,324,878,3.71
+CriticRubric,5,816,207,609,3.94

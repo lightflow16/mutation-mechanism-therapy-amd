@@ -1,0 +1,14 @@
+gene,mutation,architecture,workflow_completion,human_intervention_count,early_exit,mechanism_rubric_before,mechanism_rubric_after,multimodal_image,dbtl_level3,n_agent_steps,memory_reference_rate,critic_correction_rate,conflict_resolution_rate,tools_invoked,tool_call_success_rate
+EGFR,L858R,blackboard,1,0,True,1,1,True,0,9,0.143,1.0,0.5,0,0.0
+EGFR,L858R,cot,0,0,False,,,True,0,0,0.0,0.0,0.0,0,0.0
+EGFR,L858R,single,1,0,False,,,False,0,0,0.0,0.0,0.0,0,0.0
+EGFR,T790M,blackboard,1,0,True,2,2,True,0,8,0.095,0.0,1.0,0,0.0
+EGFR,T790M,cot,1,0,False,,,True,0,0,0.0,0.0,0.0,0,0.0
+EGFR,T790M,single,1,0,False,,,False,0,0,0.0,0.0,0.0,0,0.0
+PIK3CA,E545K,blackboard,1,0,True,2,2,True,0,8,0.095,0.0,1.0,0,0.0
+PIK3CA,E545K,cot,0,0,False,,,True,0,0,0.0,0.0,0.0,0,0.0
+PIK3CA,E545K,debate,0,0,False,,,False,0,3,0.0,0.0,0.0,0,0.0
+PIK3CA,E545K,single,1,0,False,,,False,0,0,0.0,0.0,0.0,0,0.0
+TP53,R175H,blackboard,1,0,True,2,2,True,3,8,0.238,0.0,1.0,5,1.0
+TP53,R175H,cot,0,0,False,,,True,3,0,0.0,0.0,0.0,5,1.0
+TP53,R175H,single,1,0,False,,,False,3,0,0.0,0.0,0.0,5,1.0

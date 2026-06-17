@@ -1,0 +1,464 @@
+{
+  "title": "Return on Reasoning (RoR) Benchmark",
+  "narrative": "Blackboard costs ~14\u00d7 tokens vs single but may yield higher semantic accuracy on complex structural-rescue cases. RoR = semantic composite / cost.",
+  "architecture_summary": {
+    "single": {
+      "mean_semantic_accuracy": 0.8,
+      "mean_total_tokens": 2537,
+      "mean_cost_multiplier_vs_single": 1.0
+    },
+    "cot": {
+      "mean_semantic_accuracy": 0.75,
+      "mean_total_tokens": 2979,
+      "mean_cost_multiplier_vs_single": 1.22
+    },
+    "blackboard": {
+      "mean_semantic_accuracy": 0.5,
+      "mean_total_tokens": 6412,
+      "mean_cost_multiplier_vs_single": 3.19
+    },
+    "debate": {
+      "mean_semantic_accuracy": 0.0,
+      "mean_total_tokens": 3960,
+      "mean_cost_multiplier_vs_single": 2.46
+    }
+  },
+  "rows": [
+    {
+      "query_id": "EGFR_L858R",
+      "gene": "EGFR",
+      "mutation": "L858R",
+      "architecture": "single",
+      "therapy_f1": 0.4,
+      "direction_acc": 1.0,
+      "semantic_accuracy_composite": 0.7,
+      "total_tokens": 5199,
+      "latency_s": 141.44,
+      "cost_multiplier_vs_single": 1.0,
+      "n_agent_steps": "3",
+      "route": "inhibitor_rag",
+      "therapy_sensitivity_overlap": "",
+      "route_agreement_across_arch": true,
+      "return_on_reasoning_per_1k_tokens": 0.1346,
+      "return_on_reasoning_per_second": 0.0049,
+      "return_on_reasoning_vs_cost_multiplier": 0.7
+    },
+    {
+      "query_id": "EGFR_L858R",
+      "gene": "EGFR",
+      "mutation": "L858R",
+      "architecture": "cot",
+      "therapy_f1": 1.0,
+      "direction_acc": 1.0,
+      "semantic_accuracy_composite": 1.0,
+      "total_tokens": 5633,
+      "latency_s": 129.44,
+      "cost_multiplier_vs_single": 1.08,
+      "n_agent_steps": "3",
+      "route": "inhibitor_rag",
+      "therapy_sensitivity_overlap": "",
+      "route_agreement_across_arch": true,
+      "return_on_reasoning_per_1k_tokens": 0.1775,
+      "return_on_reasoning_per_second": 0.0077,
+      "return_on_reasoning_vs_cost_multiplier": 0.9259
+    },
+    {
+      "query_id": "EGFR_L858R",
+      "gene": "EGFR",
+      "mutation": "L858R",
+      "architecture": "blackboard",
+      "therapy_f1": 0.0,
+      "direction_acc": 0.0,
+      "semantic_accuracy_composite": 0.0,
+      "total_tokens": 6700,
+      "latency_s": 75.79,
+      "cost_multiplier_vs_single": 1.29,
+      "n_agent_steps": "11",
+      "route": "inhibitor_rag",
+      "therapy_sensitivity_overlap": "",
+      "route_agreement_across_arch": true,
+      "return_on_reasoning_per_1k_tokens": "NA",
+      "return_on_reasoning_per_second": "NA",
+      "return_on_reasoning_vs_cost_multiplier": "NA"
+    },
+    {
+      "query_id": "EGFR_T790M",
+      "gene": "EGFR",
+      "mutation": "T790M",
+      "architecture": "single",
+      "therapy_f1": 1.0,
+      "direction_acc": 1.0,
+      "semantic_accuracy_composite": 1.0,
+      "total_tokens": 1729,
+      "latency_s": 37.27,
+      "cost_multiplier_vs_single": 1.0,
+      "n_agent_steps": "1",
+      "route": "inhibitor_rag",
+      "therapy_sensitivity_overlap": "Osimertinib",
+      "route_agreement_across_arch": true,
+      "return_on_reasoning_per_1k_tokens": 0.5784,
+      "return_on_reasoning_per_second": 0.0268,
+      "return_on_reasoning_vs_cost_multiplier": 1.0
+    },
+    {
+      "query_id": "EGFR_T790M",
+      "gene": "EGFR",
+      "mutation": "T790M",
+      "architecture": "cot",
+      "therapy_f1": 1.0,
+      "direction_acc": 1.0,
+      "semantic_accuracy_composite": 1.0,
+      "total_tokens": 2262,
+      "latency_s": 71.36,
+      "cost_multiplier_vs_single": 1.31,
+      "n_agent_steps": "1",
+      "route": "inhibitor_rag",
+      "therapy_sensitivity_overlap": "Osimertinib",
+      "route_agreement_across_arch": true,
+      "return_on_reasoning_per_1k_tokens": 0.4421,
+      "return_on_reasoning_per_second": 0.014,
+      "return_on_reasoning_vs_cost_multiplier": 0.7634
+    },
+    {
+      "query_id": "EGFR_T790M",
+      "gene": "EGFR",
+      "mutation": "T790M",
+      "architecture": "blackboard",
+      "therapy_f1": 1.0,
+      "direction_acc": 1.0,
+      "semantic_accuracy_composite": 1.0,
+      "total_tokens": 6814,
+      "latency_s": 59.34,
+      "cost_multiplier_vs_single": 3.94,
+      "n_agent_steps": "9",
+      "route": "inhibitor_rag",
+      "therapy_sensitivity_overlap": "Osimertinib",
+      "route_agreement_across_arch": true,
+      "return_on_reasoning_per_1k_tokens": 0.1468,
+      "return_on_reasoning_per_second": 0.0169,
+      "return_on_reasoning_vs_cost_multiplier": 0.2538
+    },
+    {
+      "query_id": "PIK3CA_E545K",
+      "gene": "PIK3CA",
+      "mutation": "E545K",
+      "architecture": "single",
+      "therapy_f1": 1.0,
+      "direction_acc": 0.0,
+      "semantic_accuracy_composite": 0.5,
+      "total_tokens": 1609,
+      "latency_s": 40.06,
+      "cost_multiplier_vs_single": 1.0,
+      "n_agent_steps": "1",
+      "route": "inhibitor_rag",
+      "therapy_sensitivity_overlap": "",
+      "route_agreement_across_arch": true,
+      "return_on_reasoning_per_1k_tokens": 0.3108,
+      "return_on_reasoning_per_second": 0.0125,
+      "return_on_reasoning_vs_cost_multiplier": 0.5
+    },
+    {
+      "query_id": "PIK3CA_E545K",
+      "gene": "PIK3CA",
+      "mutation": "E545K",
+      "architecture": "cot",
+      "therapy_f1": 1.0,
+      "direction_acc": 0.0,
+      "semantic_accuracy_composite": 0.5,
+      "total_tokens": 2238,
+      "latency_s": 86.11,
+      "cost_multiplier_vs_single": 1.39,
+      "n_agent_steps": "1",
+      "route": "inhibitor_rag",
+      "therapy_sensitivity_overlap": "",
+      "route_agreement_across_arch": true,
+      "return_on_reasoning_per_1k_tokens": 0.2234,
+      "return_on_reasoning_per_second": 0.0058,
+      "return_on_reasoning_vs_cost_multiplier": 0.3597
+    },
+    {
+      "query_id": "PIK3CA_E545K",
+      "gene": "PIK3CA",
+      "mutation": "E545K",
+      "architecture": "blackboard",
+      "therapy_f1": 0.0,
+      "direction_acc": 0.0,
+      "semantic_accuracy_composite": 0.0,
+      "total_tokens": 6106,
+      "latency_s": 63.3,
+      "cost_multiplier_vs_single": 3.79,
+      "n_agent_steps": "9",
+      "route": "inhibitor_rag",
+      "therapy_sensitivity_overlap": "",
+      "route_agreement_across_arch": true,
+      "return_on_reasoning_per_1k_tokens": "NA",
+      "return_on_reasoning_per_second": "NA",
+      "return_on_reasoning_vs_cost_multiplier": "NA"
+    },
+    {
+      "query_id": "TP53_R175H",
+      "gene": "TP53",
+      "mutation": "R175H",
+      "architecture": "single",
+      "therapy_f1": 1.0,
+      "direction_acc": 1.0,
+      "semantic_accuracy_composite": 1.0,
+      "total_tokens": 1611,
+      "latency_s": 46.54,
+      "cost_multiplier_vs_single": 1.0,
+      "n_agent_steps": "1",
+      "route": "structural_rescue",
+      "therapy_sensitivity_overlap": "",
+      "route_agreement_across_arch": true,
+      "return_on_reasoning_per_1k_tokens": 0.6207,
+      "return_on_reasoning_per_second": 0.0215,
+      "return_on_reasoning_vs_cost_multiplier": 1.0
+    },
+    {
+      "query_id": "TP53_R175H",
+      "gene": "TP53",
+      "mutation": "R175H",
+      "architecture": "cot",
+      "therapy_f1": 0.0,
+      "direction_acc": 1.0,
+      "semantic_accuracy_composite": 0.5,
+      "total_tokens": 1783,
+      "latency_s": 53.18,
+      "cost_multiplier_vs_single": 1.11,
+      "n_agent_steps": "1",
+      "route": "structural_rescue",
+      "therapy_sensitivity_overlap": "",
+      "route_agreement_across_arch": true,
+      "return_on_reasoning_per_1k_tokens": 0.2804,
+      "return_on_reasoning_per_second": 0.0094,
+      "return_on_reasoning_vs_cost_multiplier": 0.4505
+    },
+    {
+      "query_id": "TP53_R175H",
+      "gene": "TP53",
+      "mutation": "R175H",
+      "architecture": "blackboard",
+      "therapy_f1": 1.0,
+      "direction_acc": 1.0,
+      "semantic_accuracy_composite": 1.0,
+      "total_tokens": 6028,
+      "latency_s": 60.37,
+      "cost_multiplier_vs_single": 3.74,
+      "n_agent_steps": "10",
+      "route": "structural_rescue",
+      "therapy_sensitivity_overlap": "",
+      "route_agreement_across_arch": true,
+      "return_on_reasoning_per_1k_tokens": 0.1659,
+      "return_on_reasoning_per_second": 0.0166,
+      "return_on_reasoning_vs_cost_multiplier": 0.2674
+    },
+    {
+      "query_id": "PIK3CA_E545K",
+      "gene": "PIK3CA",
+      "mutation": "E545K",
+      "architecture": "debate",
+      "therapy_f1": 0.0,
+      "direction_acc": null,
+      "semantic_accuracy_composite": 0.0,
+      "total_tokens": 3960,
+      "latency_s": 77.29,
+      "cost_multiplier_vs_single": 2.46,
+      "n_agent_steps": "3",
+      "route": "inhibitor_rag",
+      "therapy_sensitivity_overlap": "",
+      "route_agreement_across_arch": true,
+      "return_on_reasoning_per_1k_tokens": "NA",
+      "return_on_reasoning_per_second": "NA",
+      "return_on_reasoning_vs_cost_multiplier": "NA"
+    }
+  ],
+  "efficiency_frontier": [
+    {
+      "query_id": "EGFR_L858R",
+      "architecture": "single",
+      "x_latency_s": 141.44,
+      "y_semantic_accuracy": 0.7,
+      "size_tokens": 5199,
+      "ror_per_1k_tokens": 0.1346
+    },
+    {
+      "query_id": "EGFR_L858R",
+      "architecture": "cot",
+      "x_latency_s": 129.44,
+      "y_semantic_accuracy": 1.0,
+      "size_tokens": 5633,
+      "ror_per_1k_tokens": 0.1775
+    },
+    {
+      "query_id": "EGFR_L858R",
+      "architecture": "blackboard",
+      "x_latency_s": 75.79,
+      "y_semantic_accuracy": 0.0,
+      "size_tokens": 6700,
+      "ror_per_1k_tokens": "NA"
+    },
+    {
+      "query_id": "EGFR_T790M",
+      "architecture": "single",
+      "x_latency_s": 37.27,
+      "y_semantic_accuracy": 1.0,
+      "size_tokens": 1729,
+      "ror_per_1k_tokens": 0.5784
+    },
+    {
+      "query_id": "EGFR_T790M",
+      "architecture": "cot",
+      "x_latency_s": 71.36,
+      "y_semantic_accuracy": 1.0,
+      "size_tokens": 2262,
+      "ror_per_1k_tokens": 0.4421
+    },
+    {
+      "query_id": "EGFR_T790M",
+      "architecture": "blackboard",
+      "x_latency_s": 59.34,
+      "y_semantic_accuracy": 1.0,
+      "size_tokens": 6814,
+      "ror_per_1k_tokens": 0.1468
+    },
+    {
+      "query_id": "PIK3CA_E545K",
+      "architecture": "single",
+      "x_latency_s": 40.06,
+      "y_semantic_accuracy": 0.5,
+      "size_tokens": 1609,
+      "ror_per_1k_tokens": 0.3108
+    },
+    {
+      "query_id": "PIK3CA_E545K",
+      "architecture": "cot",
+      "x_latency_s": 86.11,
+      "y_semantic_accuracy": 0.5,
+      "size_tokens": 2238,
+      "ror_per_1k_tokens": 0.2234
+    },
+    {
+      "query_id": "PIK3CA_E545K",
+      "architecture": "blackboard",
+      "x_latency_s": 63.3,
+      "y_semantic_accuracy": 0.0,
+      "size_tokens": 6106,
+      "ror_per_1k_tokens": "NA"
+    },
+    {
+      "query_id": "TP53_R175H",
+      "architecture": "single",
+      "x_latency_s": 46.54,
+      "y_semantic_accuracy": 1.0,
+      "size_tokens": 1611,
+      "ror_per_1k_tokens": 0.6207
+    },
+    {
+      "query_id": "TP53_R175H",
+      "architecture": "cot",
+      "x_latency_s": 53.18,
+      "y_semantic_accuracy": 0.5,
+      "size_tokens": 1783,
+      "ror_per_1k_tokens": 0.2804
+    },
+    {
+      "query_id": "TP53_R175H",
+      "architecture": "blackboard",
+      "x_latency_s": 60.37,
+      "y_semantic_accuracy": 1.0,
+      "size_tokens": 6028,
+      "ror_per_1k_tokens": 0.1659
+    },
+    {
+      "query_id": "PIK3CA_E545K",
+      "architecture": "debate",
+      "x_latency_s": 77.29,
+      "y_semantic_accuracy": 0.0,
+      "size_tokens": 3960,
+      "ror_per_1k_tokens": "NA"
+    }
+  ],
+  "blackboard_ingress_by_role": [
+    {
+      "agent_role": "Mechanism",
+      "n_calls": 6,
+      "ingress_tokens": 4167,
+      "egress_tokens": 396,
+      "ingress_waste_estimate": 3771,
+      "ingress_amplification": 10.52
+    },
+    {
+      "agent_role": "Structure",
+      "n_calls": 4,
+      "ingress_tokens": 3857,
+      "egress_tokens": 395,
+      "ingress_waste_estimate": 3462,
+      "ingress_amplification": 9.76
+    },
+    {
+      "agent_role": "Therapy",
+      "n_calls": 4,
+      "ingress_tokens": 3691,
+      "egress_tokens": 319,
+      "ingress_waste_estimate": 3372,
+      "ingress_amplification": 11.57
+    },
+    {
+      "agent_role": "Evidence",
+      "n_calls": 4,
+      "ingress_tokens": 3512,
+      "egress_tokens": 329,
+      "ingress_waste_estimate": 3183,
+      "ingress_amplification": 10.67
+    },
+    {
+      "agent_role": "Planner",
+      "n_calls": 4,
+      "ingress_tokens": 2405,
+      "egress_tokens": 446,
+      "ingress_waste_estimate": 1959,
+      "ingress_amplification": 5.39
+    },
+    {
+      "agent_role": "Critic",
+      "n_calls": 4,
+      "ingress_tokens": 1491,
+      "egress_tokens": 298,
+      "ingress_waste_estimate": 1193,
+      "ingress_amplification": 5.0
+    },
+    {
+      "agent_role": "ConflictResolver",
+      "n_calls": 4,
+      "ingress_tokens": 1451,
+      "egress_tokens": 342,
+      "ingress_waste_estimate": 1109,
+      "ingress_amplification": 4.24
+    },
+    {
+      "agent_role": "Decider",
+      "n_calls": 5,
+      "ingress_tokens": 1202,
+      "egress_tokens": 324,
+      "ingress_waste_estimate": 878,
+      "ingress_amplification": 3.71
+    },
+    {
+      "agent_role": "CriticRubric",
+      "n_calls": 5,
+      "ingress_tokens": 816,
+      "egress_tokens": 207,
+      "ingress_waste_estimate": 609,
+      "ingress_amplification": 3.94
+    }
+  ],
+  "lora_ablation": {
+    "lora_path": "/workspace/shared/lora_adapter_final",
+    "lora_loaded": true,
+    "note": "Single-agent runs use PeftModel when lora_loaded=true in run_manifest"
+  },
+  "debate_vs_blackboard": {
+    "debate_mean_semantic": 0.0,
+    "blackboard_mean_semantic": 0.5
+  }
+}

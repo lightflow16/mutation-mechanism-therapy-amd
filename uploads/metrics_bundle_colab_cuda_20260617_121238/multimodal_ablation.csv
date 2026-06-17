@@ -1,0 +1,5 @@
+architecture,multimodal_image_calls,text_only_calls,thinking_tokens
+single,5,0,0
+cot,5,0,350
+blackboard,4,36,0
+debate,0,3,0

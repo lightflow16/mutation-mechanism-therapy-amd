@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>RoR · Workflow Density Dashboard</title>
+<style>
+body{font-family:system-ui,sans-serif;margin:24px;background:#0f172a;color:#e2e8f0}
+.card{background:#1e293b;border-radius:8px;padding:12px 16px;margin:8px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
+.timeline{display:flex;height:48px;border-radius:6px;overflow:hidden;border:1px solid #334155}
+.bar{display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff;overflow:hidden;white-space:nowrap}
+table{border-collapse:collapse;width:100%;margin-top:12px}
+td,th{border:1px solid #334155;padding:6px 10px;text-align:left}
+th{background:#1e293b}
+.note{color:#94a3b8;font-size:14px;margin-bottom:16px}
+.legend span{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}
+</style></head><body>
+<h1>Return on Reasoning · Infrastructure Dashboard</h1>
+<p class="note"><b>Hackathon demo + thesis documentation.</b> Native metrics only — no LangGraph/Phoenix.
+Blackboard ~14× token cost vs single; RoR quantifies semantic fidelity per 1k tokens.</p>
+<h2>Efficiency frontier (Latency vs Semantic accuracy)</h2>
+<p class="legend"><span style="background:#64748b"></span>single
+<span style="background:#38bdf8"></span>cot
+<span style="background:#a855f7"></span>blackboard</p>
+
+    <svg width="720" height="360" style="background:#1e293b;border-radius:8px">
+      <text x="12" y="20" fill="#94a3b8" font-size="12">Efficiency frontier: Latency → vs Semantic accuracy ↑</text>
+      <line x1="50" y1="320" x2="700" y2="320" stroke="#475569"/>
+      <line x1="50" y1="30" x2="50" y2="320" stroke="#475569"/>
+      <circle cx="690.0" cy="117.0" r="8" fill="#64748b" opacity="0.85"><title>EGFR_L858R single lat=141.44 acc=0.7</title></circle><circle cx="636.5" cy="30.0" r="8" fill="#38bdf8" opacity="0.85"><title>EGFR_L858R cot lat=129.44 acc=1.0</title></circle><circle cx="397.6" cy="320.0" r="8" fill="#a855f7" opacity="0.85"><title>EGFR_L858R blackboard lat=75.79 acc=0.0</title></circle><circle cx="226.0" cy="30.0" r="8" fill="#64748b" opacity="0.85"><title>EGFR_T790M single lat=37.27 acc=1.0</title></circle><circle cx="377.9" cy="30.0" r="8" fill="#38bdf8" opacity="0.85"><title>EGFR_T790M cot lat=71.36 acc=1.0</title></circle><circle cx="324.3" cy="30.0" r="8" fill="#a855f7" opacity="0.85"><title>EGFR_T790M blackboard lat=59.34 acc=1.0</title></circle><circle cx="238.4" cy="175.0" r="8" fill="#64748b" opacity="0.85"><title>PIK3CA_E545K single lat=40.06 acc=0.5</title></circle><circle cx="443.5" cy="175.0" r="8" fill="#38bdf8" opacity="0.85"><title>PIK3CA_E545K cot lat=86.11 acc=0.5</title></circle><circle cx="341.9" cy="320.0" r="8" fill="#a855f7" opacity="0.85"><title>PIK3CA_E545K blackboard lat=63.3 acc=0.0</title></circle><circle cx="267.3" cy="30.0" r="8" fill="#64748b" opacity="0.85"><title>TP53_R175H single lat=46.54 acc=1.0</title></circle><circle cx="296.9" cy="175.0" r="8" fill="#38bdf8" opacity="0.85"><title>TP53_R175H cot lat=53.18 acc=0.5</title></circle><circle cx="328.9" cy="30.0" r="8" fill="#a855f7" opacity="0.85"><title>TP53_R175H blackboard lat=60.37 acc=1.0</title></circle><circle cx="404.3" cy="320.0" r="8" fill="#94a3b8" opacity="0.85"><title>PIK3CA_E545K debate lat=77.29 acc=0.0</title></circle>
+    </svg>
+<h2>Trust layer</h2>
+<div class="grid">
+    <div class="card">
+      <h3>Hallucination metrics (§12)</h3>
+      <ul><li><b>mean_HR_design:</b> 0.308</li><li><b>mean_HR_property:</b> 0.0</li><li><b>mean_HR_evidence:</b> 0.323</li><li><b>mean_HR_tool:</b> 0.0</li><li><b>mean_HR_policy:</b> 0.0</li><li><b>mean_BVR:</b> 0.942</li><li><b>mean_structural_hallucination_rate:</b> 0.058</li><li><b>blackboard vs single ΔHR_evidence:</b> -0.132</li></ul>
+    </div>
+        <div class="card">
+          <h3>Fold confidence calibration</h3>
+          <ul>
+            <li><b>Rows:</b> 40</li>
+            <li><b>ECE (LLM):</b> 0.4725</li>
+            <li><b>Brier (LLM):</b> 0.3712</li>
+            <li><b>AUC-PR (LLM):</b> 0.0</li>
+            <li><b>r(LLM, pLDDT@site):</b> -0.0969</li>
+          </ul>
+        </div></div>
+<h2>Return on Reasoning (RoR)</h2>
+<table><tr><th>Case</th><th>Arch</th><th>Semantic acc</th><th>Tokens</th><th>Cost vs single</th><th>RoR / 1k tok</th><th>RoR / cost×</th></tr><tr><td>EGFR_L858R</td><td>single</td><td>0.7</td><td>5199</td><td>1.0×</td><td>0.1346</td><td>0.7</td></tr><tr><td>EGFR_L858R</td><td>cot</td><td>1.0</td><td>5633</td><td>1.08×</td><td>0.1775</td><td>0.9259</td></tr><tr><td>EGFR_L858R</td><td>blackboard</td><td>0.0</td><td>6700</td><td>1.29×</td><td>NA</td><td>NA</td></tr><tr><td>EGFR_T790M</td><td>single</td><td>1.0</td><td>1729</td><td>1.0×</td><td>0.5784</td><td>1.0</td></tr><tr><td>EGFR_T790M</td><td>cot</td><td>1.0</td><td>2262</td><td>1.31×</td><td>0.4421</td><td>0.7634</td></tr><tr><td>EGFR_T790M</td><td>blackboard</td><td>1.0</td><td>6814</td><td>3.94×</td><td>0.1468</td><td>0.2538</td></tr><tr><td>PIK3CA_E545K</td><td>single</td><td>0.5</td><td>1609</td><td>1.0×</td><td>0.3108</td><td>0.5</td></tr><tr><td>PIK3CA_E545K</td><td>cot</td><td>0.5</td><td>2238</td><td>1.39×</td><td>0.2234</td><td>0.3597</td></tr><tr><td>PIK3CA_E545K</td><td>blackboard</td><td>0.0</td><td>6106</td><td>3.79×</td><td>NA</td><td>NA</td></tr><tr><td>TP53_R175H</td><td>single</td><td>1.0</td><td>1611</td><td>1.0×</td><td>0.6207</td><td>1.0</td></tr><tr><td>TP53_R175H</td><td>cot</td><td>0.5</td><td>1783</td><td>1.11×</td><td>0.2804</td><td>0.4505</td></tr><tr><td>TP53_R175H</td><td>blackboard</td><td>1.0</td><td>6028</td><td>3.74×</td><td>0.1659</td><td>0.2674</td></tr><tr><td>PIK3CA_E545K</td><td>debate</td><td>0.0</td><td>3960</td><td>2.46×</td><td>NA</td><td>NA</td></tr></table>
+<h2>Blackboard ingress by role (compaction ROI baseline)</h2>
+<table><tr><th>Agent</th><th>Calls</th><th>Ingress</th><th>Egress</th><th>Ingress waste est.</th></tr><tr><td>Mechanism</td><td>6</td><td>4167</td><td>396</td><td>3771</td></tr><tr><td>Structure</td><td>4</td><td>3857</td><td>395</td><td>3462</td></tr><tr><td>Therapy</td><td>4</td><td>3691</td><td>319</td><td>3372</td></tr><tr><td>Evidence</td><td>4</td><td>3512</td><td>329</td><td>3183</td></tr><tr><td>Planner</td><td>4</td><td>2405</td><td>446</td><td>1959</td></tr><tr><td>Critic</td><td>4</td><td>1491</td><td>298</td><td>1193</td></tr><tr><td>ConflictResolver</td><td>4</td><td>1451</td><td>342</td><td>1109</td></tr><tr><td>Decider</td><td>5</td><td>1202</td><td>324</td><td>878</td></tr><tr><td>CriticRubric</td><td>5</td><td>816</td><td>207</td><td>609</td></tr></table>
+<h2>Productive throughput</h2>
+<div class="grid">
+        <div class="card">
+          <h3>EGFR_L858R · blackboard</h3>
+          <ul>
+            <li><b>Latency-to-decision:</b> 75.7926 s</li>
+            <li><b>Productive egress / GPU-s:</b> 3.13</li>
+            <li><b>GPU productivity ratio:</b> 1.0 (active/attached)</li>
+            <li><b>Workflow density:</b> 0.145 steps/s</li>
+            <li><b>Agent steps:</b> 11 · models: Qwen/Qwen2.5-VL-7B-Instruct</li>
+            <li><b>Weight cache hit rate:</b> 0.0 (sticky weights, no cold reload)</li>
+            <li><b>Round-2 savings if early consensus:</b> 0.0%</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>EGFR_L858R · cot</h3>
+          <ul>
+            <li><b>Latency-to-decision:</b> 129.437 s</li>
+            <li><b>Productive egress / GPU-s:</b> 6.15</li>
+            <li><b>GPU productivity ratio:</b> 1.0 (active/attached)</li>
+            <li><b>Workflow density:</b> 0.023 steps/s</li>
+            <li><b>Agent steps:</b> 3 · models: Qwen/Qwen2.5-VL-7B-Instruct</li>
+            <li><b>Weight cache hit rate:</b> 0.0 (sticky weights, no cold reload)</li>
+            <li><b>Round-2 savings if early consensus:</b> 0.0%</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>EGFR_L858R · single</h3>
+          <ul>
+            <li><b>Latency-to-decision:</b> 141.43630000000002 s</li>
+            <li><b>Productive egress / GPU-s:</b> 3.16</li>
+            <li><b>GPU productivity ratio:</b> 1.0 (active/attached)</li>
+            <li><b>Workflow density:</b> 0.021 steps/s</li>
+            <li><b>Agent steps:</b> 3 · models: Qwen/Qwen2.5-VL-7B-Instruct</li>
+            <li><b>Weight cache hit rate:</b> 0.0 (sticky weights, no cold reload)</li>
+            <li><b>Round-2 savings if early consensus:</b> 0.0%</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>EGFR_T790M · blackboard</h3>
+          <ul>
+            <li><b>Latency-to-decision:</b> 59.3381 s</li>
+            <li><b>Productive egress / GPU-s:</b> 2.46</li>
+            <li><b>GPU productivity ratio:</b> 1.0 (active/attached)</li>
+            <li><b>Workflow density:</b> 0.152 steps/s</li>
+            <li><b>Agent steps:</b> 9 · models: Qwen/Qwen2.5-VL-7B-Instruct</li>
+            <li><b>Weight cache hit rate:</b> 0.0 (sticky weights, no cold reload)</li>
+            <li><b>Round-2 savings if early consensus:</b> 0.0%</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>EGFR_T790M · cot</h3>
+          <ul>
+            <li><b>Latency-to-decision:</b> 71.3591 s</li>
+            <li><b>Productive egress / GPU-s:</b> 2.49</li>
+            <li><b>GPU productivity ratio:</b> 1.0 (active/attached)</li>
+            <li><b>Workflow density:</b> 0.014 steps/s</li>
+            <li><b>Agent steps:</b> 1 · models: Qwen/Qwen2.5-VL-7B-Instruct</li>
+            <li><b>Weight cache hit rate:</b> 0.0 (sticky weights, no cold reload)</li>
+            <li><b>Round-2 savings if early consensus:</b> 0.0%</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>EGFR_T790M · single</h3>
+          <ul>
+            <li><b>Latency-to-decision:</b> 37.2721 s</li>
+            <li><b>Productive egress / GPU-s:</b> 0.67</li>
+            <li><b>GPU productivity ratio:</b> 1.0 (active/attached)</li>
+            <li><b>Workflow density:</b> 0.027 steps/s</li>
+            <li><b>Agent steps:</b> 1 · models: Qwen/Qwen2.5-VL-7B-Instruct</li>
+            <li><b>Weight cache hit rate:</b> 0.0 (sticky weights, no cold reload)</li>
+            <li><b>Round-2 savings if early consensus:</b> 0.0%</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>PIK3CA_E545K · blackboard</h3>
+          <ul>
+            <li><b>Latency-to-decision:</b> 63.3004 s</li>
+            <li><b>Productive egress / GPU-s:</b> 2.63</li>
+            <li><b>GPU productivity ratio:</b> 1.0 (active/attached)</li>
+            <li><b>Workflow density:</b> 0.142 steps/s</li>
+            <li><b>Agent steps:</b> 9 · models: Qwen/Qwen2.5-VL-7B-Instruct</li>
+            <li><b>Weight cache hit rate:</b> 0.0 (sticky weights, no cold reload)</li>
+            <li><b>Round-2 savings if early consensus:</b> 0.0%</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>PIK3CA_E545K · cot</h3>
+          <ul>
+            <li><b>Latency-to-decision:</b> 86.1112 s</li>
+            <li><b>Productive egress / GPU-s:</b> 3.01</li>
+            <li><b>GPU productivity ratio:</b> 1.0 (active/attached)</li>
+            <li><b>Workflow density:</b> 0.012 steps/s</li>
+            <li><b>Agent steps:</b> 1 · models: Qwen/Qwen2.5-VL-7B-Instruct</li>
+            <li><b>Weight cache hit rate:</b> 0.0 (sticky weights, no cold reload)</li>
+            <li><b>Round-2 savings if early consensus:</b> 0.0%</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>PIK3CA_E545K · debate</h3>
+          <ul>
+            <li><b>Latency-to-decision:</b> 77.2876 s</li>
+            <li><b>Productive egress / GPU-s:</b> NA</li>
+            <li><b>GPU productivity ratio:</b> NA (active/attached)</li>
+            <li><b>Workflow density:</b> 0.039 steps/s</li>
+            <li><b>Agent steps:</b> 3 · models: Qwen/Qwen2.5-7B-Instruct</li>
+            <li><b>Weight cache hit rate:</b> 0.667 (sticky weights, no cold reload)</li>
+            <li><b>Round-2 savings if early consensus:</b> 28.8%</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>PIK3CA_E545K · single</h3>
+          <ul>
+            <li><b>Latency-to-decision:</b> 40.0632 s</li>
+            <li><b>Productive egress / GPU-s:</b> 0.72</li>
+            <li><b>GPU productivity ratio:</b> 1.0 (active/attached)</li>
+            <li><b>Workflow density:</b> 0.025 steps/s</li>
+            <li><b>Agent steps:</b> 1 · models: Qwen/Qwen2.5-VL-7B-Instruct</li>
+            <li><b>Weight cache hit rate:</b> 0.0 (sticky weights, no cold reload)</li>
+            <li><b>Round-2 savings if early consensus:</b> 0.0%</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>TP53_R175H · blackboard</h3>
+          <ul>
+            <li><b>Latency-to-decision:</b> 60.3693 s</li>
+            <li><b>Productive egress / GPU-s:</b> 2.51</li>
+            <li><b>GPU productivity ratio:</b> 1.0 (active/attached)</li>
+            <li><b>Workflow density:</b> 0.166 steps/s</li>
+            <li><b>Agent steps:</b> 10 · models: Qwen/Qwen2.5-VL-7B-Instruct</li>
+            <li><b>Weight cache hit rate:</b> 0.0 (sticky weights, no cold reload)</li>
+            <li><b>Round-2 savings if early consensus:</b> 0.0%</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>TP53_R175H · cot</h3>
+          <ul>
+            <li><b>Latency-to-decision:</b> 53.1803 s</li>
+            <li><b>Productive egress / GPU-s:</b> 1.87</li>
+            <li><b>GPU productivity ratio:</b> 1.0 (active/attached)</li>
+            <li><b>Workflow density:</b> 0.019 steps/s</li>
+            <li><b>Agent steps:</b> 1 · models: Qwen/Qwen2.5-VL-7B-Instruct</li>
+            <li><b>Weight cache hit rate:</b> 0.0 (sticky weights, no cold reload)</li>
+            <li><b>Round-2 savings if early consensus:</b> 0.0%</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>TP53_R175H · single</h3>
+          <ul>
+            <li><b>Latency-to-decision:</b> 46.5379 s</li>
+            <li><b>Productive egress / GPU-s:</b> 0.83</li>
+            <li><b>GPU productivity ratio:</b> 1.0 (active/attached)</li>
+            <li><b>Workflow density:</b> 0.021 steps/s</li>
+            <li><b>Agent steps:</b> 1 · models: Qwen/Qwen2.5-VL-7B-Instruct</li>
+            <li><b>Weight cache hit rate:</b> 0.0 (sticky weights, no cold reload)</li>
+            <li><b>Round-2 savings if early consensus:</b> 0.0%</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>unknown · blackboard</h3>
+          <ul>
+            <li><b>Latency-to-decision:</b> 0.0 s</li>
+            <li><b>Productive egress / GPU-s:</b> 0.0</li>
+            <li><b>GPU productivity ratio:</b> 1.0 (active/attached)</li>
+            <li><b>Workflow density:</b> NA steps/s</li>
+            <li><b>Agent steps:</b> 1 · models: </li>
+            <li><b>Weight cache hit rate:</b> 0.0 (sticky weights, no cold reload)</li>
+            <li><b>Round-2 savings if early consensus:</b> 0%</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>unknown · safety_probe</h3>
+          <ul>
+            <li><b>Latency-to-decision:</b> 14.865400000000001 s</li>
+            <li><b>Productive egress / GPU-s:</b> NA</li>
+            <li><b>GPU productivity ratio:</b> NA (active/attached)</li>
+            <li><b>Workflow density:</b> 0.135 steps/s</li>
+            <li><b>Agent steps:</b> 2 · models: Qwen/Qwen2.5-7B-Instruct</li>
+            <li><b>Weight cache hit rate:</b> 1.0 (sticky weights, no cold reload)</li>
+            <li><b>Round-2 savings if early consensus:</b> 0.0%</li>
+          </ul>
+        </div></div>
+
+        <section>
+          <h2>Trace · EGFR_L858R · blackboard (11 steps, 75.79s)</h2>
+          <div class="timeline">
+            <div class="bar" style="width:12.792320886660509%;background:#6366f1"
+                 title="Planner r1 · 9.6953s · 114 tok">
+              Planner
+            </div>
+            <div class="bar" style="width:11.339226810924924%;background:#0ea5e9"
+                 title="Structure r1 · 8.594s · 101 tok">
+              Structure
+            </div>
+            <div class="bar" style="width:9.399788890354928%;background:#14b8a6"
+                 title="Mechanism r1 · 7.1241s · 84 tok">
+              Mechanism
+            </div>
+            <div class="bar" style="width:7.815674891146589%;background:#94a3b8"
+                 title="CriticRubric r1 · 5.9235s · 70 tok">
+              CriticRubric
+            </div>
+            <div class="bar" style="width:8.06821480406386%;background:#14b8a6"
+                 title="Mechanism r1 · 6.1149s · 72 tok">
+              Mechanism
+            </div>
+            <div class="bar" style="width:7.797070853674626%;background:#94a3b8"
+                 title="CriticRubric r1 · 5.9094s · 70 tok">
+              CriticRubric
+            </div>
+            <div class="bar" style="width:10.472621717904737%;background:#22c55e"
+                 title="Evidence r1 · 7.9372s · 94 tok">
+              Evidence
+            </div>
+            <div class="bar" style="width:8.844438580287635%;background:#eab308"
+                 title="Therapy r1 · 6.7032s · 78 tok">
+              Therapy
+            </div>
+            <div class="bar" style="width:7.274310595065312%;background:#f97316"
+                 title="Critic r1 · 5.5132s · 64 tok">
+              Critic
+            </div>
+            <div class="bar" style="width:8.359018340150415%;background:#a855f7"
+                 title="ConflictResolver r1 · 6.3353s · 75 tok">
+              ConflictResolver
+            </div>
+            <div class="bar" style="width:7.840744161498878%;background:#ef4444"
+                 title="Decider r1 · 5.9425s · 70 tok">
+              Decider
+            </div></div>
+        </section>
+        <section>
+          <h2>Trace · EGFR_T790M · blackboard (9 steps, 59.34s)</h2>
+          <div class="timeline">
+            <div class="bar" style="width:16.48500168520391%;background:#6366f1"
+                 title="Planner r1 · 9.7822s · 116 tok">
+              Planner
+            </div>
+            <div class="bar" style="width:12.305527468823728%;background:#0ea5e9"
+                 title="Structure r1 · 7.3021s · 85 tok">
+              Structure
+            </div>
+            <div class="bar" style="width:12.449780923491742%;background:#14b8a6"
+                 title="Mechanism r1 · 7.3877s · 88 tok">
+              Mechanism
+            </div>
+            <div class="bar" style="width:4%;background:#94a3b8"
+                 title="CriticRubric r1 · 1.981s · 23 tok">
+              CriticRubric
+            </div>
+            <div class="bar" style="width:12.03993933265925%;background:#22c55e"
+                 title="Evidence r1 · 7.1445s · 84 tok">
+              Evidence
+            </div>
+            <div class="bar" style="width:10.679474216380182%;background:#eab308"
+                 title="Therapy r1 · 6.3372s · 74 tok">
+              Therapy
+            </div>
+            <div class="bar" style="width:9.891978429389956%;background:#f97316"
+                 title="Critic r1 · 5.8699s · 69 tok">
+              Critic
+            </div>
+            <div class="bar" style="width:13.530670711156048%;background:#a855f7"
+                 title="ConflictResolver r1 · 8.0291s · 95 tok">
+              ConflictResolver
+            </div>
+            <div class="bar" style="width:9.276036400404449%;background:#ef4444"
+                 title="Decider r1 · 5.5044s · 65 tok">
+              Decider
+            </div></div>
+        </section>
+        <section>
+          <h2>Trace · PIK3CA_E545K · blackboard (9 steps, 63.3s)</h2>
+          <div class="timeline">
+            <div class="bar" style="width:17.823222748815166%;background:#6366f1"
+                 title="Planner r1 · 11.2821s · 134 tok">
+              Planner
+            </div>
+            <div class="bar" style="width:13.21911532385466%;background:#0ea5e9"
+                 title="Structure r1 · 8.3677s · 98 tok">
+              Structure
+            </div>
+            <div class="bar" style="width:12.136176935229068%;background:#14b8a6"
+                 title="Mechanism r1 · 7.6822s · 91 tok">
+              Mechanism
+            </div>
+            <div class="bar" style="width:4%;background:#94a3b8"
+                 title="CriticRubric r1 · 1.8536s · 22 tok">
+              CriticRubric
+            </div>
+            <div class="bar" style="width:9.732385466034755%;background:#22c55e"
+                 title="Evidence r1 · 6.1606s · 73 tok">
+              Evidence
+            </div>
+            <div class="bar" style="width:12.260979462875198%;background:#eab308"
+                 title="Therapy r1 · 7.7612s · 92 tok">
+              Therapy
+            </div>
+            <div class="bar" style="width:10.90047393364929%;background:#f97316"
+                 title="Critic r1 · 6.9s · 82 tok">
+              Critic
+            </div>
+            <div class="bar" style="width:11.509478672985782%;background:#a855f7"
+                 title="ConflictResolver r1 · 7.2855s · 86 tok">
+              ConflictResolver
+            </div>
+            <div class="bar" style="width:9.490521327014218%;background:#ef4444"
+                 title="Decider r1 · 6.0075s · 71 tok">
+              Decider
+            </div></div>
+        </section>
+        <section>
+          <h2>Trace · TP53_R175H · blackboard (10 steps, 60.37s)</h2>
+          <div class="timeline">
+            <div class="bar" style="width:11.542156700347855%;background:#6366f1"
+                 title="Planner r1 · 6.968s · 82 tok">
+              Planner
+            </div>
+            <div class="bar" style="width:15.686599304290214%;background:#0ea5e9"
+                 title="Structure r1 · 9.47s · 111 tok">
+              Structure
+            </div>
+            <div class="bar" style="width:8.483518303793275%;background:#14b8a6"
+                 title="Mechanism r1 · 5.1215s · 61 tok">
+              Mechanism
+            </div>
+            <div class="bar" style="width:4%;background:#94a3b8"
+                 title="CriticRubric r1 · 1.8748s · 22 tok">
+              CriticRubric
+            </div>
+            <div class="bar" style="width:10.87112804373033%;background:#22c55e"
+                 title="Evidence r1 · 6.5629s · 78 tok">
+              Evidence
+            </div>
+            <div class="bar" style="width:10.537518635083654%;background:#eab308"
+                 title="Therapy r1 · 6.3615s · 75 tok">
+              Therapy
+            </div>
+            <div class="bar" style="width:11.362431671359946%;background:#f97316"
+                 title="Critic r1 · 6.8595s · 83 tok">
+              Critic
+            </div>
+            <div class="bar" style="width:11.969852575782674%;background:#a855f7"
+                 title="ConflictResolver r1 · 7.2262s · 86 tok">
+              ConflictResolver
+            </div>
+            <div class="bar" style="width:8.635746231571973%;background:#ef4444"
+                 title="Decider r1 · 5.2134s · 62 tok">
+              Decider
+            </div>
+            <div class="bar" style="width:7.804373032963392%;background:#ef4444"
+                 title="Decider r1 · 4.7115s · 56 tok">
+              Decider
+            </div></div>
+        </section>
+<h2>Before &amp; After · single vs blackboard</h2>
+<table><tr><th>Case</th><th>Metric</th><th>Baseline single</th><th>Blackboard MAS</th></tr><tr><td>EGFR_L858R</td><td>latency_to_decision_s</td><td>141.43630000000002</td><td>75.7926</td></tr><tr><td>EGFR_L858R</td><td>productive_egress_tokens_per_gpu_s</td><td>3.16</td><td>3.13</td></tr><tr><td>EGFR_L858R</td><td>gpu_productivity_ratio</td><td>1.0</td><td>1.0</td></tr><tr><td>EGFR_L858R</td><td>workflow_density_steps_per_s</td><td>0.021</td><td>0.145</td></tr><tr><td>EGFR_L858R</td><td>n_agent_steps</td><td>3</td><td>11</td></tr><tr><td>EGFR_T790M</td><td>latency_to_decision_s</td><td>37.2721</td><td>59.3381</td></tr><tr><td>EGFR_T790M</td><td>productive_egress_tokens_per_gpu_s</td><td>0.67</td><td>2.46</td></tr><tr><td>EGFR_T790M</td><td>gpu_productivity_ratio</td><td>1.0</td><td>1.0</td></tr><tr><td>EGFR_T790M</td><td>workflow_density_steps_per_s</td><td>0.027</td><td>0.152</td></tr><tr><td>EGFR_T790M</td><td>n_agent_steps</td><td>1</td><td>9</td></tr><tr><td>PIK3CA_E545K</td><td>latency_to_decision_s</td><td>40.0632</td><td>63.3004</td></tr><tr><td>PIK3CA_E545K</td><td>productive_egress_tokens_per_gpu_s</td><td>0.72</td><td>2.63</td></tr><tr><td>PIK3CA_E545K</td><td>gpu_productivity_ratio</td><td>1.0</td><td>1.0</td></tr><tr><td>PIK3CA_E545K</td><td>workflow_density_steps_per_s</td><td>0.025</td><td>0.142</td></tr><tr><td>PIK3CA_E545K</td><td>n_agent_steps</td><td>1</td><td>9</td></tr><tr><td>TP53_R175H</td><td>latency_to_decision_s</td><td>46.5379</td><td>60.3693</td></tr><tr><td>TP53_R175H</td><td>productive_egress_tokens_per_gpu_s</td><td>0.83</td><td>2.51</td></tr><tr><td>TP53_R175H</td><td>gpu_productivity_ratio</td><td>1.0</td><td>1.0</td></tr><tr><td>TP53_R175H</td><td>workflow_density_steps_per_s</td><td>0.021</td><td>0.166</td></tr><tr><td>TP53_R175H</td><td>n_agent_steps</td><td>1</td><td>10</td></tr></table>
+</body></html>

@@ -1,0 +1,14 @@
+query_id,gene,mutation,architecture,therapy_f1,direction_acc,semantic_accuracy_composite,total_tokens,latency_s,cost_multiplier_vs_single,n_agent_steps,route,therapy_sensitivity_overlap,route_agreement_across_arch,return_on_reasoning_per_1k_tokens,return_on_reasoning_per_second,return_on_reasoning_vs_cost_multiplier
+EGFR_L858R,EGFR,L858R,single,0.4,1.0,0.7,5199,141.44,1.0,3,inhibitor_rag,,True,0.1346,0.0049,0.7
+EGFR_L858R,EGFR,L858R,cot,1.0,1.0,1.0,5633,129.44,1.08,3,inhibitor_rag,,True,0.1775,0.0077,0.9259
+EGFR_L858R,EGFR,L858R,blackboard,0.0,0.0,0.0,6700,75.79,1.29,11,inhibitor_rag,,True,NA,NA,NA
+EGFR_T790M,EGFR,T790M,single,1.0,1.0,1.0,1729,37.27,1.0,1,inhibitor_rag,Osimertinib,True,0.5784,0.0268,1.0
+EGFR_T790M,EGFR,T790M,cot,1.0,1.0,1.0,2262,71.36,1.31,1,inhibitor_rag,Osimertinib,True,0.4421,0.014,0.7634
+EGFR_T790M,EGFR,T790M,blackboard,1.0,1.0,1.0,6814,59.34,3.94,9,inhibitor_rag,Osimertinib,True,0.1468,0.0169,0.2538
+PIK3CA_E545K,PIK3CA,E545K,single,1.0,0.0,0.5,1609,40.06,1.0,1,inhibitor_rag,,True,0.3108,0.0125,0.5
+PIK3CA_E545K,PIK3CA,E545K,cot,1.0,0.0,0.5,2238,86.11,1.39,1,inhibitor_rag,,True,0.2234,0.0058,0.3597
+PIK3CA_E545K,PIK3CA,E545K,blackboard,0.0,0.0,0.0,6106,63.3,3.79,9,inhibitor_rag,,True,NA,NA,NA
+TP53_R175H,TP53,R175H,single,1.0,1.0,1.0,1611,46.54,1.0,1,structural_rescue,,True,0.6207,0.0215,1.0
+TP53_R175H,TP53,R175H,cot,0.0,1.0,0.5,1783,53.18,1.11,1,structural_rescue,,True,0.2804,0.0094,0.4505
+TP53_R175H,TP53,R175H,blackboard,1.0,1.0,1.0,6028,60.37,3.74,10,structural_rescue,,True,0.1659,0.0166,0.2674
+PIK3CA_E545K,PIK3CA,E545K,debate,0.0,,0.0,3960,77.29,2.46,3,inhibitor_rag,,True,NA,NA,NA

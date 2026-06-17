@@ -1,0 +1,157 @@
+{
+  "target": {
+    "gene": "PIK3CA",
+    "mutation": "E545K",
+    "class": "ONCOGENE_GOF",
+    "pathway": "inhibitor_rag",
+    "uniprot": "P42336",
+    "residue": 545,
+    "wt_aa": "E",
+    "mut_aa": "K",
+    "civic_profile": "PIK3CA E545K",
+    "disease_context": "Breast Carcinoma",
+    "evidence_tier": "strong",
+    "classification": "known_driver",
+    "vus_branch": "known",
+    "allow_confident_therapy": true,
+    "recommendation_status": "approved",
+    "next_best_action": "none",
+    "confidence_scope": "therapy",
+    "mechanism_hypothesis": "Established pathogenic driver pathway."
+  },
+  "structure": {
+    "residue": "E545",
+    "residue_index": 545,
+    "mutation": "E545K",
+    "pLDDT_at_residue": 94.1,
+    "mean_pLDDT_protein": 92.4,
+    "neighboring_residues_within_10A": 10,
+    "local_contact_density_10A": 10,
+    "mpnn_index": 545,
+    "region": "activation loop",
+    "chain": "A",
+    "pdb_path": "/workspace/shared/structures/AF-P42336-F1-model_v6.pdb",
+    "gene": "PIK3CA",
+    "structure_image_path": "/workspace/shared/structures/images/PIK3CA_E545K_neighborhood.png",
+    "plm_llr": -2.3321,
+    "plm_perplexity_band": "deleterious"
+  },
+  "evidence": [
+    {
+      "source": "CIViC",
+      "therapies": "Alpelisib",
+      "disease": "Breast Carcinoma",
+      "direction": "Sensitivity/Response",
+      "level": "A",
+      "citation": "Andre et al., 2019",
+      "url": "https://civicdb.org/links/evidence_items/8733"
+    },
+    {
+      "source": "CIViC",
+      "therapies": "Alpelisib",
+      "disease": "Colorectal Cancer",
+      "direction": "Resistance",
+      "level": "B",
+      "citation": "context-dependent",
+      "url": "https://civicdb.org"
+    },
+    {
+      "source": "PubMed",
+      "pmid": "42299598",
+      "title": "Mechanism of afatinib resistance in non-small cell lung cancer patients with nonclassical EGFR mutations: A multicenter, retrospective study.",
+      "abstract": "Epidermal growth factor receptor (EGFR) tyrosine kinase inhibitors (TKIs) are standard treatments for non-small cell lung cancer (NSCLC) patients with EGFR mutations, but resistance inevitably develops. While resistance mechanisms in classical mutations are well studied, those in nonclassical mutations remain unclear. As a widely used EGFR-TKI, afatinib's resistance mechanisms in nonclassical mutations warrant further investigation to improve clinical outcomes. This study included NSCLC patients",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42299598/"
+    },
+    {
+      "source": "ClinVar",
+      "gene": "PIK3CA",
+      "mutation": "E545K",
+      "significance": "Pathogenic",
+      "review_status": "reviewed by expert panel"
+    }
+  ],
+  "route": "inhibitor_rag",
+  "architecture": "cot",
+  "variant_routing": {
+    "evidence_tier": "strong",
+    "classification": "known_driver",
+    "vus_branch": "known",
+    "allow_confident_therapy": true
+  },
+  "reasoning": {
+    "architecture": "cot",
+    "target_reasoning": {
+      "json": {
+        "variant": {
+          "gene": "PIK3CA",
+          "protein_change": "E545K",
+          "hgvs_p": "PIK3CA E545K"
+        },
+        "structure": {
+          "residue": "E545",
+          "residue_index": 545,
+          "pLDDT_at_residue": 94.1,
+          "mean_pLDDT_protein": 92.4,
+          "neighboring_residues_within_10A": 10,
+          "local_contact_density_10A": 10,
+          "mpnn_index": 545,
+          "region": "activation loop",
+          "chain": "A",
+          "gene": "PIK3CA"
+        },
+        "evidence": [
+          {
+            "source": "CIViC",
+            "therapies": "Alpelisib",
+            "disease": "Breast Carcinoma",
+            "direction": "Sensitivity/Response",
+            "level": "A",
+            "citation": "Andre et al., 2019",
+            "url": "https://civicdb.org/links/evidence_items/8733"
+          },
+          {
+            "source": "CIViC",
+            "therapies": "Alpelisib",
+            "disease": "Colorectal Cancer",
+            "direction": "Resistance",
+            "level": "B",
+            "citation": "context-dependent",
+            "url": "https://civicdb.org"
+          },
+          {
+            "source": "PubMed",
+            "pmid": "42299598",
+            "title": "Mechanism of afatinib resistance in non-small cell lung cancer patients with nonclassical EGFR mutations: A multicenter, retrospective study.",
+            "abstract": "Epidermal growth factor receptor (EGFR) tyrosine kinase inhibitors (TKIs) are standard treatments for non-small cell lung cancer (NSCLC) patients with EGFR mutations, but resistance inevitably develops. While resistance mechanisms in classical mutations are well studied, those in nonclassical mutations remain unclear. As a widely used EGFR-TKI, afatinib's resistance mechanisms in nonclassical mutations warrant further investigation to improve clinical outcomes. This study included NSCLC patients",
+            "url": "https://pubmed.ncbi.nlm.nih.gov/42299598/"
+          }
+        ],
+        "classification": "known_driver",
+        "evidence_tier": "strong",
+        "target_reasoning": {
+          "mechanism": "PI3K activation.",
+          "mechanism_hypothesis": "PI3K activation.",
+          "therapy": {
+            "sensitivity": [
+              "Alpelisib"
+            ],
+            "resistance": [],
+            "context": "breast cancer",
+            "recommendation_status": "confident"
+          },
+          "next_best_action": "standard_of_care",
+          "confidence": 0.85
+        }
+      }
+    },
+    "total_tokens": 2178,
+    "multimodal_image": true,
+    "llm_io": {
+      "prompt": "Variant: PIK3CA E545K (ONCOGENE_GOF)\nDisease context: Breast Carcinoma\nVerified structural features (from AlphaFold P42336):\n{\n  \"residue\": \"E545\",\n  \"residue_index\": 545,\n  \"mutation\": \"E545K\",\n  \"pLDDT_at_residue\": 94.1,\n  \"mean_pLDDT_protein\": 92.4,\n  \"neighboring_residues_within_10A\": 10,\n  \"local_contact_density_10A\": 10,\n  \"mpnn_index\": 545,\n  \"region\": \"activation loop\",\n  \"chain\": \"A\",\n  \"gene\": \"PIK3CA\",\n  \"structure_image_path\": \"/workspace/shared/structures/images/PIK3CA_E545K_neighborhood.png\",\n  \"plm_llr\": -2.3321,\n  \"plm_perplexity_band\": \"deleterious\"\n}\n\nEvidence items:\n[\n  {\n    \"source\": \"CIViC\",\n    \"therapies\": \"Alpelisib\",\n    \"disease\": \"Breast Carcinoma\",\n    \"direction\": \"Sensitivity/Response\",\n    \"level\": \"A\",\n    \"citation\": \"Andre et al., 2019\",\n    \"url\": \"https://civicdb.org/links/evidence_items/8733\"\n  },\n  {\n    \"source\": \"CIViC\",\n    \"therapies\": \"Alpelisib\",\n    \"disease\": \"Colorectal Cancer\",\n    \"direction\": \"Resistance\",\n    \"level\": \"B\",\n    \"citation\": \"context-dependent\",\n    \"url\": \"https://civicdb.org\"\n  },\n  {\n    \"source\": \"PubMed\",\n    \"pmid\": \"42299598\",\n    \"title\": \"Mechanism of afatinib resistance in non-small cell lung cancer patients with nonclassical EGFR mutations: A multicenter, retrospective study.\",\n    \"abstract\": \"Epidermal growth factor receptor (EGFR) tyrosine kinase inhibitors (TKIs) are standard treatments for non-small cell lung cancer (NSCLC) patients with EGFR mutations, but resistance inevitably develops. While resistance mechanisms in classical mutations are well studied, those in nonclassical mutations remain unclear. As a widely used EGFR-TKI, afatinib's resistance mechanisms in nonclassical mutations warrant further investigation to improve clinical outcomes. This study included NSCLC patients\",\n    \"url\": \"https://pubmed.ncbi.nlm.nih.gov/42299598/\"\n  },\n  {\n    \"source\": \"ClinVar\",\n    \"gene\": \"PIK3CA\",\n    \"mutation\": \"E545K\",\n    \"significance\": \"Pathogenic\",\n    \"review_status\": \"reviewed by expert panel\"\n  }\n]\n\n\nReturn ONLY valid JSON with keys:\n{\n  \"variant\": {\"gene\": \"...\", \"protein_change\": \"...\", \"hgvs_p\": \"...\"},\n  \"structure\": {... numeric features verbatim ...},\n  \"evidence\": [...],\n  \"classification\": \"known_driver|likely_driver|vus|unknown\",\n  \"evidence_tier\": \"strong|weak|none\",\n  \"target_reasoning\": {\n    \"mechanism\": \"...\",\n    \"mechanism_hypothesis\": \"...\",\n    \"therapy\": {\n      \"sensitivity\": [...],\n      \"resistance\": [...],\n      \"context\": \"...\",\n      \"recommendation_status\": \"confident|insufficient_evidence\"\n    },\n    \"next_best_action\": \"standard_of_care|tumor_board|clinical_trial|structural_rescue\",\n    \"confidence\": \"0.0-1.0\"\n  }\n}\nUse ONLY the provided numeric structure features; do not invent pLDDT values.\nIf evidence_tier is weak or none, set recommendation_status to insufficient_evidence.\n\n\nThink step by step in <think>...</think>, then output the final JSON.",
+      "system_prompt": "",
+      "reasoning": "The variant is PIK3CA E545K, which is known to activate PI3K signaling. The structure shows high pLDDT and local contact density, indicating confidence in the model. CIViC suggests sensitivity to Alpelisib in breast cancer, while resistance in colorectal cancer is context-dependent. ClinVar classifies it as pathogenic. Mechanism involves PI3K activation. Therapy sensitivity/resistance is context-specific. Next best action depends on context.",
+      "output": "{\"json\": {\"variant\": {\"gene\": \"PIK3CA\", \"protein_change\": \"E545K\", \"hgvs_p\": \"PIK3CA E545K\"}, \"structure\": {\"residue\": \"E545\", \"residue_index\": 545, \"pLDDT_at_residue\": 94.1, \"mean_pLDDT_protein\": 92.4, \"neighboring_residues_within_10A\": 10, \"local_contact_density_10A\": 10, \"mpnn_index\": 545, \"region\": \"activation loop\", \"chain\": \"A\", \"gene\": \"PIK3CA\"}, \"evidence\": [{\"source\": \"CIViC\", \"therapies\": \"Alpelisib\", \"disease\": \"Breast Carcinoma\", \"direction\": \"Sensitivity/Response\", \"level\": \"A\", \"citation\": \"Andre et al., 2019\", \"url\": \"https://civicdb.org/links/evidence_items/8733\"}, {\"source\": \"CIViC\", \"therapies\": \"Alpelisib\", \"disease\": \"Colorectal Cancer\", \"direction\": \"Resistance\", \"level\": \"B\", \"citation\": \"context-dependent\", \"url\": \"https://civicdb.org\"}, {\"source\": \"PubMed\", \"pmid\": \"42299598\", \"title\": \"Mechanism of afatinib resistance in non-small cell lung cancer patients with nonclassical EGFR mutations: A multicenter, retrospective study.\", \"abstract\": \"Epidermal growth factor receptor (EGFR) tyrosine kinase inhibitors (TKIs) are standard treatments for non-small cell lung cancer (NSCLC) patients with EGFR mutations, but resistance inevitably develops. While resistance mechanisms in classical mutations are well studied, those in nonclassical mutations remain unclear. As a widely used EGFR-TKI, afatinib's resistance mechanisms in nonclassical mutations warrant further investigation to improve clinical outcomes. This study included NSCLC patients\", \"url\": \"https://pubmed.ncbi.nlm.nih.gov/42299598/\"}], \"classification\": \"known_driver\", \"evidence_tier\": \"strong\", \"target_reasoning\": {\"mechanism\": \"PI3K activation.\", \"mechanism_hypothesis\": \"PI3K activation.\", \"therapy\": {\"sensitivity\": [\"Alpelisib\"], \"resistance\": [], \"context\": \"breast cancer\", \"recommendation_status\": \"confident\"}, \"next_best_action\": \"standard_of_care\", \"confidence\": 0.85}}}.json\n{\"json\": {\"variant\": {\"gene\": \"PIK3CA\", \"protein_change\": \"E545K\", \"hgvs_p\": \"PIK3CA E545K\"}, \"structure\": {\"residue\": \"E545\", \"residue_index\": 545, \"pLDDT_at_residue\": 94.1, \"mean_pLDDT_protein\": 92.4, \"neighboring_residues_within_10A\": 10, \"local_contact_density_10A\": 10, \"mpnn_index\": 545, \"region\": \"activation loop\", \"chain\": \"A\", \"gene\": \"PIK3CA\"}, \"evidence\": [{\"source\": \"CIViC\", \"therapies\": \"Alpelisib\", \"disease\": \"Breast Carcinoma\", \"direction\": \"Sensitivity/Response\", \"level\": \"A\", \"citation\": \"Andre et al., 2019\", \"url\": \"https://civicdb.org/links/evidence_items/8733\"}, {\"source\": \"CIViC\", \"therapies\": \"Alpelisib\", \"disease\": \"Colorectal Cancer\", \"direction\": \"Resistance\", \"level\": \"B\", \"citation\": \"context-dependent\", \"url\": \"https://civicdb.org\"}, {\"source\": \"PubMed\", \"pmid\": \"42299598\", \"title\": \"Mechanism of afatinib resistance",
+      "content": "<think>\nThe variant is PIK3CA E545K, which is known to activate PI3K signaling. The structure shows high pLDDT and local contact density, indicating confidence in the model. CIViC suggests sensitivity to Alpelisib in breast cancer, while resistance in colorectal cancer is context-dependent. ClinVar classifies it as pathogenic. Mechanism involves PI3K activation. Therapy sensitivity/resistance is context-specific. Next best action depends on context.\n</think>\n{\"json\": {\"variant\": {\"gene\": \"PIK3CA\", \"protein_change\": \"E545K\", \"hgvs_p\": \"PIK3CA E545K\"}, \"structure\": {\"residue\": \"E545\", \"residue_index\": 545, \"pLDDT_at_residue\": 94.1, \"mean_pLDDT_protein\": 92.4, \"neighboring_residues_within_10A\": 10, \"local_contact_density_10A\": 10, \"mpnn_index\": 545, \"region\": \"activation loop\", \"chain\": \"A\", \"gene\": \"PIK3CA\"}, \"evidence\": [{\"source\": \"CIViC\", \"therapies\": \"Alpelisib\", \"disease\": \"Breast Carcinoma\", \"direction\": \"Sensitivity/Response\", \"level\": \"A\", \"citation\": \"Andre et al., 2019\", \"url\": \"https://civicdb.org/links/evidence_items/8733\"}, {\"source\": \"CIViC\", \"therapies\": \"Alpelisib\", \"disease\": \"Colorectal Cancer\", \"direction\": \"Resistance\", \"level\": \"B\", \"citation\": \"context-dependent\", \"url\": \"https://civicdb.org\"}, {\"source\": \"PubMed\", \"pmid\": \"42299598\", \"title\": \"Mechanism of afatinib resistance in non-small cell lung cancer patients with nonclassical EGFR mutations: A multicenter, retrospective study.\", \"abstract\": \"Epidermal growth factor receptor (EGFR) tyrosine kinase inhibitors (TKIs) are standard treatments for non-small cell lung cancer (NSCLC) patients with EGFR mutations, but resistance inevitably develops. While resistance mechanisms in classical mutations are well studied, those in nonclassical mutations remain unclear. As a widely used EGFR-TKI, afatinib's resistance mechanisms in nonclassical mutations warrant further investigation to improve clinical outcomes. This study included NSCLC patients\", \"url\": \"https://pubmed.ncbi.nlm.nih.gov/42299598/\"}], \"classification\": \"known_driver\", \"evidence_tier\": \"strong\", \"target_reasoning\": {\"mechanism\": \"PI3K activation.\", \"mechanism_hypothesis\": \"PI3K activation.\", \"therapy\": {\"sensitivity\": [\"Alpelisib\"], \"resistance\": [], \"context\": \"breast cancer\", \"recommendation_status\": \"confident\"}, \"next_best_action\": \"standard_of_care\", \"confidence\": 0.85}}}.json\n{\"json\": {\"variant\": {\"gene\": \"PIK3CA\", \"protein_change\": \"E545K\", \"hgvs_p\": \"PIK3CA E545K\"}, \"structure\": {\"residue\": \"E545\", \"residue_index\": 545, \"pLDDT_at_residue\": 94.1, \"mean_pLDDT_protein\": 92.4, \"neighboring_residues_within_10A\": 10, \"local_contact_density_10A\": 10, \"mpnn_index\": 545, \"region\": \"activation loop\", \"chain\": \"A\", \"gene\": \"PIK3CA\"}, \"evidence\": [{\"source\": \"CIViC\", \"therapies\": \"Alpelisib\", \"disease\": \"Breast Carcinoma\", \"direction\": \"Sensitivity/Response\", \"level\": \"A\", \"citation\": \"Andre et al., 2019\", \"url\": \"https://civicdb.org/links/evidence_items/8733\"}, {\"source\": \"CIViC\", \"therapies\": \"Alpelisib\", \"disease\": \"Colorectal Cancer\", \"direction\": \"Resistance\", \"level\": \"B\", \"citation\": \"context-dependent\", \"url\": \"https://civicdb.org\"}, {\"source\": \"PubMed\", \"pmid\": \"42299598\", \"title\": \"Mechanism of afatinib resistance"
+    }
+  }
+}

@@ -1,0 +1,599 @@
+{
+  "EGFR_L858R": {
+    "gene": "EGFR",
+    "mutation": "L858R",
+    "route_by_architecture": {
+      "single": "inhibitor_rag",
+      "cot": "inhibitor_rag",
+      "blackboard": "inhibitor_rag"
+    },
+    "route_agreement": true,
+    "therapy_sensitivity_by_architecture": {
+      "single": [
+        "Gefitinib",
+        "Erlotinib",
+        "Afatinib",
+        "Osimertinib"
+      ],
+      "cot": [],
+      "blackboard": [
+        "Osimertinib"
+      ]
+    },
+    "therapy_resistance_by_architecture": {
+      "single": [],
+      "cot": [],
+      "blackboard": []
+    },
+    "therapy_sensitivity_overlap": [],
+    "therapy_sensitivity_union": [
+      "Afatinib",
+      "Erlotinib",
+      "Gefitinib",
+      "Osimertinib"
+    ],
+    "therapy_sensitivity_agreement": false,
+    "therapy_resistance_overlap": [],
+    "therapy_resistance_union": [],
+    "mechanism_by_architecture": {
+      "single": "L858R activates EGFR kinase.",
+      "cot": "",
+      "blackboard": "L858R sensitizes NSCLC to EGFR-TKIs."
+    },
+    "confidence_by_architecture": {
+      "single": 0.9,
+      "cot": null,
+      "blackboard": "0.9"
+    },
+    "total_tokens_by_architecture": {
+      "single": 0,
+      "cot": 1545,
+      "blackboard": 6700
+    },
+    "rescue": null,
+    "rows": [
+      {
+        "architecture": "single",
+        "route": "inhibitor_rag",
+        "therapy_sensitivity": [
+          "Gefitinib",
+          "Erlotinib",
+          "Afatinib",
+          "Osimertinib"
+        ],
+        "therapy_resistance": [],
+        "mechanism_preview": "L858R activates EGFR kinase.",
+        "confidence": 0.9,
+        "total_tokens": 0
+      },
+      {
+        "architecture": "cot",
+        "route": "inhibitor_rag",
+        "therapy_sensitivity": [],
+        "therapy_resistance": [],
+        "mechanism_preview": "",
+        "confidence": null,
+        "total_tokens": 1545
+      },
+      {
+        "architecture": "blackboard",
+        "route": "inhibitor_rag",
+        "therapy_sensitivity": [
+          "Osimertinib"
+        ],
+        "therapy_resistance": [],
+        "mechanism_preview": "L858R sensitizes NSCLC to EGFR-TKIs.",
+        "confidence": "0.9",
+        "total_tokens": 6700
+      }
+    ],
+    "mtb_panel": {
+      "gene": "EGFR",
+      "mutation": "L858R",
+      "rows": [
+        {
+          "agent": "Planner",
+          "type": "plan",
+          "stance_summary": "1.",
+          "biochemical_claim": "Analysis plan staged for specialist experts."
+        },
+        {
+          "agent": "Structure",
+          "type": "expert",
+          "stance_summary": "L858R sensitizes EGFR-mutant NSCLC to EGFR-TKIs.",
+          "biochemical_claim": "L858R sensitizes NSCLC to EGFR-TKIs."
+        },
+        {
+          "agent": "Mechanism",
+          "type": "expert",
+          "stance_summary": "EGFR L858R activates EGFR signaling.",
+          "biochemical_claim": "L858R stabilizes EGFR dimerization."
+        },
+        {
+          "agent": "Mechanism",
+          "type": "reflexion",
+          "stance_summary": "L858R sensitizes NSCLC to EGFR-TKIs.",
+          "biochemical_claim": "L858R sensitizes NSCLC to EGFR-TKIs."
+        },
+        {
+          "agent": "Evidence",
+          "type": "expert",
+          "stance_summary": "EGFR L858R confers sensitivity to EGFR-TKIs.",
+          "biochemical_claim": "L858R sensitizes NSCLC to EGFR-TKIs."
+        },
+        {
+          "agent": "Therapy",
+          "type": "expert",
+          "stance_summary": "EGFR L858R sensitizes NSCLC to EGFR-TKIs.",
+          "biochemical_claim": "L858R sensitizes NSCLC to EGFR-TKIs."
+        },
+        {
+          "agent": "Critic",
+          "type": "critique",
+          "stance_summary": "Claim supported by evidence.",
+          "biochemical_claim": "L858R sensitizes NSCLC to EGFR-TKIs."
+        },
+        {
+          "agent": "ConflictResolver",
+          "type": "resolution",
+          "stance_summary": "L858R sensitizes NSCLC to EGFR-TKIs.",
+          "biochemical_claim": "L858R stabilizes EGFR dimerization."
+        },
+        {
+          "agent": "Decider",
+          "type": "decision",
+          "stance_summary": "Final therapy decision synthesized.",
+          "biochemical_claim": "{\"mechanism\": \"L858R sensitizes NSCLC to EGFR-TKIs.\", \"therapy\": {\"sensitivity\": [\"Osimertinib\"], \"resistance\": [], \"con"
+        }
+      ],
+      "formatted": "MTB Panel \u2014 EGFR L858R (blackboard)\n-----------------------------------\nAgent              | Stance Summary                             | Key Biochemical Claim\n------------------------------------------------------------------------------------------\nPlanner (plan)     | 1.                                         | Analysis plan staged for specialist experts.\nStructure (expert) | L858R sensitizes EGFR-mutant NSCLC to E... | L858R sensitizes NSCLC to EGFR-TKIs.\nMechanism (expert) | EGFR L858R activates EGFR signaling.       | L858R stabilizes EGFR dimerization.\nMechanism (reflexion) | L858R sensitizes NSCLC to EGFR-TKIs.       | L858R sensitizes NSCLC to EGFR-TKIs.\nEvidence (expert)  | EGFR L858R confers sensitivity to EGFR-... | L858R sensitizes NSCLC to EGFR-TKIs.\nTherapy (expert)   | EGFR L858R sensitizes NSCLC to EGFR-TKIs.  | L858R sensitizes NSCLC to EGFR-TKIs.\nCritic (critique)  | Claim supported by evidence.               | L858R sensitizes NSCLC to EGFR-TKIs.\nConflictResolver (resolution) | L858R sensitizes NSCLC to EGFR-TKIs.       | L858R stabilizes EGFR dimerization.\nDecider (decision) | Final therapy decision synthesized.        | {\"mechanism\": \"L858R sensitizes NSCLC to EGFR-TKIs.\", \"therapy\": {\"sensitivit..."
+    }
+  },
+  "EGFR_T790M": {
+    "gene": "EGFR",
+    "mutation": "T790M",
+    "route_by_architecture": {
+      "single": "inhibitor_rag",
+      "cot": "inhibitor_rag",
+      "blackboard": "inhibitor_rag"
+    },
+    "route_agreement": true,
+    "therapy_sensitivity_by_architecture": {
+      "single": [
+        "Osimertinib"
+      ],
+      "cot": [
+        "Osimertinib"
+      ],
+      "blackboard": [
+        "Osimertinib"
+      ]
+    },
+    "therapy_resistance_by_architecture": {
+      "single": [
+        "Gefitinib,Erlotinib,Afatinib"
+      ],
+      "cot": [
+        "Gefitinib",
+        "Erlotinib",
+        "Afatinib"
+      ],
+      "blackboard": []
+    },
+    "therapy_sensitivity_overlap": [
+      "Osimertinib"
+    ],
+    "therapy_sensitivity_union": [
+      "Osimertinib"
+    ],
+    "therapy_sensitivity_agreement": true,
+    "therapy_resistance_overlap": [],
+    "therapy_resistance_union": [
+      "Afatinib",
+      "Erlotinib",
+      "Gefitinib",
+      "Gefitinib,Erlotinib,Afatinib"
+    ],
+    "mechanism_by_architecture": {
+      "single": "T790M gatekeeper mutation.",
+      "cot": "T790M stabilizes ATP-binding pocket.",
+      "blackboard": "T790M stabilizes EGFR kinase domain."
+    },
+    "confidence_by_architecture": {
+      "single": 0.9,
+      "cot": 0.9,
+      "blackboard": "0.9"
+    },
+    "total_tokens_by_architecture": {
+      "single": 0,
+      "cot": 2155,
+      "blackboard": 6814
+    },
+    "rescue": null,
+    "rows": [
+      {
+        "architecture": "single",
+        "route": "inhibitor_rag",
+        "therapy_sensitivity": [
+          "Osimertinib"
+        ],
+        "therapy_resistance": [
+          "Gefitinib,Erlotinib,Afatinib"
+        ],
+        "mechanism_preview": "T790M gatekeeper mutation.",
+        "confidence": 0.9,
+        "total_tokens": 0
+      },
+      {
+        "architecture": "cot",
+        "route": "inhibitor_rag",
+        "therapy_sensitivity": [
+          "Osimertinib"
+        ],
+        "therapy_resistance": [
+          "Gefitinib",
+          "Erlotinib",
+          "Afatinib"
+        ],
+        "mechanism_preview": "T790M stabilizes ATP-binding pocket.",
+        "confidence": 0.9,
+        "total_tokens": 2155
+      },
+      {
+        "architecture": "blackboard",
+        "route": "inhibitor_rag",
+        "therapy_sensitivity": [
+          "Osimertinib"
+        ],
+        "therapy_resistance": [],
+        "mechanism_preview": "T790M stabilizes EGFR kinase domain.",
+        "confidence": "0.9",
+        "total_tokens": 6814
+      }
+    ],
+    "mtb_panel": {
+      "gene": "EGFR",
+      "mutation": "T790M",
+      "rows": [
+        {
+          "agent": "Planner",
+          "type": "plan",
+          "stance_summary": "1.",
+          "biochemical_claim": "Analysis plan staged for specialist experts."
+        },
+        {
+          "agent": "Structure",
+          "type": "expert",
+          "stance_summary": "T790M confers osimertinib sensitivity and TKI resistance.",
+          "biochemical_claim": "T790M stabilizes EGFR kinase domain."
+        },
+        {
+          "agent": "Mechanism",
+          "type": "expert",
+          "stance_summary": "T790M stabilizes EGFR kinase domain, conferring osimertinib sensitivity and TKI resistance.",
+          "biochemical_claim": "T790M stabilizes EGFR kinase domain."
+        },
+        {
+          "agent": "Evidence",
+          "type": "expert",
+          "stance_summary": "Osimertinib is recommended for EGFR T790M+ NSCLC.",
+          "biochemical_claim": "Osimertinib sensitivity via T790M."
+        },
+        {
+          "agent": "Therapy",
+          "type": "expert",
+          "stance_summary": "Osimertinib is recommended for EGFR T790M+ NSCLC.",
+          "biochemical_claim": "Osimertinib sensitivity via T790M."
+        },
+        {
+          "agent": "Critic",
+          "type": "critique",
+          "stance_summary": "Osimertinib sensitivity via T790M is supported.",
+          "biochemical_claim": "Osimertinib sensitivity via T790M."
+        },
+        {
+          "agent": "ConflictResolver",
+          "type": "resolution",
+          "stance_summary": "Osimertinib is preferred over TKIs in EGFR T790M+ NSCLC.",
+          "biochemical_claim": "Osimertinib sensitivity via T790M."
+        },
+        {
+          "agent": "Decider",
+          "type": "decision",
+          "stance_summary": "Final therapy decision synthesized.",
+          "biochemical_claim": "{\"mechanism\": \"T790M stabilizes EGFR kinase domain.\", \"therapy\": {\"sensitivity\": [\"Osimertinib\"], \"resistance\": [], \"con"
+        }
+      ],
+      "formatted": "MTB Panel \u2014 EGFR T790M (blackboard)\n-----------------------------------\nAgent              | Stance Summary                             | Key Biochemical Claim\n------------------------------------------------------------------------------------------\nPlanner (plan)     | 1.                                         | Analysis plan staged for specialist experts.\nStructure (expert) | T790M confers osimertinib sensitivity a... | T790M stabilizes EGFR kinase domain.\nMechanism (expert) | T790M stabilizes EGFR kinase domain, co... | T790M stabilizes EGFR kinase domain.\nEvidence (expert)  | Osimertinib is recommended for EGFR T79... | Osimertinib sensitivity via T790M.\nTherapy (expert)   | Osimertinib is recommended for EGFR T79... | Osimertinib sensitivity via T790M.\nCritic (critique)  | Osimertinib sensitivity via T790M is su... | Osimertinib sensitivity via T790M.\nConflictResolver (resolution) | Osimertinib is preferred over TKIs in E... | Osimertinib sensitivity via T790M.\nDecider (decision) | Final therapy decision synthesized.        | {\"mechanism\": \"T790M stabilizes EGFR kinase domain.\", \"therapy\": {\"sensitivit..."
+    }
+  },
+  "PIK3CA_E545K": {
+    "gene": "PIK3CA",
+    "mutation": "E545K",
+    "route_by_architecture": {
+      "single": "inhibitor_rag",
+      "cot": "inhibitor_rag",
+      "blackboard": "inhibitor_rag",
+      "debate": "inhibitor_rag"
+    },
+    "route_agreement": true,
+    "therapy_sensitivity_by_architecture": {
+      "single": [
+        "Alpelisib"
+      ],
+      "cot": [],
+      "blackboard": [],
+      "debate": []
+    },
+    "therapy_resistance_by_architecture": {
+      "single": [],
+      "cot": [],
+      "blackboard": [
+        "PI3K inhibitors"
+      ],
+      "debate": []
+    },
+    "therapy_sensitivity_overlap": [],
+    "therapy_sensitivity_union": [
+      "Alpelisib"
+    ],
+    "therapy_sensitivity_agreement": false,
+    "therapy_resistance_overlap": [],
+    "therapy_resistance_union": [
+      "PI3K inhibitors"
+    ],
+    "mechanism_by_architecture": {
+      "single": "E545K activates PI3K.",
+      "cot": "",
+      "blackboard": "E545K stabilizes PI3K-\u03b1, increasing AKT phosphorylation.",
+      "debate": ""
+    },
+    "confidence_by_architecture": {
+      "single": 0.9,
+      "cot": null,
+      "blackboard": "0.7",
+      "debate": null
+    },
+    "total_tokens_by_architecture": {
+      "single": 0,
+      "cot": 2178,
+      "blackboard": 6106,
+      "debate": 3960
+    },
+    "rescue": null,
+    "rows": [
+      {
+        "architecture": "single",
+        "route": "inhibitor_rag",
+        "therapy_sensitivity": [
+          "Alpelisib"
+        ],
+        "therapy_resistance": [],
+        "mechanism_preview": "E545K activates PI3K.",
+        "confidence": 0.9,
+        "total_tokens": 0
+      },
+      {
+        "architecture": "cot",
+        "route": "inhibitor_rag",
+        "therapy_sensitivity": [],
+        "therapy_resistance": [],
+        "mechanism_preview": "",
+        "confidence": null,
+        "total_tokens": 2178
+      },
+      {
+        "architecture": "blackboard",
+        "route": "inhibitor_rag",
+        "therapy_sensitivity": [],
+        "therapy_resistance": [
+          "PI3K inhibitors"
+        ],
+        "mechanism_preview": "E545K stabilizes PI3K-\u03b1, increasing AKT phosphorylation.",
+        "confidence": "0.7",
+        "total_tokens": 6106
+      },
+      {
+        "architecture": "debate",
+        "route": "inhibitor_rag",
+        "therapy_sensitivity": [],
+        "therapy_resistance": [],
+        "mechanism_preview": "",
+        "confidence": null,
+        "total_tokens": 3960
+      }
+    ],
+    "mtb_panel": {
+      "gene": "PIK3CA",
+      "mutation": "E545K",
+      "rows": [
+        {
+          "agent": "Planner",
+          "type": "plan",
+          "stance_summary": "1.",
+          "biochemical_claim": "Analysis plan staged for specialist experts."
+        },
+        {
+          "agent": "Structure",
+          "type": "expert",
+          "stance_summary": "E545K drives PI3K signaling in breast cancer.",
+          "biochemical_claim": "E545K activates PI3K pathway."
+        },
+        {
+          "agent": "Mechanism",
+          "type": "expert",
+          "stance_summary": "E545K enhances PI3K signaling, driving oncogenesis.",
+          "biochemical_claim": "E545K stabilizes PI3K-\u03b1, increasing AKT phosphorylation."
+        },
+        {
+          "agent": "Evidence",
+          "type": "expert",
+          "stance_summary": "E545K confers sensitivity to PI3K inhibitors in breast cancer.",
+          "biochemical_claim": "E545K activates PI3K signaling."
+        },
+        {
+          "agent": "Therapy",
+          "type": "expert",
+          "stance_summary": "E545K activates PI3K signaling, driving breast cancer. Alpelisib is sensitive; resistance may occur in other contexts.",
+          "biochemical_claim": "E545K activates PI3K signaling."
+        },
+        {
+          "agent": "Critic",
+          "type": "critique",
+          "stance_summary": "E545K activates PI3K signaling.",
+          "biochemical_claim": "E545K activates PI3K signaling."
+        },
+        {
+          "agent": "ConflictResolver",
+          "type": "resolution",
+          "stance_summary": "E545K drives PI3K signaling in breast cancer, with sensitivity to PI3K inhibitors.",
+          "biochemical_claim": "E545K activates PI3K signaling."
+        },
+        {
+          "agent": "Decider",
+          "type": "decision",
+          "stance_summary": "Final therapy decision synthesized.",
+          "biochemical_claim": "{\"mechanism\": \"E545K stabilizes PI3K-\u03b1, increasing AKT phosphorylation.\", \"therapy\": {\"sensitivity\": [], \"resistance\": ["
+        }
+      ],
+      "formatted": "MTB Panel \u2014 PIK3CA E545K (blackboard)\n-------------------------------------\nAgent              | Stance Summary                             | Key Biochemical Claim\n------------------------------------------------------------------------------------------\nPlanner (plan)     | 1.                                         | Analysis plan staged for specialist experts.\nStructure (expert) | E545K drives PI3K signaling in breast c... | E545K activates PI3K pathway.\nMechanism (expert) | E545K enhances PI3K signaling, driving ... | E545K stabilizes PI3K-\u03b1, increasing AKT phosphorylation.\nEvidence (expert)  | E545K confers sensitivity to PI3K inhib... | E545K activates PI3K signaling.\nTherapy (expert)   | E545K activates PI3K signaling, driving... | E545K activates PI3K signaling.\nCritic (critique)  | E545K activates PI3K signaling.            | E545K activates PI3K signaling.\nConflictResolver (resolution) | E545K drives PI3K signaling in breast c... | E545K activates PI3K signaling.\nDecider (decision) | Final therapy decision synthesized.        | {\"mechanism\": \"E545K stabilizes PI3K-\u03b1, increasing AKT phosphorylation.\", \"th..."
+    }
+  },
+  "TP53_R175H": {
+    "gene": "TP53",
+    "mutation": "R175H",
+    "route_by_architecture": {
+      "single": "structural_rescue",
+      "cot": "structural_rescue",
+      "blackboard": "structural_rescue"
+    },
+    "route_agreement": true,
+    "therapy_sensitivity_by_architecture": {
+      "single": [],
+      "cot": [],
+      "blackboard": []
+    },
+    "therapy_resistance_by_architecture": {
+      "single": [
+        "Afatinib"
+      ],
+      "cot": [],
+      "blackboard": []
+    },
+    "therapy_sensitivity_overlap": [],
+    "therapy_sensitivity_union": [],
+    "therapy_sensitivity_agreement": true,
+    "therapy_resistance_overlap": [],
+    "therapy_resistance_union": [
+      "Afatinib"
+    ],
+    "mechanism_by_architecture": {
+      "single": "R175H disrupts DNA binding and tumor suppression.",
+      "cot": "",
+      "blackboard": "R175H disrupts TP53 DNA binding."
+    },
+    "confidence_by_architecture": {
+      "single": 0.9,
+      "cot": null,
+      "blackboard": "0.6"
+    },
+    "total_tokens_by_architecture": {
+      "single": 0,
+      "cot": 1718,
+      "blackboard": 6028
+    },
+    "rescue": {
+      "mutant_ddg_kcal_mol": 0.1826171875,
+      "destabilizing": false,
+      "fold_method": "boltz+esmfold",
+      "boltz_pdb": "/workspace/shared/rescue/TP53_R175H/boltz/out/boltz_results_input/predictions/input/input_model_0.pdb",
+      "esmfold_pdb": "/workspace/shared/rescue/TP53_R175H/esmfold_candidate.pdb"
+    },
+    "rows": [
+      {
+        "architecture": "single",
+        "route": "structural_rescue",
+        "therapy_sensitivity": [],
+        "therapy_resistance": [
+          "Afatinib"
+        ],
+        "mechanism_preview": "R175H disrupts DNA binding and tumor suppression.",
+        "confidence": 0.9,
+        "total_tokens": 0
+      },
+      {
+        "architecture": "cot",
+        "route": "structural_rescue",
+        "therapy_sensitivity": [],
+        "therapy_resistance": [],
+        "mechanism_preview": "",
+        "confidence": null,
+        "total_tokens": 1718
+      },
+      {
+        "architecture": "blackboard",
+        "route": "structural_rescue",
+        "therapy_sensitivity": [],
+        "therapy_resistance": [],
+        "mechanism_preview": "R175H disrupts TP53 DNA binding.",
+        "confidence": "0.6",
+        "total_tokens": 6028
+      }
+    ],
+    "mtb_panel": {
+      "gene": "TP53",
+      "mutation": "R175H",
+      "rows": [
+        {
+          "agent": "Planner",
+          "type": "plan",
+          "stance_summary": "1.",
+          "biochemical_claim": "Analysis plan staged for specialist experts."
+        },
+        {
+          "agent": "Structure",
+          "type": "expert",
+          "stance_summary": "Residue R175 is highly confident (pLDDT=96.6) in the DNA-binding surface. Mechanism: R175H disrupts DNA binding.",
+          "biochemical_claim": "High confidence R175H disrupts DNA binding."
+        },
+        {
+          "agent": "Mechanism",
+          "type": "expert",
+          "stance_summary": "R175H disrupts TP53 function.",
+          "biochemical_claim": "R175H disrupts TP53 DNA binding."
+        },
+        {
+          "agent": "Evidence",
+          "type": "expert",
+          "stance_summary": "R175H loss-of-function in TP53 is pathogenic.",
+          "biochemical_claim": "R175H disrupts TP53 DNA binding."
+        },
+        {
+          "agent": "Therapy",
+          "type": "expert",
+          "stance_summary": "R175H disrupts TP53 DNA binding.",
+          "biochemical_claim": "Insufficient evidence for therapy."
+        },
+        {
+          "agent": "Critic",
+          "type": "critique",
+          "stance_summary": "R175H disrupts TP53 DNA binding.",
+          "biochemical_claim": "R175H disrupts TP53 DNA binding."
+        },
+        {
+          "agent": "ConflictResolver",
+          "type": "resolution",
+          "stance_summary": "R175H disrupts TP53 DNA binding.",
+          "biochemical_claim": "R175H disrupts TP53 DNA binding."
+        },
+        {
+          "agent": "Decider",
+          "type": "decision",
+          "stance_summary": "Final therapy decision synthesized.",
+          "biochemical_claim": "{\"mechanism\": \"R175H disrupts TP53 DNA binding.\", \"therapy\": {\"sensitivity\": [], \"resistance\": [], \"context\": \"TP53-muta"
+        }
+      ],
+      "formatted": "MTB Panel \u2014 TP53 R175H (blackboard)\n-----------------------------------\nAgent              | Stance Summary                             | Key Biochemical Claim\n------------------------------------------------------------------------------------------\nPlanner (plan)     | 1.                                         | Analysis plan staged for specialist experts.\nStructure (expert) | Residue R175 is highly confident (pLDDT... | High confidence R175H disrupts DNA binding.\nMechanism (expert) | R175H disrupts TP53 function.              | R175H disrupts TP53 DNA binding.\nEvidence (expert)  | R175H loss-of-function in TP53 is patho... | R175H disrupts TP53 DNA binding.\nTherapy (expert)   | R175H disrupts TP53 DNA binding.           | Insufficient evidence for therapy.\nCritic (critique)  | R175H disrupts TP53 DNA binding.           | R175H disrupts TP53 DNA binding.\nConflictResolver (resolution) | R175H disrupts TP53 DNA binding.           | R175H disrupts TP53 DNA binding.\nDecider (decision) | Final therapy decision synthesized.        | {\"mechanism\": \"R175H disrupts TP53 DNA binding.\", \"therapy\": {\"sensitivity\": ..."
+    }
+  }
+}

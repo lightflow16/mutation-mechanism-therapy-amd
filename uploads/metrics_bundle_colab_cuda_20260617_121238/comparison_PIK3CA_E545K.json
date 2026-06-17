@@ -1,0 +1,56 @@
+{
+  "gene": "PIK3CA",
+  "mutation": "E545K",
+  "route_by_architecture": {
+    "debate": "inhibitor_rag"
+  },
+  "route_agreement": true,
+  "therapy_sensitivity_by_architecture": {
+    "debate": [
+      "Alpelisib"
+    ]
+  },
+  "therapy_resistance_by_architecture": {
+    "debate": [
+      "Alpelisib"
+    ]
+  },
+  "therapy_sensitivity_overlap": [
+    "Alpelisib"
+  ],
+  "therapy_sensitivity_union": [
+    "Alpelisib"
+  ],
+  "therapy_sensitivity_agreement": true,
+  "therapy_resistance_overlap": [
+    "Alpelisib"
+  ],
+  "therapy_resistance_union": [
+    "Alpelisib"
+  ],
+  "mechanism_by_architecture": {
+    "debate": "E545K mimics GTP-bound PI3K alpha, constitutively activating PI3K/AKT signaling."
+  },
+  "confidence_by_architecture": {
+    "debate": "0.82"
+  },
+  "total_tokens_by_architecture": {
+    "debate": 4200
+  },
+  "rescue": null,
+  "rows": [
+    {
+      "architecture": "debate",
+      "route": "inhibitor_rag",
+      "therapy_sensitivity": [
+        "Alpelisib"
+      ],
+      "therapy_resistance": [
+        "Alpelisib"
+      ],
+      "mechanism_preview": "E545K mimics GTP-bound PI3K alpha, constitutively activating PI3K/AKT signaling.",
+      "confidence": "0.82",
+      "total_tokens": 4200
+    }
+  ]
+}

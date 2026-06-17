@@ -1,0 +1,205 @@
+{
+  "target": {
+    "gene": "TP53",
+    "mutation": "R175H",
+    "class": "TUMOR_SUPPRESSOR_LOF",
+    "pathway": "structural_rescue",
+    "uniprot": "P04637",
+    "residue": 175,
+    "wt_aa": "R",
+    "mut_aa": "H",
+    "civic_profile": "TP53 R175H",
+    "disease_context": "Li-Fraumeni / pan-cancer",
+    "evidence_tier": "weak",
+    "classification": "VUS-high",
+    "vus_branch": "VUS_likely_LOF",
+    "allow_confident_therapy": false,
+    "recommendation_status": "insufficient_evidence",
+    "next_best_action": "functional_assay",
+    "confidence_scope": "rescue_success",
+    "mechanism_hypothesis": "VUS analysis for TP53 R175H under VUS_likely_LOF branch."
+  },
+  "structure": {
+    "residue": "R175",
+    "residue_index": 175,
+    "mutation": "R175H",
+    "pLDDT_at_residue": 96.6,
+    "mean_pLDDT_protein": 75.1,
+    "neighboring_residues_within_10A": 25,
+    "local_contact_density_10A": 25,
+    "mpnn_index": 175,
+    "region": "DNA-binding surface (beta-sandwich core)",
+    "chain": "A",
+    "pdb_path": "/workspace/shared/structures/AF-P04637-F1-model_v6.pdb",
+    "gene": "TP53",
+    "structure_image_path": "/workspace/shared/structures/images/TP53_R175H_neighborhood.png",
+    "plm_llr": -2.3362,
+    "plm_perplexity_band": "deleterious"
+  },
+  "evidence": [
+    {
+      "source": "ClinVar",
+      "therapies": "",
+      "disease": "Li-Fraumeni / pan-cancer",
+      "direction": "Loss-of-function",
+      "level": "Pathogenic",
+      "citation": "ClinVar R175H",
+      "url": "https://www.ncbi.nlm.nih.gov/clinvar"
+    },
+    {
+      "source": "PubMed",
+      "pmid": "42299598",
+      "title": "Mechanism of afatinib resistance in non-small cell lung cancer patients with nonclassical EGFR mutations: A multicenter, retrospective study.",
+      "abstract": "Epidermal growth factor receptor (EGFR) tyrosine kinase inhibitors (TKIs) are standard treatments for non-small cell lung cancer (NSCLC) patients with EGFR mutations, but resistance inevitably develops. While resistance mechanisms in classical mutations are well studied, those in nonclassical mutations remain unclear. As a widely used EGFR-TKI, afatinib's resistance mechanisms in nonclassical mutations warrant further investigation to improve clinical outcomes. This study included NSCLC patients",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42299598/"
+    },
+    {
+      "source": "ClinVar",
+      "gene": "TP53",
+      "mutation": "R175H",
+      "significance": "Pathogenic",
+      "review_status": "reviewed by expert panel"
+    }
+  ],
+  "route": "structural_rescue",
+  "architecture": "single",
+  "variant_routing": {
+    "evidence_tier": "weak",
+    "classification": "VUS-high",
+    "vus_branch": "VUS_likely_LOF",
+    "allow_confident_therapy": false
+  },
+  "reasoning": {
+    "variant": {
+      "gene": "TP53",
+      "protein_change": "R175H",
+      "hgvs_p": "R175H"
+    },
+    "structure": {
+      "residue": "R175",
+      "residue_index": 175,
+      "pLDDT_at_residue": 96.6,
+      "mean_pLDDT_protein": 75.1,
+      "neighboring_residues_within_10A": 25,
+      "local_contact_density_10A": 25,
+      "mpnn_index": 175,
+      "region": "DNA-binding surface (beta-sandwich core)",
+      "chain": "A",
+      "gene": "TP53"
+    },
+    "evidence": [
+      {
+        "source": "ClinVar",
+        "therapies": "",
+        "disease": "Li-Fraumeni / pan-cancer",
+        "direction": "Loss-of-function",
+        "level": "Pathogenic",
+        "citation": "ClinVar R175H",
+        "url": "https://www.ncbi.nlm.nih.gov/clinvar"
+      },
+      {
+        "source": "PubMed",
+        "pmid": "42299598",
+        "title": "Mechanism of afatinib resistance in non-small cell lung cancer patients with nonclassical EGFR mutations: A multicenter, retrospective study.",
+        "abstract": "Epidermal growth factor receptor (EGFR) tyrosine kinase inhibitors (TKIs) are standard treatments for non-small cell lung cancer (NSCLC) patients with EGFR mutations, but resistance inevitably develops. While resistance mechanisms in classical mutations are well studied, those in nonclassical mutations remain unclear. As a widely used EGFR-TKI, afatinib's resistance mechanisms in nonclassical mutations warrant further investigation to improve clinical outcomes. This study included NSCLC patients",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/42299598/"
+      }
+    ],
+    "classification": "pathogenic",
+    "evidence_tier": "strong",
+    "target_reasoning": {
+      "mechanism": "R175H disrupts DNA binding and tumor suppression.",
+      "mechanism_hypothesis": "R175H impairs TP53 function.",
+      "therapy": {
+        "sensitivity": [],
+        "resistance": [
+          "Afatinib"
+        ],
+        "context": "pan-cancer",
+        "recommendation_status": "insufficient_evidence"
+      },
+      "next_best_action": "tumor board",
+      "confidence": 0.9
+    },
+    "structure_image_path": "/workspace/shared/structures/images/TP53_R175H_neighborhood.png",
+    "llm_io": {
+      "prompt": "Variant: TP53 R175H (TUMOR_SUPPRESSOR_LOF)\nDisease context: Li-Fraumeni / pan-cancer\nVerified structural features (from AlphaFold P04637):\n{\n  \"residue\": \"R175\",\n  \"residue_index\": 175,\n  \"mutation\": \"R175H\",\n  \"pLDDT_at_residue\": 96.6,\n  \"mean_pLDDT_protein\": 75.1,\n  \"neighboring_residues_within_10A\": 25,\n  \"local_contact_density_10A\": 25,\n  \"mpnn_index\": 175,\n  \"region\": \"DNA-binding surface (beta-sandwich core)\",\n  \"chain\": \"A\",\n  \"gene\": \"TP53\",\n  \"structure_image_path\": \"/workspace/shared/structures/images/TP53_R175H_neighborhood.png\",\n  \"plm_llr\": -2.3362,\n  \"plm_perplexity_band\": \"deleterious\"\n}\n\nEvidence items:\n[\n  {\n    \"source\": \"ClinVar\",\n    \"therapies\": \"\",\n    \"disease\": \"Li-Fraumeni / pan-cancer\",\n    \"direction\": \"Loss-of-function\",\n    \"level\": \"Pathogenic\",\n    \"citation\": \"ClinVar R175H\",\n    \"url\": \"https://www.ncbi.nlm.nih.gov/clinvar\"\n  },\n  {\n    \"source\": \"PubMed\",\n    \"pmid\": \"42299598\",\n    \"title\": \"Mechanism of afatinib resistance in non-small cell lung cancer patients with nonclassical EGFR mutations: A multicenter, retrospective study.\",\n    \"abstract\": \"Epidermal growth factor receptor (EGFR) tyrosine kinase inhibitors (TKIs) are standard treatments for non-small cell lung cancer (NSCLC) patients with EGFR mutations, but resistance inevitably develops. While resistance mechanisms in classical mutations are well studied, those in nonclassical mutations remain unclear. As a widely used EGFR-TKI, afatinib's resistance mechanisms in nonclassical mutations warrant further investigation to improve clinical outcomes. This study included NSCLC patients\",\n    \"url\": \"https://pubmed.ncbi.nlm.nih.gov/42299598/\"\n  },\n  {\n    \"source\": \"ClinVar\",\n    \"gene\": \"TP53\",\n    \"mutation\": \"R175H\",\n    \"significance\": \"Pathogenic\",\n    \"review_status\": \"reviewed by expert panel\"\n  }\n]\n\n\nReturn ONLY valid JSON with keys:\n{\n  \"variant\": {\"gene\": \"...\", \"protein_change\": \"...\", \"hgvs_p\": \"...\"},\n  \"structure\": {... numeric features verbatim ...},\n  \"evidence\": [...],\n  \"classification\": \"known_driver|likely_driver|vus|unknown\",\n  \"evidence_tier\": \"strong|weak|none\",\n  \"target_reasoning\": {\n    \"mechanism\": \"...\",\n    \"mechanism_hypothesis\": \"...\",\n    \"therapy\": {\n      \"sensitivity\": [...],\n      \"resistance\": [...],\n      \"context\": \"...\",\n      \"recommendation_status\": \"confident|insufficient_evidence\"\n    },\n    \"next_best_action\": \"standard_of_care|tumor_board|clinical_trial|structural_rescue\",\n    \"confidence\": \"0.0-1.0\"\n  }\n}\nUse ONLY the provided numeric structure features; do not invent pLDDT values.\nIf evidence_tier is weak or none, set recommendation_status to insufficient_evidence.\n",
+      "reasoning": "",
+      "output": "{\"variant\": {\"gene\": \"TP53\", \"protein_change\": \"R175H\", \"hgvs_p\": \"R175H\"}, \"structure\": {\"residue\": \"R175\", \"residue_index\": 175, \"pLDDT_at_residue\": 96.6, \"mean_pLDDT_protein\": 75.1, \"neighboring_residues_within_10A\": 25, \"local_contact_density_10A\": 25, \"mpnn_index\": 175, \"region\": \"DNA-binding surface (beta-sandwich core)\", \"chain\": \"A\", \"gene\": \"TP53\"}, \"evidence\": [{\"source\": \"ClinVar\", \"therapies\": \"\", \"disease\": \"Li-Fraumeni / pan-cancer\", \"direction\": \"Loss-of-function\", \"level\": \"Pathogenic\", \"citation\": \"ClinVar R175H\", \"url\": \"https://www.ncbi.nlm.nih.gov/clinvar\"}, {\"source\": \"PubMed\", \"pmid\": \"42299598\", \"title\": \"Mechanism of afatinib resistance in non-small cell lung cancer patients with nonclassical EGFR mutations: A multicenter, retrospective study.\", \"abstract\": \"Epidermal growth factor receptor (EGFR) tyrosine kinase inhibitors (TKIs) are standard treatments for non-small cell lung cancer (NSCLC) patients with EGFR mutations, but resistance inevitably develops. While resistance mechanisms in classical mutations are well studied, those in nonclassical mutations remain unclear. As a widely used EGFR-TKI, afatinib's resistance mechanisms in nonclassical mutations warrant further investigation to improve clinical outcomes. This study included NSCLC patients\", \"url\": \"https://pubmed.ncbi.nlm.nih.gov/42299598/\"}], \"classification\": \"pathogenic\", \"evidence_tier\": \"strong\", \"target_reasoning\": {\"mechanism\": \"R175H disrupts DNA binding and tumor suppression.\", \"mechanism_hypothesis\": \"R175H impairs TP53 function.\", \"therapy\": {\"sensitivity\": [], \"resistance\": [\"Afatinib\"], \"context\": \"pan-cancer\", \"recommendation_status\": \"insufficient_evidence\"}, \"next_best_action\": \"tumor board\", \"confidence\": 0.9}, \"structure_image_path\": \"/workspace/shared/structures/images/TP53_R175H_neighborhood.png\"}",
+      "content": "{\"variant\": {\"gene\": \"TP53\", \"protein_change\": \"R175H\", \"hgvs_p\": \"R175H\"}, \"structure\": {\"residue\": \"R175\", \"residue_index\": 175, \"pLDDT_at_residue\": 96.6, \"mean_pLDDT_protein\": 75.1, \"neighboring_residues_within_10A\": 25, \"local_contact_density_10A\": 25, \"mpnn_index\": 175, \"region\": \"DNA-binding surface (beta-sandwich core)\", \"chain\": \"A\", \"gene\": \"TP53\"}, \"evidence\": [{\"source\": \"ClinVar\", \"therapies\": \"\", \"disease\": \"Li-Fraumeni / pan-cancer\", \"direction\": \"Loss-of-function\", \"level\": \"Pathogenic\", \"citation\": \"ClinVar R175H\", \"url\": \"https://www.ncbi.nlm.nih.gov/clinvar\"}, {\"source\": \"PubMed\", \"pmid\": \"42299598\", \"title\": \"Mechanism of afatinib resistance in non-small cell lung cancer patients with nonclassical EGFR mutations: A multicenter, retrospective study.\", \"abstract\": \"Epidermal growth factor receptor (EGFR) tyrosine kinase inhibitors (TKIs) are standard treatments for non-small cell lung cancer (NSCLC) patients with EGFR mutations, but resistance inevitably develops. While resistance mechanisms in classical mutations are well studied, those in nonclassical mutations remain unclear. As a widely used EGFR-TKI, afatinib's resistance mechanisms in nonclassical mutations warrant further investigation to improve clinical outcomes. This study included NSCLC patients\", \"url\": \"https://pubmed.ncbi.nlm.nih.gov/42299598/\"}], \"classification\": \"pathogenic\", \"evidence_tier\": \"strong\", \"target_reasoning\": {\"mechanism\": \"R175H disrupts DNA binding and tumor suppression.\", \"mechanism_hypothesis\": \"R175H impairs TP53 function.\", \"therapy\": {\"sensitivity\": [], \"resistance\": [\"Afatinib\"], \"context\": \"pan-cancer\", \"recommendation_status\": \"insufficient_evidence\"}, \"next_best_action\": \"tumor board\", \"confidence\": 0.9}, \"structure_image_path\": \"/workspace/shared/structures/images/TP53_R175H_neighborhood.png\"}"
+    }
+  },
+  "rescue": {
+    "mutant_ddg_kcal_mol": 0.1826171875,
+    "destabilizing": false,
+    "ddg_scope": "local_shell_15A",
+    "ddg_note": "Shell-local ThermoMPNN SSM; literature R175H is often >1 kcal/mol destabilizing on full domain.",
+    "designs": [
+      {
+        "header": ">T=0.8, sample=1, score=1.5794, global_score=1.6554, seq_recovery=0.2456",
+        "sequence": "WXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXQLAXXXXXXXXXXXXXXXXXXXXXKLRFXXXXXXXIPVKVSPEMRAKPDSXXXCPQEVLLVXXXXXXXXFXQXXXXNEWQVXXXXXXXXXXXXXXXXXXRFRELTTAEGGINGRGVVLXXXXXXXXXXXXXXXXXXVRVK",
+        "score": 1.5794,
+        "fasta": "/workspace/shared/rescue/TP53_R175H/mpnn/seqs/thermo_shell_r175.fa"
+      },
+      {
+        "header": ">T=0.8, sample=3, score=1.6671, global_score=1.7377, seq_recovery=0.1930",
+        "sequence": "WXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXQLAXXXXXXXXXXXXXXXXXXXXXQLTFXXXXXXXEIVLRSPYDRAREDEXXXKPKLMVLAXXXXXXXXYXRXXXXGQFATXXXXXXXXXXXXXXXXXXSFLERTTAPGGLSGRPVALXXXXXXXXXXXXXXXXXXISID",
+        "score": 1.6671,
+        "fasta": "/workspace/shared/rescue/TP53_R175H/mpnn/seqs/thermo_shell_r175.fa"
+      },
+      {
+        "header": ">T=0.8, sample=8, score=1.6671, global_score=1.7377, seq_recovery=0.2281",
+        "sequence": "WXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXQLAXXXXXXXXXXXXXXXXXXXXXVLTYXXXXXXXRIVTRSPEMRALPREXXXCPPESVLHXXXXXXXXFXVXXXXKNWSVXXXXXXXXXXXXXXXXXXDYREPTTATGGLAGMQIQVXXXXXXXXXXXXXXXXXXLSVQ",
+        "score": 1.6671,
+        "fasta": "/workspace/shared/rescue/TP53_R175H/mpnn/seqs/thermo_shell_r175.fa"
+      },
+      {
+        "header": ">T=0.8, sample=7, score=1.7063, global_score=1.7760, seq_recovery=0.2281",
+        "sequence": "WXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXQLAXXXXXXXXXXXXXXXXXXXXXSLRYXXXXXXXRVVNKSPEVAAEERKXXXAPSELVLSXXXXXXXXDXKXXXXGEYKVXXXXXXXXXXXXXXXXXXKWLERSDARDGLDGRPVIAXXXXXXXXXXXXXXXXXXVLVA",
+        "score": 1.7063,
+        "fasta": "/workspace/shared/rescue/TP53_R175H/mpnn/seqs/thermo_shell_r175.fa"
+      },
+      {
+        "header": ">T=0.8, sample=6, score=1.7694, global_score=1.8346, seq_recovery=0.2807",
+        "sequence": "WXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXQLAXXXXXXXXXXXXXXXXXXXXXGLHYXXXXXXXSAVNRCIQRRASAADXXXCPSNALVCXXXXXXXXFXRXXXXLSYTIXXXXXXXXXXXXXXXXXXLYWNYSSCAGGLNNKPVVLXXXXXXXXXXXXXXXXXXVKVS",
+        "score": 1.7694,
+        "fasta": "/workspace/shared/rescue/TP53_R175H/mpnn/seqs/thermo_shell_r175.fa"
+      },
+      {
+        "header": ">T=0.8, sample=5, score=1.7771, global_score=1.8400, seq_recovery=0.2982",
+        "sequence": "WXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXQLAXXXXXXXXXXXXXXXXXXXXXGLRYXXXXXXXKVVRRDPGHIAASNNXXXHPPRVVVDXXXXXXXXYXQXXXXNAYVVXXXXXXXXXXXXXXXXXXVFRKHTKAPKGFDGQPVVLXXXXXXXXXXXXXXXXXXVRVV",
+        "score": 1.7771,
+        "fasta": "/workspace/shared/rescue/TP53_R175H/mpnn/seqs/thermo_shell_r175.fa"
+      },
+      {
+        "header": ">T=0.8, sample=2, score=2.0056, global_score=2.0561, seq_recovery=0.2632",
+        "sequence": "WXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXQLAXXXXXXXXXXXXXXXXXXXXXALSYXXXXXXXRGVVTCPTRTQKEGTXXXVPPENCLSXXXXXXXXEXKXXXXNIWSVXXXXXXXXXXXXXXXXXXTIRCRPDCRGGWESEPVFRXXXXXXXXXXXXXXXXXXERVQ",
+        "score": 2.0056,
+        "fasta": "/workspace/shared/rescue/TP53_R175H/mpnn/seqs/thermo_shell_r175.fa"
+      },
+      {
+        "header": ">T=0.8, sample=4, score=2.0525, global_score=2.0995, seq_recovery=0.2807",
+        "sequence": "WXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXQLAXXXXXXXXXXXXXXXXXXXXXVIQYXXXXXXXEVVTRSPISMKKKDSXXXCPYSALMCXXXXXXXXWXRXXXXDELTHXXXXXXXXXXXXXXXXXXESREGTSSQGGLNAQTIIAXXXXXXXXXXXXXXXXXXLIVS",
+        "score": 2.0525,
+        "fasta": "/workspace/shared/rescue/TP53_R175H/mpnn/seqs/thermo_shell_r175.fa"
+      }
+    ],
+    "folded_candidate_pdb": "/workspace/shared/rescue/TP53_R175H/boltz/out/boltz_results_input/predictions/input/input_model_0.pdb",
+    "fold_method": "boltz+esmfold",
+    "esmfold_pdb": "/workspace/shared/rescue/TP53_R175H/esmfold_candidate.pdb",
+    "boltz_pdb": "/workspace/shared/rescue/TP53_R175H/boltz/out/boltz_results_input/predictions/input/input_model_0.pdb",
+    "thermompnn_csv": "/workspace/shared/rescue/TP53_R175H/thermompnn/ThermoMPNN_inference_thermo_shell_r175.csv",
+    "thermompnn_shell_pdb": "/workspace/shared/rescue/TP53_R175H/thermompnn/thermo_shell_r175.pdb",
+    "proteinmpnn_pdb": "/workspace/shared/rescue/TP53_R175H/thermompnn/thermo_shell_r175.pdb",
+    "ddg_engine": "ThermoMPNN",
+    "esmfold_plddt": 0.36,
+    "esmfold_min_plddt": 0.18,
+    "boltz_plddt": 31.77,
+    "boltz_min_plddt": 19.08,
+    "boltz_ptm": 0.17578473687171936,
+    "boltz_iptm": 0.0,
+    "boltz_complex_plddt": 0.3165552616119385,
+    "boltz_scores_json": "{\n    \"confidence_score\": 0.28840115666389465,\n    \"ptm\": 0.17578473687171936,\n    \"iptm\": 0.0,\n    \"ligand_iptm\": 0.0,\n    \"protein_iptm\": 0.0,\n    \"complex_plddt\": 0.3165552616119385,\n    \"complex_iplddt\": 0.3165552616119385,\n    \"complex_pde\": 4.438688278198242,\n    \"complex_ipde\": 0.0,\n    \"chains_ptm\": {\n        \"0\": 0.17578473687171936\n    },\n    \"pair_chains_iptm\": {\n        \"0\": {\n            \"0\": 0.17578473687171936\n        }\n    }\n}",
+    "interpreter": "Rescue summary for TP53 R175H: ddG=0.1826171875 destabilizing=False; fold=boltz+esmfold. ddG below destabilizing threshold; cautious interpretation required."
+  }
+}

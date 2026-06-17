@@ -1,0 +1,13 @@
+gene,mutation,architecture,route,therapy_f1,direction_acc,route_agreement,therapy_sensitivity_agreement,therapy_sensitivity_overlap,status
+EGFR,L858R,single,inhibitor_rag,0.4,1.0,True,False,,ok
+EGFR,L858R,cot,inhibitor_rag,1.0,1.0,True,False,,ok
+EGFR,L858R,blackboard,inhibitor_rag,0.0,0.0,True,False,,ok
+EGFR,T790M,single,inhibitor_rag,1.0,1.0,True,True,Osimertinib,ok
+EGFR,T790M,cot,inhibitor_rag,1.0,1.0,True,True,Osimertinib,ok
+EGFR,T790M,blackboard,inhibitor_rag,1.0,1.0,True,True,Osimertinib,ok
+PIK3CA,E545K,single,inhibitor_rag,1.0,0.0,True,False,,ok
+PIK3CA,E545K,cot,inhibitor_rag,1.0,0.0,True,False,,ok
+PIK3CA,E545K,blackboard,inhibitor_rag,0.0,0.0,True,False,,ok
+TP53,R175H,single,structural_rescue,1.0,1.0,True,False,,ok
+TP53,R175H,cot,structural_rescue,0.0,1.0,True,False,,ok
+TP53,R175H,blackboard,structural_rescue,1.0,1.0,True,False,,ok

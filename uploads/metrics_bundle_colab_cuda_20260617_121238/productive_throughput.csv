@@ -1,0 +1,16 @@
+query_id,gene,mutation,architecture,platform_id,n_agent_steps,ingress_tokens,egress_tokens,reasoning_tokens,latency_to_decision_s,round_2_latency_s,weight_cache_hits,planner_calls,expert_calls,n_models_used,heterogeneous_models,gpu_active_s,gpu_attached_s,gpu_productivity_ratio,productive_egress_tokens_per_gpu_s,workflow_density_steps_per_s,ingress_amplification,weight_cache_hit_rate,early_exit_savings_pct_if_round1_consensus,mean_gfx_util_sampled,peak_vram_gib_sampled,early_exit_actual,mechanism_rubric_before,mechanism_rubric_after,conflict_resolution_rate,thinking_tokens
+EGFR_L858R,EGFR,L858R,blackboard,colab_cuda,11,5808,892,0,75.7926,0.0,0,1,5,1,Qwen/Qwen2.5-VL-7B-Instruct,284.719,284.719,1.0,3.13,0.145,6.51,0.0,0.0,30.7,63.428,True,1,1,1.0,0
+EGFR_L858R,EGFR,L858R,cot,colab_cuda,3,3176,2094,363,129.437,0.0,0,0,0,1,Qwen/Qwen2.5-VL-7B-Instruct,340.603,340.603,1.0,6.15,0.023,1.52,0.0,0.0,30.7,63.428,False,,,0.0,363
+EGFR_L858R,EGFR,L858R,single,colab_cuda,3,3116,2083,0,141.43630000000002,0.0,0,0,0,1,Qwen/Qwen2.5-VL-7B-Instruct,658.178,658.498,1.0,3.16,0.021,1.5,0.0,0.0,30.7,63.428,False,,,0.0,0
+EGFR_T790M,EGFR,T790M,blackboard,colab_cuda,9,6115,699,0,59.3381,0.0,0,1,4,1,Qwen/Qwen2.5-VL-7B-Instruct,284.719,284.719,1.0,2.46,0.152,8.75,0.0,0.0,30.7,63.428,True,2,2,1.0,0
+EGFR_T790M,EGFR,T790M,cot,colab_cuda,1,1307,848,107,71.3591,0.0,0,0,0,1,Qwen/Qwen2.5-VL-7B-Instruct,340.603,340.603,1.0,2.49,0.014,1.54,0.0,0.0,30.7,63.428,False,,,0.0,107
+EGFR_T790M,EGFR,T790M,single,colab_cuda,1,1287,442,0,37.2721,0.0,0,0,0,1,Qwen/Qwen2.5-VL-7B-Instruct,658.178,658.498,1.0,0.67,0.027,2.91,0.0,0.0,30.7,63.428,False,,,0.0,0
+PIK3CA_E545K,PIK3CA,E545K,blackboard,colab_cuda,9,5357,749,0,63.3004,0.0,0,1,4,1,Qwen/Qwen2.5-VL-7B-Instruct,284.719,284.719,1.0,2.63,0.142,7.15,0.0,0.0,30.7,63.428,True,2,2,1.0,0
+PIK3CA_E545K,PIK3CA,E545K,cot,colab_cuda,1,1154,1024,60,86.1112,0.0,0,0,0,1,Qwen/Qwen2.5-VL-7B-Instruct,340.603,340.603,1.0,3.01,0.012,1.13,0.0,0.0,30.7,63.428,False,,,0.0,60
+PIK3CA_E545K,PIK3CA,E545K,debate,colab_cuda,3,1779,2181,0,77.2876,22.254,2,0,0,1,Qwen/Qwen2.5-7B-Instruct,0.0,0.0,NA,NA,0.039,0.82,0.667,28.8,30.7,63.428,False,,,0.0,0
+PIK3CA_E545K,PIK3CA,E545K,single,colab_cuda,1,1134,475,0,40.0632,0.0,0,0,0,1,Qwen/Qwen2.5-VL-7B-Instruct,658.178,658.498,1.0,0.72,0.025,2.39,0.0,0.0,30.7,63.428,False,,,0.0,0
+TP53_R175H,TP53,R175H,blackboard,colab_cuda,10,5312,716,0,60.3693,0.0,0,1,4,1,Qwen/Qwen2.5-VL-7B-Instruct,284.719,284.719,1.0,2.51,0.166,7.42,0.0,0.0,30.7,63.428,True,2,2,1.0,0
+TP53_R175H,TP53,R175H,cot,colab_cuda,1,1082,636,65,53.1803,0.0,0,0,0,1,Qwen/Qwen2.5-VL-7B-Instruct,340.603,340.603,1.0,1.87,0.019,1.7,0.0,0.0,30.7,63.428,False,,,0.0,65
+TP53_R175H,TP53,R175H,single,colab_cuda,1,1062,549,0,46.5379,0.0,0,0,0,1,Qwen/Qwen2.5-VL-7B-Instruct,658.178,658.498,1.0,0.83,0.021,1.93,0.0,0.0,30.7,63.428,False,,,0.0,0
+unknown,EGFR,L858R,blackboard,,1,0,0,0,0.0,0.0,0,0,1,0,,284.719,284.719,1.0,0.0,NA,NA,0.0,0,30.7,63.428,,,,,
+unknown,,,safety_probe,colab_cuda,2,95,427,0,14.865400000000001,0.0,2,0,0,1,Qwen/Qwen2.5-7B-Instruct,0.0,0.0,NA,NA,0.135,0.22,1.0,0.0,30.7,63.428,,,,,

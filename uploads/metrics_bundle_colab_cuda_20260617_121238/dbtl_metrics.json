@@ -1,0 +1,20 @@
+{
+  "dbtl_level": 3,
+  "dbtl_success": true,
+  "mutant_ddg_kcal_mol": 0.1826171875,
+  "ddg_destabilizing": false,
+  "ddg_threshold": 1.0,
+  "ddg_gate_passed": true,
+  "n_designs": 8,
+  "n_designs_expected": 8,
+  "premature_termination": false,
+  "fold_method": "boltz+esmfold",
+  "fold_gate_passed": true,
+  "tools_invoked": 5,
+  "tools_expected": 5,
+  "tool_call_success_rate": 1.0,
+  "objective_delta": 0.4731,
+  "dbtl_iterations": 8,
+  "wall_clock_s": 377.92,
+  "iteration_efficiency": 0.001252
+}

@@ -1,0 +1,53 @@
+{
+  "single": {
+    "target": {
+      "gene": "EGFR",
+      "mutation": "G719S",
+      "class": "UNKNOWN",
+      "pathway": "inhibitor_rag",
+      "uniprot": "P00533",
+      "residue": 719,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "civic_profile": "",
+      "disease_context": "Lung Non-small Cell Carcinoma",
+      "evidence_tier": "none",
+      "classification": "vus",
+      "vus_branch": true,
+      "allow_confident_therapy": false
+    },
+    "structure": {
+      "residue": "G719",
+      "pLDDT_at_residue": 72.0,
+      "mean_pLDDT_protein": 75.9,
+      "neighboring_residues_within_10A": 11,
+      "region": "P-loop",
+      "gene": "EGFR"
+    },
+    "evidence": [],
+    "route": "inhibitor_rag",
+    "architecture": "single",
+    "variant_routing": {
+      "evidence_tier": "none",
+      "classification": "vus",
+      "vus_branch": true,
+      "allow_confident_therapy": false
+    },
+    "reasoning": {
+      "classification": "vus",
+      "evidence_tier": "none",
+      "mechanism_hypothesis": "G719S may perturb ATP-binding P-loop conformation; kinase impact unconfirmed without Level A/B evidence.",
+      "target_reasoning": {
+        "mechanism": "Insufficient curated evidence to assert a definitive EGFR G719S oncogenic mechanism in this run.",
+        "therapy": {
+          "sensitivity": [],
+          "resistance": [],
+          "context": "NSCLC",
+          "recommendation_status": "insufficient_evidence"
+        },
+        "next_best_action": "tumor_board",
+        "confidence": "0.35"
+      }
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "gene": "EGFR",
+  "mutation": "G719S",
+  "route_by_architecture": {
+    "single": "inhibitor_rag"
+  },
+  "route_agreement": true,
+  "therapy_sensitivity_by_architecture": {
+    "single": []
+  },
+  "therapy_resistance_by_architecture": {
+    "single": []
+  },
+  "therapy_sensitivity_overlap": [],
+  "therapy_sensitivity_union": [],
+  "therapy_sensitivity_agreement": true,
+  "therapy_resistance_overlap": [],
+  "therapy_resistance_union": [],
+  "mechanism_by_architecture": {
+    "single": "Insufficient curated evidence to assert a definitive EGFR G719S oncogenic mechanism in this run."
+  },
+  "confidence_by_architecture": {
+    "single": "0.35"
+  },
+  "total_tokens_by_architecture": {
+    "single": 0
+  },
+  "rescue": null,
+  "rows": [
+    {
+      "architecture": "single",
+      "route": "inhibitor_rag",
+      "therapy_sensitivity": [],
+      "therapy_resistance": [],
+      "mechanism_preview": "Insufficient curated evidence to assert a definitive EGFR G719S oncogenic mechanism in this run.",
+      "confidence": "0.35",
+      "total_tokens": 0
+    }
+  ]
+}

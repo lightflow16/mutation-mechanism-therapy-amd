@@ -1,0 +1,157 @@
+{
+  "target": {
+    "gene": "EGFR",
+    "mutation": "T790M",
+    "class": "ONCOGENE_GOF",
+    "pathway": "inhibitor_rag",
+    "uniprot": "P00533",
+    "residue": 790,
+    "wt_aa": "T",
+    "mut_aa": "M",
+    "civic_profile": "EGFR T790M",
+    "disease_context": "EGFR-mutant NSCLC post-TKI",
+    "evidence_tier": "strong",
+    "classification": "known_driver",
+    "vus_branch": "known",
+    "allow_confident_therapy": true,
+    "recommendation_status": "approved",
+    "next_best_action": "none",
+    "confidence_scope": "therapy",
+    "mechanism_hypothesis": "Established pathogenic driver pathway."
+  },
+  "structure": {
+    "residue": "T790",
+    "residue_index": 790,
+    "mutation": "T790M",
+    "pLDDT_at_residue": 88.4,
+    "mean_pLDDT_protein": 75.9,
+    "neighboring_residues_within_10A": 20,
+    "local_contact_density_10A": 20,
+    "mpnn_index": 790,
+    "region": "kinase activation loop (A-loop)",
+    "chain": "A",
+    "pdb_path": "/workspace/shared/structures/AF-P00533-F1-model_v6.pdb",
+    "gene": "EGFR",
+    "structure_image_path": "/workspace/shared/structures/images/EGFR_T790M_neighborhood.png",
+    "plm_llr": -2.6917,
+    "plm_perplexity_band": "deleterious"
+  },
+  "evidence": [
+    {
+      "source": "CIViC",
+      "therapies": "Osimertinib",
+      "disease": "Lung Non-small Cell Carcinoma",
+      "direction": "Sensitivity/Response",
+      "level": "B",
+      "citation": "EGFR T790M gatekeeper resistance",
+      "url": "https://civicdb.org"
+    },
+    {
+      "source": "CIViC",
+      "therapies": "Gefitinib,Erlotinib,Afatinib",
+      "disease": "Lung Non-small Cell Carcinoma",
+      "direction": "Resistance",
+      "level": "B",
+      "citation": "1st/2nd gen TKI resistance via gatekeeper",
+      "url": "https://civicdb.org"
+    },
+    {
+      "source": "PubMed",
+      "pmid": "42299598",
+      "title": "Mechanism of afatinib resistance in non-small cell lung cancer patients with nonclassical EGFR mutations: A multicenter, retrospective study.",
+      "abstract": "Epidermal growth factor receptor (EGFR) tyrosine kinase inhibitors (TKIs) are standard treatments for non-small cell lung cancer (NSCLC) patients with EGFR mutations, but resistance inevitably develops. While resistance mechanisms in classical mutations are well studied, those in nonclassical mutations remain unclear. As a widely used EGFR-TKI, afatinib's resistance mechanisms in nonclassical mutations warrant further investigation to improve clinical outcomes. This study included NSCLC patients",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42299598/"
+    },
+    {
+      "source": "PubMed",
+      "pmid": "42123865",
+      "title": "Cudratricusxanthone A Exhibits Antitumor Activities Against NSCLC Harboring EGFR L792H and G796R Triple Mutations via Regulating EGFR-ERK/AKT/STAT3 Signaling.",
+      "abstract": "",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42123865/"
+    },
+    {
+      "source": "ClinVar",
+      "ids": [
+        "16613",
+        "16609",
+        "16608"
+      ],
+      "term": "EGFR%5Bgene%5D%20AND%20T790M"
+    }
+  ],
+  "route": "inhibitor_rag",
+  "architecture": "single",
+  "variant_routing": {
+    "evidence_tier": "strong",
+    "classification": "known_driver",
+    "vus_branch": "known",
+    "allow_confident_therapy": true
+  },
+  "reasoning": {
+    "variant": {
+      "gene": "EGFR",
+      "protein_change": "T790M",
+      "hgvs_p": "EGFR.L790M"
+    },
+    "structure": {
+      "residue": "T790",
+      "residue_index": 790,
+      "pLDDT_at_residue": 88.4,
+      "mean_pLDDT_protein": 75.9,
+      "neighboring_residues_within_10A": 20,
+      "local_contact_density_10A": 20,
+      "mpnn_index": 790,
+      "region": "kinase activation loop (A-loop)",
+      "chain": "A",
+      "gene": "EGFR"
+    },
+    "evidence": [
+      {
+        "source": "CIViC",
+        "therapy": "Osimertinib",
+        "direction": "Sensitivity/Response",
+        "level": "B"
+      },
+      {
+        "source": "CIViC",
+        "therapy": "Gefitinib,Erlotinib,Afatinib",
+        "direction": "Resistance",
+        "level": "B"
+      },
+      {
+        "source": "PubMed",
+        "pmid": "42299598",
+        "therapy": "Afatinib",
+        "context": "EGFR L792H/G796R"
+      },
+      {
+        "source": "ClinVar",
+        "term": "EGFR T790M"
+      }
+    ],
+    "classification": "known_driver",
+    "evidence_tier": "strong",
+    "target_reasoning": {
+      "mechanism": "T790M gatekeeper mutation.",
+      "mechanism_hypothesis": "T790M activates EGFR signaling.",
+      "therapy": {
+        "sensitivity": [
+          "Osimertinib"
+        ],
+        "resistance": [
+          "Gefitinib,Erlotinib,Afatinib"
+        ],
+        "context": "EGFR-mutant NSCLC post-TKI"
+      },
+      "next_best_action": "standard_of_care",
+      "confidence": 0.9
+    },
+    "structure_image_path": "/workspace/shared/structures/images/EGFR_T790M_neighborhood.png",
+    "llm_io": {
+      "prompt": "Variant: EGFR T790M (ONCOGENE_GOF)\nDisease context: EGFR-mutant NSCLC post-TKI\nVerified structural features (from AlphaFold P00533):\n{\n  \"residue\": \"T790\",\n  \"residue_index\": 790,\n  \"mutation\": \"T790M\",\n  \"pLDDT_at_residue\": 88.4,\n  \"mean_pLDDT_protein\": 75.9,\n  \"neighboring_residues_within_10A\": 20,\n  \"local_contact_density_10A\": 20,\n  \"mpnn_index\": 790,\n  \"region\": \"kinase activation loop (A-loop)\",\n  \"chain\": \"A\",\n  \"gene\": \"EGFR\",\n  \"structure_image_path\": \"/workspace/shared/structures/images/EGFR_T790M_neighborhood.png\",\n  \"plm_llr\": -2.6917,\n  \"plm_perplexity_band\": \"deleterious\"\n}\n\nEvidence items:\n[\n  {\n    \"source\": \"CIViC\",\n    \"therapies\": \"Osimertinib\",\n    \"disease\": \"Lung Non-small Cell Carcinoma\",\n    \"direction\": \"Sensitivity/Response\",\n    \"level\": \"B\",\n    \"citation\": \"EGFR T790M gatekeeper resistance\",\n    \"url\": \"https://civicdb.org\"\n  },\n  {\n    \"source\": \"CIViC\",\n    \"therapies\": \"Gefitinib,Erlotinib,Afatinib\",\n    \"disease\": \"Lung Non-small Cell Carcinoma\",\n    \"direction\": \"Resistance\",\n    \"level\": \"B\",\n    \"citation\": \"1st/2nd gen TKI resistance via gatekeeper\",\n    \"url\": \"https://civicdb.org\"\n  },\n  {\n    \"source\": \"PubMed\",\n    \"pmid\": \"42299598\",\n    \"title\": \"Mechanism of afatinib resistance in non-small cell lung cancer patients with nonclassical EGFR mutations: A multicenter, retrospective study.\",\n    \"abstract\": \"Epidermal growth factor receptor (EGFR) tyrosine kinase inhibitors (TKIs) are standard treatments for non-small cell lung cancer (NSCLC) patients with EGFR mutations, but resistance inevitably develops. While resistance mechanisms in classical mutations are well studied, those in nonclassical mutations remain unclear. As a widely used EGFR-TKI, afatinib's resistance mechanisms in nonclassical mutations warrant further investigation to improve clinical outcomes. This study included NSCLC patients\",\n    \"url\": \"https://pubmed.ncbi.nlm.nih.gov/42299598/\"\n  },\n  {\n    \"source\": \"PubMed\",\n    \"pmid\": \"42123865\",\n    \"title\": \"Cudratricusxanthone A Exhibits Antitumor Activities Against NSCLC Harboring EGFR L792H and G796R Triple Mutations via Regulating EGFR-ERK/AKT/STAT3 Signaling.\",\n    \"abstract\": \"\",\n    \"url\": \"https://pubmed.ncbi.nlm.nih.gov/42123865/\"\n  },\n  {\n    \"source\": \"ClinVar\",\n    \"ids\": [\n      \"16613\",\n      \"16609\",\n      \"16608\"\n    ],\n    \"term\": \"EGFR%5Bgene%5D%20AND%20T790M\"\n  }\n]\n\n\nReturn ONLY valid JSON with keys:\n{\n  \"variant\": {\"gene\": \"...\", \"protein_change\": \"...\", \"hgvs_p\": \"...\"},\n  \"structure\": {... numeric features verbatim ...},\n  \"evidence\": [...],\n  \"classification\": \"known_driver|likely_driver|vus|unknown\",\n  \"evidence_tier\": \"strong|weak|none\",\n  \"target_reasoning\": {\n    \"mechanism\": \"...\",\n    \"mechanism_hypothesis\": \"...\",\n    \"therapy\": {\n      \"sensitivity\": [...],\n      \"resistance\": [...],\n      \"context\": \"...\",\n      \"recommendation_status\": \"confident|insufficient_evidence\"\n    },\n    \"next_best_action\": \"standard_of_care|tumor_board|clinical_trial|structural_rescue\",\n    \"confidence\": \"0.0-1.0\"\n  }\n}\nUse ONLY the provided numeric structure features; do not invent pLDDT values.\nIf evidence_tier is weak or none, set recommendation_status to insufficient_evidence.\n",
+      "reasoning": "",
+      "output": "{\"variant\": {\"gene\": \"EGFR\", \"protein_change\": \"T790M\", \"hgvs_p\": \"EGFR.L790M\"}, \"structure\": {\"residue\": \"T790\", \"residue_index\": 790, \"pLDDT_at_residue\": 88.4, \"mean_pLDDT_protein\": 75.9, \"neighboring_residues_within_10A\": 20, \"local_contact_density_10A\": 20, \"mpnn_index\": 790, \"region\": \"kinase activation loop (A-loop)\", \"chain\": \"A\", \"gene\": \"EGFR\"}, \"evidence\": [{\"source\": \"CIViC\", \"therapy\": \"Osimertinib\", \"direction\": \"Sensitivity/Response\", \"level\": \"B\"}, {\"source\": \"CIViC\", \"therapy\": \"Gefitinib,Erlotinib,Afatinib\", \"direction\": \"Resistance\", \"level\": \"B\"}, {\"source\": \"PubMed\", \"pmid\": \"42299598\", \"therapy\": \"Afatinib\", \"context\": \"EGFR L792H/G796R\"}, {\"source\": \"ClinVar\", \"term\": \"EGFR T790M\"}], \"classification\": \"known_driver\", \"evidence_tier\": \"strong\", \"target_reasoning\": {\"mechanism\": \"T790M gatekeeper mutation.\", \"mechanism_hypothesis\": \"T790M activates EGFR signaling.\", \"therapy\": {\"sensitivity\": [\"Osimertinib\"], \"resistance\": [\"Gefitinib,Erlotinib,Afatinib\"], \"context\": \"EGFR-mutant NSCLC post-TKI\"}, \"next_best_action\": \"standard_of_care\", \"confidence\": 0.9}, \"structure_image_path\": \"/workspace/shared/structures/images/EGFR_T790M_neighborhood.png\"}",
+      "content": "{\"variant\": {\"gene\": \"EGFR\", \"protein_change\": \"T790M\", \"hgvs_p\": \"EGFR.L790M\"}, \"structure\": {\"residue\": \"T790\", \"residue_index\": 790, \"pLDDT_at_residue\": 88.4, \"mean_pLDDT_protein\": 75.9, \"neighboring_residues_within_10A\": 20, \"local_contact_density_10A\": 20, \"mpnn_index\": 790, \"region\": \"kinase activation loop (A-loop)\", \"chain\": \"A\", \"gene\": \"EGFR\"}, \"evidence\": [{\"source\": \"CIViC\", \"therapy\": \"Osimertinib\", \"direction\": \"Sensitivity/Response\", \"level\": \"B\"}, {\"source\": \"CIViC\", \"therapy\": \"Gefitinib,Erlotinib,Afatinib\", \"direction\": \"Resistance\", \"level\": \"B\"}, {\"source\": \"PubMed\", \"pmid\": \"42299598\", \"therapy\": \"Afatinib\", \"context\": \"EGFR L792H/G796R\"}, {\"source\": \"ClinVar\", \"term\": \"EGFR T790M\"}], \"classification\": \"known_driver\", \"evidence_tier\": \"strong\", \"target_reasoning\": {\"mechanism\": \"T790M gatekeeper mutation.\", \"mechanism_hypothesis\": \"T790M activates EGFR signaling.\", \"therapy\": {\"sensitivity\": [\"Osimertinib\"], \"resistance\": [\"Gefitinib,Erlotinib,Afatinib\"], \"context\": \"EGFR-mutant NSCLC post-TKI\"}, \"next_best_action\": \"standard_of_care\", \"confidence\": 0.9}, \"structure_image_path\": \"/workspace/shared/structures/images/EGFR_T790M_neighborhood.png\"}"
+    }
+  }
+}

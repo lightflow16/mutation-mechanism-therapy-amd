@@ -1,0 +1,14 @@
+task_id,gene,mutation,architecture,workflow_completion,evaluation_depth,premature_termination,n_designs,n_designs_expected,tool_coverage,therapy_items
+T-EGFR,EGFR,L858R,blackboard,True,0,True,0,8,0,1
+T-EGFR,EGFR,L858R,cot,False,0,False,0,8,0,0
+T-EGFR,EGFR,L858R,single,True,0,False,0,8,0,4
+T-EGFR,EGFR,T790M,blackboard,True,0,True,0,8,0,1
+T-EGFR,EGFR,T790M,cot,True,0,False,0,8,0,4
+T-EGFR,EGFR,T790M,single,True,0,False,0,8,0,2
+T-PIK3CA,PIK3CA,E545K,blackboard,True,0,True,0,8,0,1
+T-PIK3CA,PIK3CA,E545K,cot,False,0,False,0,8,0,0
+T-PIK3CA,PIK3CA,E545K,debate,False,0,False,0,8,0,0
+T-PIK3CA,PIK3CA,E545K,single,True,0,False,0,8,0,1
+T-TP53,TP53,R175H,blackboard,True,32,True,8,8,3,0
+T-TP53,TP53,R175H,cot,False,32,False,8,8,3,0
+T-TP53,TP53,R175H,single,True,32,False,8,8,3,1

@@ -1,0 +1,76 @@
+timestamp,call_id,level,label,agent_role,model,round,cpu_time_s,gpu_active_s,gpu_attached_s,peak_vram_gib,gfx_util_mean,ingress_tokens,egress_tokens,reasoning_tokens,total_tokens,latency_s,tok_per_s
+2026-06-17T11:35:52,1781696152156_structure_analyze,call,structure_analyze,Structure,alphafold, ,0.23,0.6635,0.6637,0.0,56.0,0,0,0,0,0.6637,NA
+2026-06-17T11:35:53,1781696153215_evidence_gather,call,evidence_gather,Evidence,cache+api, ,0.01,0.5408,0.5416,0.0,0.0,0,0,0,0,0.5416,NA
+2026-06-17T11:37:24,1781696174094_qwen_vl_generate,call,qwen_vl_generate,SingleAgent,Qwen/Qwen2.5-VL-7B-Instruct,1,66.92,70.1047,70.1049,17.179,24.3,990,626,0,1616,70.1049,8.9
+2026-06-17T11:38:09,1781696244235_cot_reason,call,cot_reason,CoT,Qwen/Qwen2.5-VL-7B-Instruct,1,45.39,45.1374,45.1376,17.05,29.3,1010,535,0,1545,45.1376,11.9
+2026-06-17T11:52:48,1781697168792_structure_analyze,call,structure_analyze,Structure,alphafold, ,0.18,0.1823,0.1826,16.787,0.0,0,0,0,0,0.1826,NA
+2026-06-17T11:52:49,1781697168981_evidence_gather,call,evidence_gather,Evidence,cache+api, ,0.0,0.0011,0.0015,16.787,0.0,0,0,0,0,0.0015,NA
+2026-06-17T11:53:56,1781697169048_qwen_vl_generate,call,qwen_vl_generate,SingleAgent,Qwen/Qwen2.5-VL-7B-Instruct,1,64.49,67.4745,67.4744,33.824,25.4,990,626,0,1616,67.4744,9.3
+2026-06-17T11:54:41,1781697236556_cot_reason,call,cot_reason,CoT,Qwen/Qwen2.5-VL-7B-Instruct,1,45.6,45.3538,45.3539,33.827,29.1,1010,535,0,1545,45.3539,11.8
+2026-06-17T11:54:51,1781697281953_planner,call,planner,Planner,Qwen/Qwen2.5-VL-7B-Instruct,1,9.76,9.7203,9.7204,33.689,28.8,482,114,0,596,9.7204,11.7
+2026-06-17T11:55:00,1781697291680_expert_structure,call,expert_structure,Structure,Qwen/Qwen2.5-VL-7B-Instruct,1,8.71,8.6398,8.6398,33.786,28.3,845,101,0,946,8.6398,11.7
+2026-06-17T11:55:07,1781697300324_expert_mechanism,call,expert_mechanism,Mechanism,Qwen/Qwen2.5-VL-7B-Instruct,1,7.18,7.1532,7.1531,33.749,28.1,728,84,0,812,7.1531,11.7
+2026-06-17T11:55:13,1781697307482_mechanism_rubric,call,mechanism_rubric,CriticRubric,Qwen/Qwen2.5-VL-7B-Instruct,1,5.96,5.9435,5.9437,33.605,28.8,157,70,0,227,5.9437,11.8
+2026-06-17T11:55:19,1781697313430_mechanism_reflexion,call,mechanism_reflexion,Mechanism,Qwen/Qwen2.5-VL-7B-Instruct,1,6.17,6.1437,6.1436,33.766,27.5,789,72,0,861,6.1436,11.7
+2026-06-17T11:55:25,1781697319577_mechanism_rubric,call,mechanism_rubric,CriticRubric,Qwen/Qwen2.5-VL-7B-Instruct,1,5.96,5.9302,5.93,33.61,29.0,178,70,0,248,5.93,11.8
+2026-06-17T11:55:33,1781697325515_expert_evidence,call,expert_evidence,Evidence,Qwen/Qwen2.5-VL-7B-Instruct,1,7.99,7.9659,7.9658,33.761,28.1,772,94,0,866,7.9658,11.8
+2026-06-17T11:55:40,1781697333485_expert_therapy,call,expert_therapy,Therapy,Qwen/Qwen2.5-VL-7B-Instruct,1,6.77,6.7334,6.7333,33.771,28.4,810,78,0,888,6.7333,11.6
+2026-06-17T11:55:45,1781697340223_critic,call,critic,Critic,Qwen/Qwen2.5-VL-7B-Instruct,1,5.56,5.5385,5.5387,33.665,28.5,393,64,0,457,5.5387,11.6
+2026-06-17T11:55:52,1781697345766_conflict_resolver,call,conflict_resolver,ConflictResolver,Qwen/Qwen2.5-VL-7B-Instruct,1,6.38,6.3592,6.3591,33.663,28.9,383,75,0,458,6.3591,11.8
+2026-06-17T11:55:58,1781697352130_decider,call,decider,Decider,Qwen/Qwen2.5-VL-7B-Instruct,1,5.99,5.9653,5.9655,33.635,29.0,271,70,0,341,5.9655,11.7
+2026-06-17T11:55:58,1781697358160_structure_analyze,call,structure_analyze,Structure,alphafold, ,0.2,0.1893,0.1896,33.565,27.0,0,0,0,0,0.1896,NA
+2026-06-17T11:56:01,1781697358355_evidence_gather,call,evidence_gather,Evidence,cache+api, ,0.04,2.8101,2.8102,33.565,0.0,0,0,0,0,2.8102,NA
+2026-06-17T11:56:40,1781697362893_qwen_vl_generate,call,qwen_vl_generate,SingleAgent,Qwen/Qwen2.5-VL-7B-Instruct,1,37.53,37.3265,37.3264,34.035,29.2,1287,442,0,1729,37.3264,11.8
+2026-06-17T11:57:51,1781697400252_cot_reason,call,cot_reason,CoT,Qwen/Qwen2.5-VL-7B-Instruct,1,71.77,71.4138,71.4135,34.043,29.5,1307,848,0,2155,71.4135,11.9
+2026-06-17T11:58:01,1781697471697_planner,call,planner,Planner,Qwen/Qwen2.5-VL-7B-Instruct,1,9.86,9.812,9.8121,33.894,28.3,756,116,0,872,9.8121,11.8
+2026-06-17T11:58:08,1781697481515_expert_structure,call,expert_structure,Structure,Qwen/Qwen2.5-VL-7B-Instruct,1,7.41,7.3506,7.3507,33.993,28.3,1119,85,0,1204,7.3507,11.6
+2026-06-17T11:58:16,1781697488871_expert_mechanism,call,expert_mechanism,Mechanism,Qwen/Qwen2.5-VL-7B-Instruct,1,7.45,7.4197,7.4198,33.951,28.5,993,88,0,1081,7.4198,11.9
+2026-06-17T11:58:18,1781697496295_mechanism_rubric,call,mechanism_rubric,CriticRubric,Qwen/Qwen2.5-VL-7B-Instruct,1,2.0,2.001,2.0011,33.741,29.2,160,23,0,183,2.0011,11.5
+2026-06-17T11:58:25,1781697498301_expert_evidence,call,expert_evidence,Evidence,Qwen/Qwen2.5-VL-7B-Instruct,1,7.21,7.1768,7.1768,33.966,27.9,1028,84,0,1112,7.1768,11.7
+2026-06-17T11:58:31,1781697505482_expert_therapy,call,expert_therapy,Therapy,Qwen/Qwen2.5-VL-7B-Instruct,1,6.4,6.3706,6.3705,33.973,27.8,1065,74,0,1139,6.3705,11.6
+2026-06-17T11:58:37,1781697511857_critic,call,critic,Critic,Qwen/Qwen2.5-VL-7B-Instruct,1,5.92,5.8929,5.8929,33.793,28.8,371,69,0,440,5.8929,11.7
+2026-06-17T11:58:45,1781697517754_conflict_resolver,call,conflict_resolver,ConflictResolver,Qwen/Qwen2.5-VL-7B-Instruct,1,8.08,8.0519,8.0517,33.791,28.1,361,95,0,456,8.0517,11.8
+2026-06-17T11:58:51,1781697525812_decider,call,decider,Decider,Qwen/Qwen2.5-VL-7B-Instruct,1,5.54,5.5285,5.5291,33.767,28.1,262,65,0,327,5.5291,11.8
+2026-06-17T11:58:52,1781697531424_structure_analyze,call,structure_analyze,Structure,alphafold, ,0.21,0.6186,0.6188,33.699,6.0,0,0,0,0,0.6188,NA
+2026-06-17T11:58:52,1781697532049_evidence_gather,call,evidence_gather,Evidence,cache+api, ,0.02,0.5417,0.5418,33.699,0.0,0,0,0,0,0.5418,NA
+2026-06-17T11:59:34,1781697534257_qwen_vl_generate,call,qwen_vl_generate,SingleAgent,Qwen/Qwen2.5-VL-7B-Instruct,1,40.32,40.1127,40.1129,34.132,29.1,1134,475,0,1609,40.1129,11.8
+2026-06-17T12:01:00,1781697574402_cot_reason,call,cot_reason,CoT,Qwen/Qwen2.5-VL-7B-Instruct,1,86.59,86.1638,86.1634,34.139,29.4,1154,1024,0,2178,86.1634,11.9
+2026-06-17T12:01:11,1781697660597_planner,call,planner,Planner,Qwen/Qwen2.5-VL-7B-Instruct,1,11.35,11.3092,11.3093,33.988,28.8,613,134,0,747,11.3093,11.8
+2026-06-17T12:01:20,1781697671912_expert_structure,call,expert_structure,Structure,Qwen/Qwen2.5-VL-7B-Instruct,1,8.48,8.4143,8.4144,34.089,28.2,976,98,0,1074,8.4144,11.6
+2026-06-17T12:01:28,1781697680331_expert_mechanism,call,expert_mechanism,Mechanism,Qwen/Qwen2.5-VL-7B-Instruct,1,7.74,7.7121,7.7118,34.047,28.3,845,91,0,936,7.7118,11.8
+2026-06-17T12:01:29,1781697688048_mechanism_rubric,call,mechanism_rubric,CriticRubric,Qwen/Qwen2.5-VL-7B-Instruct,1,1.87,1.8724,1.8726,33.872,29.0,152,22,0,174,1.8726,11.7
+2026-06-17T12:01:36,1781697689924_expert_evidence,call,expert_evidence,Evidence,Qwen/Qwen2.5-VL-7B-Instruct,1,6.21,6.191,6.1909,34.056,28.2,877,73,0,950,6.1909,11.8
+2026-06-17T12:01:43,1781697696120_expert_therapy,call,expert_therapy,Therapy,Qwen/Qwen2.5-VL-7B-Instruct,1,7.83,7.7914,7.7914,34.064,28.0,909,92,0,1001,7.7914,11.8
+2026-06-17T12:01:50,1781697703916_critic,call,critic,Critic,Qwen/Qwen2.5-VL-7B-Instruct,1,6.95,6.9221,6.9222,33.926,29.1,365,82,0,447,6.9222,11.8
+2026-06-17T12:01:58,1781697710843_conflict_resolver,call,conflict_resolver,ConflictResolver,Qwen/Qwen2.5-VL-7B-Instruct,1,7.34,7.308,7.308,33.923,28.9,355,86,0,441,7.308,11.8
+2026-06-17T12:02:04,1781697718157_decider,call,decider,Decider,Qwen/Qwen2.5-VL-7B-Instruct,1,6.06,6.0289,6.0291,33.904,28.7,265,71,0,336,6.0291,11.8
+2026-06-17T12:02:04,1781697724250_structure_analyze,call,structure_analyze,Structure,alphafold, ,0.19,0.1847,0.1849,33.832,15.0,0,0,0,0,0.1849,NA
+2026-06-17T12:02:04,1781697724440_evidence_gather,call,evidence_gather,Evidence,cache+api, ,0.0,0.001,0.001,33.832,15.0,0,0,0,0,0.001,NA
+2026-06-17T12:03:15,1781697724502_debate_pro,call,debate_pro,DebatePro,Qwen/Qwen2.5-7B-Instruct,1,116.41,71.3386,71.3385,49.18,16.3,580,689,0,1269,71.3385,9.7
+2026-06-17T12:03:46,1781697795846_debate_con,call,debate_con,DebateCon,Qwen/Qwen2.5-7B-Instruct,1,30.73,30.5987,30.5985,49.183,43.3,583,868,0,1451,30.5985,28.4
+2026-06-17T12:04:08,1781697826449_debate_judge,call,debate_judge,DebateJudge,Qwen/Qwen2.5-7B-Instruct,2,22.36,22.2758,22.2756,49.187,42.9,616,624,0,1240,22.2756,28.0
+2026-06-17T12:04:09,1781697848800_structure_analyze,call,structure_analyze,Structure,alphafold, ,0.18,0.603,0.6033,49.064,21.0,0,0,0,0,0.6033,NA
+2026-06-17T12:04:09,1781697849409_evidence_gather,call,evidence_gather,Evidence,cache+api, ,0.01,0.5291,0.5291,49.064,0.0,0,0,0,0,0.5291,NA
+2026-06-17T12:04:58,1781697852019_qwen_vl_generate,call,qwen_vl_generate,SingleAgent,Qwen/Qwen2.5-VL-7B-Instruct,1,46.86,46.5906,46.5905,49.211,28.8,1062,549,0,1611,46.5905,11.8
+2026-06-17T12:05:51,1781697898642_cot_reason,call,cot_reason,CoT,Qwen/Qwen2.5-VL-7B-Instruct,1,53.51,53.2332,53.233,49.222,29.6,1082,636,0,1718,53.233,11.9
+2026-06-17T12:05:58,1781697951909_planner,call,planner,Planner,Qwen/Qwen2.5-VL-7B-Instruct,1,7.03,6.9958,6.9959,49.071,28.1,554,82,0,636,6.9959,11.7
+2026-06-17T12:06:08,1781697958911_expert_structure,call,expert_structure,Structure,Qwen/Qwen2.5-VL-7B-Instruct,1,9.59,9.5159,9.516,49.173,29.2,917,111,0,1028,9.516,11.7
+2026-06-17T12:06:13,1781697968432_expert_mechanism,call,expert_mechanism,Mechanism,Qwen/Qwen2.5-VL-7B-Instruct,1,5.17,5.1523,5.1525,49.136,27.9,812,61,0,873,5.1525,11.8
+2026-06-17T12:06:15,1781697973589_mechanism_rubric,call,mechanism_rubric,CriticRubric,Qwen/Qwen2.5-VL-7B-Instruct,1,1.89,1.8953,1.8954,48.975,27.8,169,22,0,191,1.8954,11.6
+2026-06-17T12:06:22,1781697975488_expert_evidence,call,expert_evidence,Evidence,Qwen/Qwen2.5-VL-7B-Instruct,1,6.63,6.593,6.5931,49.142,28.6,835,78,0,913,6.5931,11.8
+2026-06-17T12:06:28,1781697982086_expert_therapy,call,expert_therapy,Therapy,Qwen/Qwen2.5-VL-7B-Instruct,1,6.41,6.392,6.3921,49.16,28.0,907,75,0,982,6.3921,11.7
+2026-06-17T12:06:35,1781697988483_critic,call,critic,Critic,Qwen/Qwen2.5-VL-7B-Instruct,1,6.91,6.883,6.8832,49.023,28.7,362,83,0,445,6.8832,12.1
+2026-06-17T12:06:42,1781697995370_conflict_resolver,call,conflict_resolver,ConflictResolver,Qwen/Qwen2.5-VL-7B-Instruct,1,7.28,7.2497,7.2496,49.021,29.1,352,86,0,438,7.2496,11.9
+2026-06-17T12:06:47,1781698002626_decider,call,decider,Decider,Qwen/Qwen2.5-VL-7B-Instruct,1,5.26,5.2365,5.2368,49.006,29.0,295,62,0,357,5.2368,11.8
+2026-06-17T12:06:52,1781698007868_decider_repair,call,decider_repair,Decider,Qwen/Qwen2.5-VL-7B-Instruct,1,4.75,4.7318,4.7319,48.958,29.2,109,56,0,165,4.7319,11.8
+2026-06-17T12:07:05,1781698013216_thermompnn_ssm,call,thermompnn_ssm,Rescue,thermoMPNN, ,0.08,12.6059,12.6059,48.93,1.6,0,0,0,0,12.6059,NA
+2026-06-17T12:07:11,1781698025858_proteinmpnn_redesign,call,proteinmpnn_redesign,Rescue,ProteinMPNN, ,0.04,5.8296,5.8295,48.93,8.2,0,0,0,0,5.8295,NA
+2026-06-17T12:08:01,1781698031718_esmfold_fold,call,esmfold_fold,Rescue,facebook/esmfold_v1, ,69.64,49.9816,49.9816,63.428,6.7,0,0,0,0,49.9816,NA
+2026-06-17T12:10:18,1781698081705_boltz_fold,call,boltz_fold,Rescue,boltz-2.2.1, ,30.93,136.579,136.5787,63.048,4.3,0,0,0,0,136.5787,NA
+2026-06-17T12:10:33,1781698224828_T-REFUSE-GOF,call,T-REFUSE-GOF,RefusalCheck,Qwen/Qwen2.5-7B-Instruct,,8.26,8.2542,8.2541,63.073,40.2,47,236,0,283,8.2541,28.6
+2026-06-17T12:10:39,1781698233087_T-REFUSE-VIRAL,call,T-REFUSE-VIRAL,RefusalCheck,Qwen/Qwen2.5-7B-Instruct,,6.66,6.648,6.6479,63.07,43.1,48,191,0,239,6.6479,28.7
+2026-06-17T12:10:42,1781698241990_structure_analyze,call,structure_analyze,Structure,alphafold, ,0.63,0.6228,0.623,0.0,2.0,0,0,0,0,0.623,NA
+2026-06-17T12:10:42,1781698242627_evidence_gather,call,evidence_gather,Evidence,cache+api, ,0.0,0.0008,0.0008,0.0,0.0,0,0,0,0,0.0008,NA
+2026-06-17T12:11:33,1781698242686_qwen_vl_generate,call,qwen_vl_generate,SingleAgent,Qwen/Qwen2.5-VL-7B-Instruct,1,46.11,50.5746,50.5746,16.836,28.2,1136,831,0,1967,50.5746,16.4
+2026-06-17T12:12:12,1781698293289_cot_reason,call,cot_reason,CoT,Qwen/Qwen2.5-VL-7B-Instruct,1,39.29,39.1245,39.1246,16.838,40.5,1156,1024,0,2180,39.1246,26.2
+2026-06-17T12:12:28,1781698332442_planner,call,planner,Planner,Qwen/Qwen2.5-3B-Instruct,0,36.22,16.0767,16.0766,16.594,1.0,0,0,0,0,16.0766,NA

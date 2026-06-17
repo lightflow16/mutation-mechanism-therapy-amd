@@ -1,0 +1,55 @@
+{
+  "n_traces": 13,
+  "mean_HR_design": 0.308,
+  "mean_HR_property": 0.0,
+  "mean_HR_evidence": 0.323,
+  "mean_HR_tool": 0.0,
+  "mean_HR_rescue": 0.0,
+  "mean_HR_safety": 0.0,
+  "mean_HR_policy": 0.0,
+  "mean_BVR": 0.942,
+  "mean_structural_hallucination_rate": 0.058,
+  "by_architecture": {
+    "blackboard": {
+      "mean_HR_design": 0.0,
+      "mean_HR_property": 0.0,
+      "mean_HR_evidence": 0.312,
+      "mean_HR_tool": 0.0,
+      "mean_HR_rescue": 0.0,
+      "mean_HR_safety": 0.0,
+      "mean_HR_policy": 0.0,
+      "mean_BVR": 0.938
+    },
+    "cot": {
+      "mean_HR_design": 0.75,
+      "mean_HR_property": 0.0,
+      "mean_HR_evidence": 0.208,
+      "mean_HR_tool": 0.0,
+      "mean_HR_rescue": 0.0,
+      "mean_HR_safety": 0.0,
+      "mean_HR_policy": 0.0,
+      "mean_BVR": 0.938
+    },
+    "debate": {
+      "mean_HR_design": 1.0,
+      "mean_HR_property": 0.0,
+      "mean_HR_evidence": 0.333,
+      "mean_HR_tool": 0.0,
+      "mean_HR_rescue": 0.0,
+      "mean_HR_safety": 0.0,
+      "mean_HR_policy": 0.0,
+      "mean_BVR": 1.0
+    },
+    "single": {
+      "mean_HR_design": 0.0,
+      "mean_HR_property": 0.0,
+      "mean_HR_evidence": 0.444,
+      "mean_HR_tool": 0.0,
+      "mean_HR_rescue": 0.0,
+      "mean_HR_safety": 0.0,
+      "mean_HR_policy": 0.0,
+      "mean_BVR": 0.938
+    }
+  },
+  "blackboard_vs_single_delta_HR_evidence": -0.132
+}

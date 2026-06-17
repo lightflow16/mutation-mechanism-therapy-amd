@@ -1,0 +1,672 @@
+{
+  "EGFR_L858R": {
+    "gene": "EGFR",
+    "mutation": "L858R",
+    "route_by_architecture": {
+      "single": "inhibitor_rag",
+      "cot": "inhibitor_rag",
+      "blackboard": "inhibitor_rag"
+    },
+    "route_agreement": true,
+    "therapy_sensitivity_by_architecture": {
+      "single": [
+        "Osimertinib"
+      ],
+      "cot": [
+        "Gefitinib",
+        "Erlotinib",
+        "Afatinib",
+        "Osimertinib"
+      ],
+      "blackboard": []
+    },
+    "therapy_resistance_by_architecture": {
+      "single": [],
+      "cot": [],
+      "blackboard": []
+    },
+    "therapy_sensitivity_overlap": [],
+    "therapy_sensitivity_union": [
+      "Afatinib",
+      "Erlotinib",
+      "Gefitinib",
+      "Osimertinib"
+    ],
+    "therapy_sensitivity_agreement": false,
+    "therapy_resistance_overlap": [],
+    "therapy_resistance_union": [],
+    "mechanism_by_architecture": {
+      "single": "",
+      "cot": "The L858R mutation in EGFR leads to constitutive activation of the receptor, promoting uncontrolled cell growth and proliferation. This mutation is particularly sensitive to tyrosine kinase inhibitors (TKIs) that target the mutated EGFR.",
+      "blackboard": ""
+    },
+    "confidence_by_architecture": {
+      "single": "0.700",
+      "cot": "0.9",
+      "blackboard": null
+    },
+    "total_tokens_by_architecture": {
+      "single": 0,
+      "cot": 1248,
+      "blackboard": 35672
+    },
+    "rescue": null,
+    "rows": [
+      {
+        "architecture": "single",
+        "route": "inhibitor_rag",
+        "therapy_sensitivity": [
+          "Osimertinib"
+        ],
+        "therapy_resistance": [],
+        "mechanism_preview": "",
+        "confidence": "0.700",
+        "total_tokens": 0
+      },
+      {
+        "architecture": "cot",
+        "route": "inhibitor_rag",
+        "therapy_sensitivity": [
+          "Gefitinib",
+          "Erlotinib",
+          "Afatinib",
+          "Osimertinib"
+        ],
+        "therapy_resistance": [],
+        "mechanism_preview": "The L858R mutation in EGFR leads to constitutive activation of the receptor, promoting uncontrolled cell growth and proliferation. This mutation is particularly sensitive to tyrosine kinase inhibitors",
+        "confidence": "0.9",
+        "total_tokens": 1248
+      },
+      {
+        "architecture": "blackboard",
+        "route": "inhibitor_rag",
+        "therapy_sensitivity": [],
+        "therapy_resistance": [],
+        "mechanism_preview": "",
+        "confidence": null,
+        "total_tokens": 35672
+      }
+    ],
+    "mtb_panel": {
+      "gene": "EGFR",
+      "mutation": "L858R",
+      "rows": [
+        {
+          "agent": "Planner",
+          "type": "plan",
+          "stance_summary": "1. Confirm the mutation details and its lo",
+          "biochemical_claim": "1. Confirm the mutation details and its location within the EGFR protein. 2. ..."
+        },
+        {
+          "agent": "Structure",
+          "type": "expert",
+          "stance_summary": "The pLDDT score at residue 858 is 51.2, in",
+          "biochemical_claim": "The pLDDT score at residue 858 is 51.2, indicating moderate confidence in the model's pre"
+        },
+        {
+          "agent": "Mechanism",
+          "type": "expert",
+          "stance_summary": "signaling pathways. It has several domains",
+          "biochemical_claim": "signaling pathways. It has several domains, including the extracellular domain, the transmembrane do"
+        },
+        {
+          "agent": "Evidence",
+          "type": "expert",
+          "stance_summary": "nib (CIViC, B-level evidence, Lim et al., ",
+          "biochemical_claim": "nib (CIViC, B-level evidence, Lim et al., 2014; PubMed, Lim et al., 2014) - **Resistance t"
+        },
+        {
+          "agent": "Therapy",
+          "type": "expert",
+          "stance_summary": "inib, Afatinib, and Osimertinib (CIViC, B-",
+          "biochemical_claim": "inib, Afatinib, and Osimertinib (CIViC, B-level evidence, Lim et al., 2014; PubMed, Lim et al., 2014"
+        },
+        {
+          "agent": "Critic",
+          "type": "critique",
+          "stance_summary": "Hallucinated Claims and Evidence Check  1.",
+          "biochemical_claim": "Hallucinated Claims and Evidence Check  1."
+        },
+        {
+          "agent": "ConflictResolver",
+          "type": "resolution",
+          "stance_summary": "#### 1. **Mutation Details and Location** ",
+          "biochemical_claim": "#### 1. **Mutation Details and Location** - **Residue**: L858R - **Location**..."
+        },
+        {
+          "agent": "Structure",
+          "type": "expert",
+          "stance_summary": "- **pLDDT at Residue**: 51.2 - **Mean pLDD",
+          "biochemical_claim": "- **pLDDT at Residue**: 51.2 - **Mean pLDDT Protein**: 75.9 - **Neighboring Residues With"
+        },
+        {
+          "agent": "Mechanism",
+          "type": "expert",
+          "stance_summary": "eading to constitutive activation of the r",
+          "biochemical_claim": "eading to constitutive activation of the receptor. This constitutive activation can result in contin"
+        },
+        {
+          "agent": "Evidence",
+          "type": "expert",
+          "stance_summary": "nib (CIViC, B-level evidence, Lim et al., ",
+          "biochemical_claim": "nib (CIViC, B-level evidence, Lim et al., 2014; PubMed, Lim et al., 2014) - **Resistance t"
+        },
+        {
+          "agent": "Therapy",
+          "type": "expert",
+          "stance_summary": "inib, Afatinib, and Osimertinib (CIViC, B-",
+          "biochemical_claim": "inib, Afatinib, and Osimertinib (CIViC, B-level evidence, Lim et al., 2014; PubMed, Lim et al., 2014"
+        },
+        {
+          "agent": "Critic",
+          "type": "critique",
+          "stance_summary": "No hallucinated pLDDT claims were found.",
+          "biochemical_claim": "No hallucinated pLDDT claims were found."
+        },
+        {
+          "agent": "ConflictResolver",
+          "type": "resolution",
+          "stance_summary": "#### 1. **Mutation Details and Location** ",
+          "biochemical_claim": "#### 1. **Mutation Details and Location** - **Residue**: L858R - **Location**..."
+        },
+        {
+          "agent": "Decider",
+          "type": "decision",
+          "stance_summary": "```json {   \"reasoning\": {     \"mechanism\"",
+          "biochemical_claim": "```json {   \"reasoning\": {     \"mechanism\": {       \"summary\": \"The L858R mut..."
+        }
+      ],
+      "formatted": "MTB Panel \u2014 EGFR L858R (blackboard)\n-----------------------------------\nAgent              | Stance Summary                             | Key Biochemical Claim\n------------------------------------------------------------------------------------------\nPlanner (plan)     | 1. Confirm the mutation details and its lo | 1. Confirm the mutation details and its location within the EGFR protein. 2. ...\nStructure (expert) | The pLDDT score at residue 858 is 51.2, in | The pLDDT score at residue 858 is 51.2, indicating moderate confidence in the model's pre\nMechanism (expert) | signaling pathways. It has several domains | signaling pathways. It has several domains, including the extracellular domain, the transmembrane do\nEvidence (expert)  | nib (CIViC, B-level evidence, Lim et al.,  | nib (CIViC, B-level evidence, Lim et al., 2014; PubMed, Lim et al., 2014) - **Resistance t\nTherapy (expert)   | [echo trimmed] inib, Afatinib, and Osimertinib (CIV | inib, Afatinib, and Osimertinib (CIViC, B-level evidence, Lim et al., 2014; PubMed, Lim et al., 2014\nCritic (critique)  | [echo trimmed] Hallucinated Claims and Evidence Che | Hallucinated Claims and Evidence Check  1.\nConflictResolver (resolution) | [echo trimmed] #### 1. **Mutation Details and Locat | #### 1. **Mutation Details and Location** - **Residue**: L858R - **Location**...\nDecider (decision) | ```json {   \"reasoning\": {     \"mechanism\" | ```json {   \"reasoning\": {     \"mechanism\": {       \"summary\": \"The L858R mut..."
+    }
+  },
+  "EGFR_T790M": {
+    "gene": "EGFR",
+    "mutation": "T790M",
+    "route_by_architecture": {
+      "single": "inhibitor_rag",
+      "cot": "inhibitor_rag",
+      "blackboard": "inhibitor_rag"
+    },
+    "route_agreement": true,
+    "therapy_sensitivity_by_architecture": {
+      "single": [
+        "Osimertinib"
+      ],
+      "cot": [
+        "Osimertinib"
+      ],
+      "blackboard": [
+        "Osimertinib"
+      ]
+    },
+    "therapy_resistance_by_architecture": {
+      "single": [
+        "Gefitinib",
+        "Erlotinib",
+        "Afatinib"
+      ],
+      "cot": [
+        "Gefitinib",
+        "Erlotinib",
+        "Afatinib"
+      ],
+      "blackboard": [
+        "Gefitinib",
+        "Erlotinib",
+        "Afatinib"
+      ]
+    },
+    "therapy_sensitivity_overlap": [
+      "Osimertinib"
+    ],
+    "therapy_sensitivity_union": [
+      "Osimertinib"
+    ],
+    "therapy_sensitivity_agreement": true,
+    "therapy_resistance_overlap": [
+      "Afatinib",
+      "Erlotinib",
+      "Gefitinib"
+    ],
+    "therapy_resistance_union": [
+      "Afatinib",
+      "Erlotinib",
+      "Gefitinib"
+    ],
+    "mechanism_by_architecture": {
+      "single": "T790M gatekeeper mutation sterically blocks first- and second-generation EGFR TKIs while retaining sensitivity to third-generation osimertinib.",
+      "cot": "Gatekeeper T790M increases bulk at the ATP pocket, conferring resistance to gefitinib/erlotinib/afatinib; osimertinib retains binding via covalent C797 targeting.",
+      "blackboard": "Blackboard consensus: T790M gatekeeper blocks 1st/2nd gen TKIs; osimertinib recommended for T790M-positive NSCLC."
+    },
+    "confidence_by_architecture": {
+      "single": "0.88",
+      "cot": "0.86",
+      "blackboard": "0.87"
+    },
+    "total_tokens_by_architecture": {
+      "single": 0,
+      "cot": 0,
+      "blackboard": 0
+    },
+    "rescue": null,
+    "rows": [
+      {
+        "architecture": "single",
+        "route": "inhibitor_rag",
+        "therapy_sensitivity": [
+          "Osimertinib"
+        ],
+        "therapy_resistance": [
+          "Gefitinib",
+          "Erlotinib",
+          "Afatinib"
+        ],
+        "mechanism_preview": "T790M gatekeeper mutation sterically blocks first- and second-generation EGFR TKIs while retaining sensitivity to third-generation osimertinib.",
+        "confidence": "0.88",
+        "total_tokens": 0
+      },
+      {
+        "architecture": "cot",
+        "route": "inhibitor_rag",
+        "therapy_sensitivity": [
+          "Osimertinib"
+        ],
+        "therapy_resistance": [
+          "Gefitinib",
+          "Erlotinib",
+          "Afatinib"
+        ],
+        "mechanism_preview": "Gatekeeper T790M increases bulk at the ATP pocket, conferring resistance to gefitinib/erlotinib/afatinib; osimertinib retains binding via covalent C797 targeting.",
+        "confidence": "0.86",
+        "total_tokens": 0
+      },
+      {
+        "architecture": "blackboard",
+        "route": "inhibitor_rag",
+        "therapy_sensitivity": [
+          "Osimertinib"
+        ],
+        "therapy_resistance": [
+          "Gefitinib",
+          "Erlotinib",
+          "Afatinib"
+        ],
+        "mechanism_preview": "Blackboard consensus: T790M gatekeeper blocks 1st/2nd gen TKIs; osimertinib recommended for T790M-positive NSCLC.",
+        "confidence": "0.87",
+        "total_tokens": 0
+      }
+    ],
+    "mtb_panel": {
+      "gene": "EGFR",
+      "mutation": "T790M",
+      "rows": [],
+      "formatted": "MTB Panel \u2014 EGFR T790M (blackboard)\n-----------------------------------\nAgent              | Stance Summary                             | Key Biochemical Claim\n------------------------------------------------------------------------------------------"
+    }
+  },
+  "PIK3CA_E545K": {
+    "gene": "PIK3CA",
+    "mutation": "E545K",
+    "route_by_architecture": {
+      "single": "inhibitor_rag",
+      "cot": "inhibitor_rag",
+      "blackboard": "inhibitor_rag"
+    },
+    "route_agreement": true,
+    "therapy_sensitivity_by_architecture": {
+      "single": [
+        "Alpelisib"
+      ],
+      "cot": [
+        "Alpelisib"
+      ],
+      "blackboard": []
+    },
+    "therapy_resistance_by_architecture": {
+      "single": [],
+      "cot": [],
+      "blackboard": []
+    },
+    "therapy_sensitivity_overlap": [],
+    "therapy_sensitivity_union": [
+      "Alpelisib"
+    ],
+    "therapy_sensitivity_agreement": false,
+    "therapy_resistance_overlap": [],
+    "therapy_resistance_union": [],
+    "mechanism_by_architecture": {
+      "single": "E545K activates PI3K.",
+      "cot": "The E545K mutation in the activation loop of PIK3CA leads to constitutive activation of the PI3K pathway, which is a key driver in breast cancer. This mutation enhances sensitivity to PI3K inhibitors like Alpelisib.",
+      "blackboard": ""
+    },
+    "confidence_by_architecture": {
+      "single": 0.75,
+      "cot": 0.9,
+      "blackboard": null
+    },
+    "total_tokens_by_architecture": {
+      "single": 0,
+      "cot": 1282,
+      "blackboard": 36639
+    },
+    "rescue": null,
+    "rows": [
+      {
+        "architecture": "single",
+        "route": "inhibitor_rag",
+        "therapy_sensitivity": [
+          "Alpelisib"
+        ],
+        "therapy_resistance": [],
+        "mechanism_preview": "E545K activates PI3K.",
+        "confidence": 0.75,
+        "total_tokens": 0
+      },
+      {
+        "architecture": "cot",
+        "route": "inhibitor_rag",
+        "therapy_sensitivity": [
+          "Alpelisib"
+        ],
+        "therapy_resistance": [],
+        "mechanism_preview": "The E545K mutation in the activation loop of PIK3CA leads to constitutive activation of the PI3K pathway, which is a key driver in breast cancer. This mutation enhances sensitivity to PI3K inhibitors ",
+        "confidence": 0.9,
+        "total_tokens": 1282
+      },
+      {
+        "architecture": "blackboard",
+        "route": "inhibitor_rag",
+        "therapy_sensitivity": [],
+        "therapy_resistance": [],
+        "mechanism_preview": "",
+        "confidence": null,
+        "total_tokens": 36639
+      }
+    ],
+    "mtb_panel": {
+      "gene": "PIK3CA",
+      "mutation": "E545K",
+      "rows": [
+        {
+          "agent": "Planner",
+          "type": "plan",
+          "stance_summary": "1. Confirm the presence of PIK3CA E545K mu",
+          "biochemical_claim": "1. Confirm the presence of PIK3CA E545K mutation in the Breast Carcinoma samp..."
+        },
+        {
+          "agent": "Structure",
+          "type": "expert",
+          "stance_summary": "high pLDDT score of 94.1, indicating a rel",
+          "biochemical_claim": "high pLDDT score of 94.1, indicating a reliable prediction.  2. **Analyze the structural i"
+        },
+        {
+          "agent": "Mechanism",
+          "type": "expert",
+          "stance_summary": "rt of the activation loop. The activation ",
+          "biochemical_claim": "rt of the activation loop. The activation loop is a critical region for the catalytic activity of PI"
+        },
+        {
+          "agent": "Evidence",
+          "type": "expert",
+          "stance_summary": "1. **CIViC Evidence:**    - **Therapy:** A",
+          "biochemical_claim": "1. **CIViC Evidence:**    - **Therapy:** Alpelisib    - **Disease:** Breast Carcinoma    -"
+        },
+        {
+          "agent": "Therapy",
+          "type": "expert",
+          "stance_summary": "*    - **Therapy:** Alpelisib    - **Disea",
+          "biochemical_claim": "*    - **Therapy:** Alpelisib    - **Disease:** Breast Carcinoma    - **Direction:** Sensitivity/Res"
+        },
+        {
+          "agent": "Critic",
+          "type": "critique",
+          "stance_summary": "No signs of hallucinated pLDDT scores.",
+          "biochemical_claim": "No signs of hallucinated pLDDT scores."
+        },
+        {
+          "agent": "ConflictResolver",
+          "type": "resolution",
+          "stance_summary": "- **Residue:** E545 - **Mutation:** E545K ",
+          "biochemical_claim": "- **Residue:** E545 - **Mutation:** E545K - **pLDDT at Residue:** 94.1 - **Me..."
+        },
+        {
+          "agent": "Structure",
+          "type": "expert",
+          "stance_summary": "- **pLDDT at Residue:** 94.1 - **Mean pLDD",
+          "biochemical_claim": "- **pLDDT at Residue:** 94.1 - **Mean pLDDT Protein:** 92.4 - **Neighboring Residues With"
+        },
+        {
+          "agent": "Mechanism",
+          "type": "expert",
+          "stance_summary": "Region:** Activation Loop - **Chain:** A -",
+          "biochemical_claim": "Region:** Activation Loop - **Chain:** A - **Gene:** PIK3CA  #### Structural and Functional Analysis"
+        },
+        {
+          "agent": "Evidence",
+          "type": "expert",
+          "stance_summary": "1. **CIViC Evidence:**    - **Therapy:** A",
+          "biochemical_claim": "1. **CIViC Evidence:**    - **Therapy:** Alpelisib    - **Disease:** Breast Carcinoma    -"
+        },
+        {
+          "agent": "Therapy",
+          "type": "expert",
+          "stance_summary": "*    - **Therapy:** Alpelisib    - **Disea",
+          "biochemical_claim": "*    - **Therapy:** Alpelisib    - **Disease:** Breast Carcinoma    - **Direction:** Sensitivity/Res"
+        },
+        {
+          "agent": "Critic",
+          "type": "critique",
+          "stance_summary": "No hallucinations detected; the pLDDT scor",
+          "biochemical_claim": "No hallucinations detected; the pLDDT scores are consistent and reliable."
+        },
+        {
+          "agent": "ConflictResolver",
+          "type": "resolution",
+          "stance_summary": "- **Residue:** E545 - **Mutation:** E545K ",
+          "biochemical_claim": "- **Residue:** E545 - **Mutation:** E545K - **pLDDT at Residue:** 94.1 - **Me..."
+        },
+        {
+          "agent": "Decider",
+          "type": "decision",
+          "stance_summary": "```json {   \"reasoning\": {     \"structure\"",
+          "biochemical_claim": "```json {   \"reasoning\": {     \"structure\": {       \"mechanism\": \"The pLDDT s..."
+        }
+      ],
+      "formatted": "MTB Panel \u2014 PIK3CA E545K (blackboard)\n-------------------------------------\nAgent              | Stance Summary                             | Key Biochemical Claim\n------------------------------------------------------------------------------------------\nPlanner (plan)     | 1. Confirm the presence of PIK3CA E545K mu | 1. Confirm the presence of PIK3CA E545K mutation in the Breast Carcinoma samp...\nStructure (expert) | high pLDDT score of 94.1, indicating a rel | high pLDDT score of 94.1, indicating a reliable prediction.  2. **Analyze the structural i\nMechanism (expert) | rt of the activation loop. The activation  | rt of the activation loop. The activation loop is a critical region for the catalytic activity of PI\nEvidence (expert)  | 1. **CIViC Evidence:**    - **Therapy:** A | 1. **CIViC Evidence:**    - **Therapy:** Alpelisib    - **Disease:** Breast Carcinoma    -\nTherapy (expert)   | [echo trimmed] *    - **Therapy:** Alpelisib    - * | *    - **Therapy:** Alpelisib    - **Disease:** Breast Carcinoma    - **Direction:** Sensitivity/Res\nCritic (critique)  | [echo trimmed] No signs of hallucinated pLDDT score | No signs of hallucinated pLDDT scores.\nConflictResolver (resolution) | [echo trimmed] - **Residue:** E545 - **Mutation:**  | - **Residue:** E545 - **Mutation:** E545K - **pLDDT at Residue:** 94.1 - **Me...\nDecider (decision) | ```json {   \"reasoning\": {     \"structure\" | ```json {   \"reasoning\": {     \"structure\": {       \"mechanism\": \"The pLDDT s..."
+    }
+  },
+  "TP53_R175H": {
+    "gene": "TP53",
+    "mutation": "R175H",
+    "route_by_architecture": {
+      "single": "structural_rescue",
+      "cot": "structural_rescue",
+      "blackboard": "structural_rescue"
+    },
+    "route_agreement": true,
+    "therapy_sensitivity_by_architecture": {
+      "single": [],
+      "cot": [
+        "Genetic testing for TP53 mutations"
+      ],
+      "blackboard": []
+    },
+    "therapy_resistance_by_architecture": {
+      "single": [],
+      "cot": [
+        "No direct pharmacologic inhibitors available"
+      ],
+      "blackboard": []
+    },
+    "therapy_sensitivity_overlap": [],
+    "therapy_sensitivity_union": [
+      "Genetic testing for TP53 mutations"
+    ],
+    "therapy_sensitivity_agreement": false,
+    "therapy_resistance_overlap": [],
+    "therapy_resistance_union": [
+      "No direct pharmacologic inhibitors available"
+    ],
+    "mechanism_by_architecture": {
+      "single": "Structural destabilization of DNA-binding domain.",
+      "cot": "The R175H mutation destabilizes the p53 DNA-binding domain.",
+      "blackboard": "{'summary': \"The R175H mutation in TP53 affects the DNA-binding surface of the protein, specifically in the beta-sandwich core region. The high pLDDT score at the residue (96.6) and the significant local contact density (25) indicate that the mutation has a substantial impact on the protein's structure. The neighboring residues and local contact density suggest that the mutation disrupts critical interactions necessary for the protein's function.\", 'details': {'pLDDT_at_residue': 96.6, 'mean_pLD"
+    },
+    "confidence_by_architecture": {
+      "single": 0.7,
+      "cot": 0.9,
+      "blackboard": {
+        "summary": "The confidence in the structural and clinical evidence is high due to the high pLDDT score at the residue (96.6) and the pathogenic classification by ClinVar. The review status as 'reviewed by expert panel' adds further credibility to the assessment.",
+        "details": {
+          "pLDDT_at_residue": 96.6,
+          "mean_pLDDT_protein": 75.1,
+          "clinvar_classification": "Pathogenic",
+          "review_status": "Reviewed by expert panel"
+        }
+      }
+    },
+    "total_tokens_by_architecture": {
+      "single": 0,
+      "cot": 1295,
+      "blackboard": 37676
+    },
+    "rescue": {
+      "mutant_ddg_kcal_mol": -0.1236295700073242,
+      "destabilizing": false,
+      "fold_method": "boltz+esmfold",
+      "boltz_pdb": "/workspace/shared/rescue/TP53_R175H/boltz/out/boltz_results_input/predictions/input/input_model_0.pdb",
+      "esmfold_pdb": "/workspace/shared/rescue/TP53_R175H/esmfold_candidate.pdb"
+    },
+    "rows": [
+      {
+        "architecture": "single",
+        "route": "structural_rescue",
+        "therapy_sensitivity": [],
+        "therapy_resistance": [],
+        "mechanism_preview": "Structural destabilization of DNA-binding domain.",
+        "confidence": 0.7,
+        "total_tokens": 0
+      },
+      {
+        "architecture": "cot",
+        "route": "structural_rescue",
+        "therapy_sensitivity": [
+          "Genetic testing for TP53 mutations"
+        ],
+        "therapy_resistance": [
+          "No direct pharmacologic inhibitors available"
+        ],
+        "mechanism_preview": "The R175H mutation destabilizes the p53 DNA-binding domain.",
+        "confidence": 0.9,
+        "total_tokens": 1295
+      },
+      {
+        "architecture": "blackboard",
+        "route": "structural_rescue",
+        "therapy_sensitivity": [],
+        "therapy_resistance": [],
+        "mechanism_preview": "{'summary': \"The R175H mutation in TP53 affects the DNA-binding surface of the protein, specifically in the beta-sandwich core region. The high pLDDT score at the residue (96.6) and the significant lo",
+        "confidence": {
+          "summary": "The confidence in the structural and clinical evidence is high due to the high pLDDT score at the residue (96.6) and the pathogenic classification by ClinVar. The review status as 'reviewed by expert panel' adds further credibility to the assessment.",
+          "details": {
+            "pLDDT_at_residue": 96.6,
+            "mean_pLDDT_protein": 75.1,
+            "clinvar_classification": "Pathogenic",
+            "review_status": "Reviewed by expert panel"
+          }
+        },
+        "total_tokens": 37676
+      }
+    ],
+    "mtb_panel": {
+      "gene": "TP53",
+      "mutation": "R175H",
+      "rows": [
+        {
+          "agent": "Planner",
+          "type": "plan",
+          "stance_summary": "1. Confirm the residue and mutation detail",
+          "biochemical_claim": "1. Confirm the residue and mutation details as per the provided structure fea..."
+        },
+        {
+          "agent": "Structure",
+          "type": "expert",
+          "stance_summary": "- pLDDT at residue: 96.6    - Mean pLDDT p",
+          "biochemical_claim": "- pLDDT at residue: 96.6    - Mean pLDDT protein: 75.1    - Neighboring residues within"
+        },
+        {
+          "agent": "Mechanism",
+          "type": "expert",
+          "stance_summary": "[Structure|expert] (Continued)  3. The str",
+          "biochemical_claim": "[Structure|expert] (Continued)  3. The structural impact of the R175H mutatio..."
+        },
+        {
+          "agent": "Evidence",
+          "type": "expert",
+          "stance_summary": "1. **ClinVar Evidence:**    - **Source:** ",
+          "biochemical_claim": "1. **ClinVar Evidence:**    - **Source:** ClinVar    - **Disease:** Li-Fraumeni / pan-canc"
+        },
+        {
+          "agent": "Therapy",
+          "type": "expert",
+          "stance_summary": "#### Residue and Mutation Details - **Resi",
+          "biochemical_claim": "#### Residue and Mutation Details - **Residue:** R175 - **Mutation:** R175H -..."
+        },
+        {
+          "agent": "Critic",
+          "type": "critique",
+          "stance_summary": "Hallucinated Claims:** None identified in ",
+          "biochemical_claim": "Hallucinated Claims:** None identified in the provided evidence."
+        },
+        {
+          "agent": "ConflictResolver",
+          "type": "resolution",
+          "stance_summary": "#### Residue and Mutation Details - **Resi",
+          "biochemical_claim": "#### Residue and Mutation Details - **Residue:** R175 - **Mutation:** R175H -..."
+        },
+        {
+          "agent": "Structure",
+          "type": "expert",
+          "stance_summary": "- **pLDDT at Residue:** 96.6 - **Mean pLDD",
+          "biochemical_claim": "- **pLDDT at Residue:** 96.6 - **Mean pLDDT Protein:** 75.1 - **Neighboring Residues with"
+        },
+        {
+          "agent": "Mechanism",
+          "type": "expert",
+          "stance_summary": "#### Residue and Mutation Details - **Resi",
+          "biochemical_claim": "#### Residue and Mutation Details - **Residue:** R175 - **Mutation:** R175H -..."
+        },
+        {
+          "agent": "Evidence",
+          "type": "expert",
+          "stance_summary": "1. **ClinVar Evidence:**    - **Source:** ",
+          "biochemical_claim": "1. **ClinVar Evidence:**    - **Source:** ClinVar    - **Disease:** Li-Fraumeni / pan-canc"
+        },
+        {
+          "agent": "Therapy",
+          "type": "expert",
+          "stance_summary": "#### Residue and Mutation Details - **Resi",
+          "biochemical_claim": "#### Residue and Mutation Details - **Residue:** R175 - **Mutation:** R175H -..."
+        },
+        {
+          "agent": "Critic",
+          "type": "critique",
+          "stance_summary": "unsupported therapy assertions were identi",
+          "biochemical_claim": "unsupported therapy assertions were identified in the provided evidence."
+        },
+        {
+          "agent": "ConflictResolver",
+          "type": "resolution",
+          "stance_summary": "#### Residue and Mutation Details - **Resi",
+          "biochemical_claim": "#### Residue and Mutation Details - **Residue:** R175 - **Mutation:** R175H -..."
+        },
+        {
+          "agent": "Decider",
+          "type": "decision",
+          "stance_summary": "```json {   \"reasoning\": {     \"mechanism\"",
+          "biochemical_claim": "```json {   \"reasoning\": {     \"mechanism\": {       \"summary\": \"The R175H mut..."
+        }
+      ],
+      "formatted": "MTB Panel \u2014 TP53 R175H (blackboard)\n-----------------------------------\nAgent              | Stance Summary                             | Key Biochemical Claim\n------------------------------------------------------------------------------------------\nPlanner (plan)     | 1. Confirm the residue and mutation detail | 1. Confirm the residue and mutation details as per the provided structure fea...\nStructure (expert) | - pLDDT at residue: 96.6    - Mean pLDDT p | - pLDDT at residue: 96.6    - Mean pLDDT protein: 75.1    - Neighboring residues within\nMechanism (expert) | [Structure|expert] (Continued)  3. The str | [Structure|expert] (Continued)  3. The structural impact of the R175H mutatio...\nEvidence (expert)  | 1. **ClinVar Evidence:**    - **Source:**  | 1. **ClinVar Evidence:**    - **Source:** ClinVar    - **Disease:** Li-Fraumeni / pan-canc\nTherapy (expert)   | [echo trimmed] #### Residue and Mutation Details -  | #### Residue and Mutation Details - **Residue:** R175 - **Mutation:** R175H -...\nCritic (critique)  | [echo trimmed] Hallucinated Claims:** None identifi | Hallucinated Claims:** None identified in the provided evidence.\nConflictResolver (resolution) | [echo trimmed] #### Residue and Mutation Details -  | #### Residue and Mutation Details - **Residue:** R175 - **Mutation:** R175H -...\nDecider (decision) | ```json {   \"reasoning\": {     \"mechanism\" | ```json {   \"reasoning\": {     \"mechanism\": {       \"summary\": \"The R175H mut..."
+    }
+  }
+}

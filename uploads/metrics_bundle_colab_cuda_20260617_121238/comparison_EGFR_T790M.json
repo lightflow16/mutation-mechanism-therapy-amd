@@ -1,0 +1,124 @@
+{
+  "gene": "EGFR",
+  "mutation": "T790M",
+  "route_by_architecture": {
+    "single": "inhibitor_rag",
+    "cot": "inhibitor_rag",
+    "blackboard": "inhibitor_rag"
+  },
+  "route_agreement": true,
+  "therapy_sensitivity_by_architecture": {
+    "single": [
+      "Osimertinib"
+    ],
+    "cot": [
+      "Osimertinib"
+    ],
+    "blackboard": [
+      "Osimertinib"
+    ]
+  },
+  "therapy_resistance_by_architecture": {
+    "single": [
+      "Gefitinib",
+      "Erlotinib",
+      "Afatinib"
+    ],
+    "cot": [
+      "Gefitinib",
+      "Erlotinib",
+      "Afatinib"
+    ],
+    "blackboard": [
+      "Gefitinib",
+      "Erlotinib",
+      "Afatinib"
+    ]
+  },
+  "therapy_sensitivity_overlap": [
+    "Osimertinib"
+  ],
+  "therapy_sensitivity_union": [
+    "Osimertinib"
+  ],
+  "therapy_sensitivity_agreement": true,
+  "therapy_resistance_overlap": [
+    "Afatinib",
+    "Erlotinib",
+    "Gefitinib"
+  ],
+  "therapy_resistance_union": [
+    "Afatinib",
+    "Erlotinib",
+    "Gefitinib"
+  ],
+  "mechanism_by_architecture": {
+    "single": "T790M gatekeeper mutation sterically blocks first- and second-generation EGFR TKIs while retaining sensitivity to third-generation osimertinib.",
+    "cot": "Gatekeeper T790M increases bulk at the ATP pocket, conferring resistance to gefitinib/erlotinib/afatinib; osimertinib retains binding via covalent C797 targeting.",
+    "blackboard": "Blackboard consensus: T790M gatekeeper blocks 1st/2nd gen TKIs; osimertinib recommended for T790M-positive NSCLC."
+  },
+  "confidence_by_architecture": {
+    "single": "0.88",
+    "cot": "0.86",
+    "blackboard": "0.87"
+  },
+  "total_tokens_by_architecture": {
+    "single": 0,
+    "cot": 0,
+    "blackboard": 0
+  },
+  "rescue": null,
+  "rows": [
+    {
+      "architecture": "single",
+      "route": "inhibitor_rag",
+      "therapy_sensitivity": [
+        "Osimertinib"
+      ],
+      "therapy_resistance": [
+        "Gefitinib",
+        "Erlotinib",
+        "Afatinib"
+      ],
+      "mechanism_preview": "T790M gatekeeper mutation sterically blocks first- and second-generation EGFR TKIs while retaining sensitivity to third-generation osimertinib.",
+      "confidence": "0.88",
+      "total_tokens": 0
+    },
+    {
+      "architecture": "cot",
+      "route": "inhibitor_rag",
+      "therapy_sensitivity": [
+        "Osimertinib"
+      ],
+      "therapy_resistance": [
+        "Gefitinib",
+        "Erlotinib",
+        "Afatinib"
+      ],
+      "mechanism_preview": "Gatekeeper T790M increases bulk at the ATP pocket, conferring resistance to gefitinib/erlotinib/afatinib; osimertinib retains binding via covalent C797 targeting.",
+      "confidence": "0.86",
+      "total_tokens": 0
+    },
+    {
+      "architecture": "blackboard",
+      "route": "inhibitor_rag",
+      "therapy_sensitivity": [
+        "Osimertinib"
+      ],
+      "therapy_resistance": [
+        "Gefitinib",
+        "Erlotinib",
+        "Afatinib"
+      ],
+      "mechanism_preview": "Blackboard consensus: T790M gatekeeper blocks 1st/2nd gen TKIs; osimertinib recommended for T790M-positive NSCLC.",
+      "confidence": "0.87",
+      "total_tokens": 0
+    }
+  ],
+  "mtb_panel": {
+    "gene": "EGFR",
+    "mutation": "T790M",
+    "rows": [],
+    "formatted": "MTB Panel \u2014 EGFR T790M (blackboard)\n-----------------------------------\nAgent              | Stance Summary                             | Key Biochemical Claim\n------------------------------------------------------------------------------------------"
+  }
+}

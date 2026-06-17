@@ -1,0 +1,17 @@
+{
+  "run_id": "20260617T121021Z",
+  "n_rows": 40,
+  "proxy_mode": true,
+  "llm_calibration": {
+    "ece": 0.4725,
+    "brier": 0.3712
+  },
+  "mean_plddt_calibration": {
+    "ece": 0.2305,
+    "brier": 0.0558
+  },
+  "auc_pr_llm_confidence": 0.0,
+  "auc_pr_mean_plddt": 0.0,
+  "r_pearson_llm_vs_target_plddt": -0.0969,
+  "rescue_runs": 24
+}

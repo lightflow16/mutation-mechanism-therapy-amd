@@ -1,0 +1,5 @@
+architecture,n_phases,cpu_time_s,gpu_active_s,gpu_attached_s,ingress_tokens,egress_tokens,reasoning_tokens,latency_s
+blackboard,6,297.55,284.7192,284.7191,22592,3056,0,284.7191
+cot,6,342.3,340.6027,340.6027,6719,4602,0,340.6027
+other,20,1318.31,1272.034,1272.61,32869,12020,0,1272.61
+single,12,616.31,658.1776,658.4985,13198,7098,0,658.4985

@@ -1,0 +1,16 @@
+query_id,architecture,n_calls,ingress_tokens,egress_tokens,reasoning_tokens,total_tokens,latency_s,agents
+EGFR_L858R,blackboard,11,5808,892,0,6700,75.79,"ConflictResolver,Critic,CriticRubric,Decider,Evidence,Mechanism,Planner,Structure,Therapy"
+EGFR_L858R,cot,3,3176,2094,363,5633,129.44,CoT
+EGFR_L858R,single,3,3116,2083,0,5199,141.44,SingleAgent
+EGFR_T790M,blackboard,9,6115,699,0,6814,59.34,"ConflictResolver,Critic,CriticRubric,Decider,Evidence,Mechanism,Planner,Structure,Therapy"
+EGFR_T790M,cot,1,1307,848,107,2262,71.36,CoT
+EGFR_T790M,single,1,1287,442,0,1729,37.27,SingleAgent
+PIK3CA_E545K,blackboard,9,5357,749,0,6106,63.3,"ConflictResolver,Critic,CriticRubric,Decider,Evidence,Mechanism,Planner,Structure,Therapy"
+PIK3CA_E545K,cot,1,1154,1024,60,2238,86.11,CoT
+PIK3CA_E545K,debate,3,1779,2181,0,3960,77.29,"DebateCon,DebateJudge,DebatePro"
+PIK3CA_E545K,single,1,1134,475,0,1609,40.06,SingleAgent
+TP53_R175H,blackboard,10,5312,716,0,6028,60.37,"ConflictResolver,Critic,CriticRubric,Decider,Evidence,Mechanism,Planner,Structure,Therapy"
+TP53_R175H,cot,1,1082,636,65,1783,53.18,CoT
+TP53_R175H,single,1,1062,549,0,1611,46.54,SingleAgent
+unknown,blackboard,1,0,0,0,0,0.0,Mechanism
+unknown,safety_probe,2,95,427,0,522,14.87,RefusalCheck

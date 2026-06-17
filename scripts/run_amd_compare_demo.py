@@ -15,7 +15,13 @@ from src.metrics_bundle import compare_platform_bundles
 
 def _default_colab_bundle() -> Path | None:
     candidates = [
+        # Colab bundle committed to repo under uploads/ (git pull to get it)
+        ROOT / "uploads" / "metrics_bundle_colab_cuda_20260617_121238",
+        # Legacy backups paths
         ROOT.parent / "backups" / "colab_artifacts_20260616_045708" / "metrics_bundle_colab_cuda_20260615_231801",
+        # Any bundle placed manually under ../backups/colab_artifacts_*/
+        *(sorted((ROOT.parent / "backups").glob("colab_artifacts_*/metrics_bundle_*"))
+          if (ROOT.parent / "backups").is_dir() else []),
         ROOT / "metrics" / "local",
     ]
     for p in candidates:

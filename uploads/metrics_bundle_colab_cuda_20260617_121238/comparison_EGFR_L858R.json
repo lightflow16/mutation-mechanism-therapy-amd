@@ -1,0 +1,180 @@
+{
+  "gene": "EGFR",
+  "mutation": "L858R",
+  "route_by_architecture": {
+    "single": "inhibitor_rag",
+    "cot": "inhibitor_rag",
+    "blackboard": "inhibitor_rag"
+  },
+  "route_agreement": true,
+  "therapy_sensitivity_by_architecture": {
+    "single": [
+      "Osimertinib"
+    ],
+    "cot": [
+      "Gefitinib",
+      "Erlotinib",
+      "Afatinib",
+      "Osimertinib"
+    ],
+    "blackboard": []
+  },
+  "therapy_resistance_by_architecture": {
+    "single": [],
+    "cot": [],
+    "blackboard": []
+  },
+  "therapy_sensitivity_overlap": [],
+  "therapy_sensitivity_union": [
+    "Afatinib",
+    "Erlotinib",
+    "Gefitinib",
+    "Osimertinib"
+  ],
+  "therapy_sensitivity_agreement": false,
+  "therapy_resistance_overlap": [],
+  "therapy_resistance_union": [],
+  "mechanism_by_architecture": {
+    "single": "",
+    "cot": "The L858R mutation in EGFR leads to constitutive activation of the receptor, promoting uncontrolled cell growth and proliferation. This mutation is particularly sensitive to tyrosine kinase inhibitors (TKIs) that target the mutated EGFR.",
+    "blackboard": ""
+  },
+  "confidence_by_architecture": {
+    "single": "0.700",
+    "cot": "0.9",
+    "blackboard": null
+  },
+  "total_tokens_by_architecture": {
+    "single": 0,
+    "cot": 1248,
+    "blackboard": 35672
+  },
+  "rescue": null,
+  "rows": [
+    {
+      "architecture": "single",
+      "route": "inhibitor_rag",
+      "therapy_sensitivity": [
+        "Osimertinib"
+      ],
+      "therapy_resistance": [],
+      "mechanism_preview": "",
+      "confidence": "0.700",
+      "total_tokens": 0
+    },
+    {
+      "architecture": "cot",
+      "route": "inhibitor_rag",
+      "therapy_sensitivity": [
+        "Gefitinib",
+        "Erlotinib",
+        "Afatinib",
+        "Osimertinib"
+      ],
+      "therapy_resistance": [],
+      "mechanism_preview": "The L858R mutation in EGFR leads to constitutive activation of the receptor, promoting uncontrolled cell growth and proliferation. This mutation is particularly sensitive to tyrosine kinase inhibitors",
+      "confidence": "0.9",
+      "total_tokens": 1248
+    },
+    {
+      "architecture": "blackboard",
+      "route": "inhibitor_rag",
+      "therapy_sensitivity": [],
+      "therapy_resistance": [],
+      "mechanism_preview": "",
+      "confidence": null,
+      "total_tokens": 35672
+    }
+  ],
+  "mtb_panel": {
+    "gene": "EGFR",
+    "mutation": "L858R",
+    "rows": [
+      {
+        "agent": "Planner",
+        "type": "plan",
+        "stance_summary": "1. Confirm the mutation details and its lo",
+        "biochemical_claim": "1. Confirm the mutation details and its location within the EGFR protein. 2. ..."
+      },
+      {
+        "agent": "Structure",
+        "type": "expert",
+        "stance_summary": "The pLDDT score at residue 858 is 51.2, in",
+        "biochemical_claim": "The pLDDT score at residue 858 is 51.2, indicating moderate confidence in the model's pre"
+      },
+      {
+        "agent": "Mechanism",
+        "type": "expert",
+        "stance_summary": "signaling pathways. It has several domains",
+        "biochemical_claim": "signaling pathways. It has several domains, including the extracellular domain, the transmembrane do"
+      },
+      {
+        "agent": "Evidence",
+        "type": "expert",
+        "stance_summary": "nib (CIViC, B-level evidence, Lim et al., ",
+        "biochemical_claim": "nib (CIViC, B-level evidence, Lim et al., 2014; PubMed, Lim et al., 2014) - **Resistance t"
+      },
+      {
+        "agent": "Therapy",
+        "type": "expert",
+        "stance_summary": "inib, Afatinib, and Osimertinib (CIViC, B-",
+        "biochemical_claim": "inib, Afatinib, and Osimertinib (CIViC, B-level evidence, Lim et al., 2014; PubMed, Lim et al., 2014"
+      },
+      {
+        "agent": "Critic",
+        "type": "critique",
+        "stance_summary": "Hallucinated Claims and Evidence Check  1.",
+        "biochemical_claim": "Hallucinated Claims and Evidence Check  1."
+      },
+      {
+        "agent": "ConflictResolver",
+        "type": "resolution",
+        "stance_summary": "#### 1. **Mutation Details and Location** ",
+        "biochemical_claim": "#### 1. **Mutation Details and Location** - **Residue**: L858R - **Location**..."
+      },
+      {
+        "agent": "Structure",
+        "type": "expert",
+        "stance_summary": "- **pLDDT at Residue**: 51.2 - **Mean pLDD",
+        "biochemical_claim": "- **pLDDT at Residue**: 51.2 - **Mean pLDDT Protein**: 75.9 - **Neighboring Residues With"
+      },
+      {
+        "agent": "Mechanism",
+        "type": "expert",
+        "stance_summary": "eading to constitutive activation of the r",
+        "biochemical_claim": "eading to constitutive activation of the receptor. This constitutive activation can result in contin"
+      },
+      {
+        "agent": "Evidence",
+        "type": "expert",
+        "stance_summary": "nib (CIViC, B-level evidence, Lim et al., ",
+        "biochemical_claim": "nib (CIViC, B-level evidence, Lim et al., 2014; PubMed, Lim et al., 2014) - **Resistance t"
+      },
+      {
+        "agent": "Therapy",
+        "type": "expert",
+        "stance_summary": "inib, Afatinib, and Osimertinib (CIViC, B-",
+        "biochemical_claim": "inib, Afatinib, and Osimertinib (CIViC, B-level evidence, Lim et al., 2014; PubMed, Lim et al., 2014"
+      },
+      {
+        "agent": "Critic",
+        "type": "critique",
+        "stance_summary": "No hallucinated pLDDT claims were found.",
+        "biochemical_claim": "No hallucinated pLDDT claims were found."
+      },
+      {
+        "agent": "ConflictResolver",
+        "type": "resolution",
+        "stance_summary": "#### 1. **Mutation Details and Location** ",
+        "biochemical_claim": "#### 1. **Mutation Details and Location** - **Residue**: L858R - **Location**..."
+      },
+      {
+        "agent": "Decider",
+        "type": "decision",
+        "stance_summary": "```json {   \"reasoning\": {     \"mechanism\"",
+        "biochemical_claim": "```json {   \"reasoning\": {     \"mechanism\": {       \"summary\": \"The L858R mut..."
+      }
+    ],
+    "formatted": "MTB Panel \u2014 EGFR L858R (blackboard)\n-----------------------------------\nAgent              | Stance Summary                             | Key Biochemical Claim\n------------------------------------------------------------------------------------------\nPlanner (plan)     | 1. Confirm the mutation details and its lo | 1. Confirm the mutation details and its location within the EGFR protein. 2. ...\nStructure (expert) | The pLDDT score at residue 858 is 51.2, in | The pLDDT score at residue 858 is 51.2, indicating moderate confidence in the model's pre\nMechanism (expert) | signaling pathways. It has several domains | signaling pathways. It has several domains, including the extracellular domain, the transmembrane do\nEvidence (expert)  | nib (CIViC, B-level evidence, Lim et al.,  | nib (CIViC, B-level evidence, Lim et al., 2014; PubMed, Lim et al., 2014) - **Resistance t\nTherapy (expert)   | [echo trimmed] inib, Afatinib, and Osimertinib (CIV | inib, Afatinib, and Osimertinib (CIViC, B-level evidence, Lim et al., 2014; PubMed, Lim et al., 2014\nCritic (critique)  | [echo trimmed] Hallucinated Claims and Evidence Che | Hallucinated Claims and Evidence Check  1.\nConflictResolver (resolution) | [echo trimmed] #### 1. **Mutation Details and Locat | #### 1. **Mutation Details and Location** - **Residue**: L858R - **Location**...\nDecider (decision) | ```json {   \"reasoning\": {     \"mechanism\" | ```json {   \"reasoning\": {     \"mechanism\": {       \"summary\": \"The L858R mut..."
+  }
+}
